@@ -1,0 +1,59 @@
+{
+  "timetable": {
+    "trips": [
+      {
+        "id": "1",
+        "from": "Москва",
+        "to": "Санкт-Петербург",
+        "departureTime": "08:00",
+        "arrivalTime": "16:30",
+        "price": 2500,
+        "carrier": "Газпромтранс",
+        "status": "ontime",
+        "type": "bus",
+        "stops": 3,
+        "freeSeats": 12
+      }
+    ]
+  },
+  "vehicles": [
+    {
+      "id": "v1",
+      "number": "А123БВ",
+      "type": "bus",
+      "route": "101А",
+      "driver": "Иванов П.С.",
+      "status": "in_transit",
+      "coordinates": [55.7558, 37.6173],
+      "lastUpdate": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "routes": [
+    {
+      "id": "r1",
+      "number": "101А",
+      "name": "Москва - СПб",
+      "stops": ["Москва (Центральный)", "Тверь", "Вышний Волочек", "СПб (Автово)"],
+      "schedule": ["08:00", "14:00", "22:00"],
+      "duration": "8h 30m",
+      "active": true
+    }
+  ],
+  "drivers": [
+    {
+      "id": "d1",
+      "name": "Иванов Петр Сергеевич",
+      "license": "AB123456",
+      "status": "active",
+      "vehicle": "А123БВ",
+      "route": "101А",
+      "shift": "08:00-20:00"
+    }
+  ],
+  "analytics": {
+    "dailyPassengers": 27400,
+    "occupancyRate": 68,
+    "revenue": 3200000,
+    "peakHours": ["08:00", "18:00"]
+  }
+}

@@ -1,0 +1,143 @@
+[
+  {
+    "title": "Обзор",
+    "items": [
+      { "label": "Дашборд", "href": "/demo/admin/dashboard", "icon": "layout-dashboard" }
+    ]
+  },
+  {
+    "title": "Коммерция",
+    "items": [
+      {
+        "label": "Магазин",
+        "href": "/demo/admin/shop",
+        "icon": "store",
+        "children": [
+          { "label": "Товары", "href": "/demo/admin/shop/products" },
+          { "label": "Категории", "href": "/demo/admin/shop/categories" },
+          { "label": "Заказы", "href": "/demo/admin/orders" }
+        ]
+      },
+      {
+        "label": "Услуги",
+        "href": "/demo/admin/services",
+        "icon": "briefcase",
+        "children": [
+          { "label": "Прайс-лист", "href": "/demo/admin/services/pricing" },
+          { "label": "Категории услуг", "href": "/demo/admin/services/categories" },
+          { "label": "Пакеты", "href": "/demo/admin/services/bundles" }
+        ]
+      },
+      {
+        "label": "Бронирование",
+        "href": "/demo/admin/booking",
+        "icon": "calendar-days",
+        "children": [
+          { "label": "Расписания", "href": "/demo/admin/booking/schedules" },
+          { "label": "Политики", "href": "/demo/admin/booking/policies" },
+          { "label": "Календарь", "href": "/demo/admin/calendar" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "CRM",
+    "items": [
+      {
+        "label": "CRM",
+        "href": "/demo/admin/crm",
+        "icon": "users-2",
+        "children": [
+          { "label": "Клиенты", "href": "/demo/admin/crm/clients" },
+          { "label": "Источники / воронки", "href": "/demo/admin/crm/pipelines" },
+          { "label": "Сегменты", "href": "/demo/admin/crm/segments" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Финансы",
+    "items": [
+      {
+        "label": "Платежи",
+        "href": "/demo/admin/payments",
+        "icon": "credit-card",
+        "children": [
+          { "label": "Провайдеры", "href": "/demo/admin/payments/providers" },
+          { "label": "Тарифы/комиссии", "href": "/demo/admin/payments/fees" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Отчёты",
+    "items": [
+      {
+        "label": "Аналитика",
+        "href": "/demo/admin/reports",
+        "icon": "chart-spline",
+        "children": [
+          { "label": "Продажи и выручка", "href": "/demo/admin/reports/sales" },
+          { "label": "Бронирования", "href": "/demo/admin/reports/booking" },
+          { "label": "CRM-конверсия", "href": "/demo/admin/reports/crm" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Управление доступом",
+    "items": [
+      {
+        "label": "Пользователи и роли",
+        "href": "/demo/admin/users",
+        "icon": "shield",
+        "children": [
+          { "label": "Пользователи", "href": "/demo/admin/users/list" },
+          { "label": "Роли", "href": "/demo/admin/users/roles" },
+          { "label": "Права", "href": "/demo/admin/users/permissions" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Интеграции",
+    "items": [
+      {
+        "label": "Интеграции",
+        "href": "/demo/admin/integrations",
+        "icon": "plug",
+        "children": [
+          { "label": "Каналы", "href": "/demo/admin/integrations/channels" },
+          { "label": "Вебхуки", "href": "/demo/admin/integrations/webhooks" },
+          { "label": "Каталог", "href": "/demo/admin/integrations/catalog" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Система",
+    "items": [
+      {
+        "label": "Настройки",
+        "href": "/demo/admin/settings",
+        "icon": "settings",
+        "children": [
+          { "label": "Бизнес", "href": "/demo/admin/settings/business" },
+          { "label": "Налоги", "href": "/demo/admin/settings/taxes" },
+          { "label": "Валюта/форматы", "href": "/demo/admin/settings/currency" },
+          { "label": "Брендинг", "href": "/demo/admin/settings/branding" }
+        ]
+      },
+      {
+        "label": "Аудит и здоровье",
+        "href": "/demo/admin/audit",
+        "icon": "shield-check",
+        "children": [
+          { "label": "Журнал", "href": "/demo/admin/audit/logs" },
+          { "label": "Состояние", "href": "/demo/admin/audit/health" }
+        ]
+      }
+    ]
+  },
+  { "title": "Сессия", "items": [{ "label": "Выход", "href": "/demo/admin/login", "icon": "log-out" }] }
+]

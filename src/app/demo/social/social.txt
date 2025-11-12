@@ -1,152 +1,23 @@
 .
 ├── config.ts
-├── constants.ts
-├── hooks.ts
 ├── manager
-│   ├── components
-│   │   └── BentoCard.tsx
-│   ├── demo-data.ts
 │   ├── layout.tsx
 │   ├── modules
-│   │   ├── citizens
-│   │   │   └── page.tsx
-│   │   ├── daily
-│   │   │   └── page.tsx
-│   │   ├── profile
-│   │   │   ├── page.tsx
-│   │   │   ├── settings
-│   │   │   │   └── page.tsx
-│   │   │   └── task
-│   │   │       └── page.tsx
-│   │   ├── requests
-│   │   │   └── page.tsx
-│   │   ├── services
-│   │   │   └── page.tsx
-│   │   └── volunteers
+│   │   └── [...slug]
 │   │       └── page.tsx
 │   └── page.tsx
 ├── owner
-│   ├── components
-│   │   └── BentoCard.tsx
 │   ├── layout.tsx
 │   ├── modules
-│   │   ├── analytics
-│   │   │   ├── activity
-│   │   │   │   └── page.tsx
-│   │   │   ├── advanced
-│   │   │   │   └── page.tsx
-│   │   │   ├── bounce-rate
-│   │   │   │   └── page.tsx
-│   │   │   ├── conversion
-│   │   │   │   └── page.tsx
-│   │   │   ├── engagement
-│   │   │   │   └── page.tsx
-│   │   │   ├── export
-│   │   │   │   └── page.tsx
-│   │   │   ├── metrics
-│   │   │   │   └── page.tsx
-│   │   │   ├── page.tsx
-│   │   │   ├── reports
-│   │   │   │   ├── daily
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── financial
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── history
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── page.tsx
-│   │   │   │   ├── users
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── weekly
-│   │   │   │       └── page.tsx
-│   │   │   ├── revenue
-│   │   │   │   └── page.tsx
-│   │   │   └── users
-│   │   │       └── page.tsx
-│   │   ├── clients
-│   │   │   └── page.tsx
-│   │   ├── community
-│   │   │   └── page.tsx
-│   │   ├── finance
-│   │   │   └── page.tsx
-│   │   ├── organization
-│   │   │   ├── page.tsx
-│   │   │   ├── partnerships
-│   │   │   │   └── page.tsx
-│   │   │   └── structure
-│   │   │       └── page.tsx
-│   │   ├── personnel
-│   │   │   └── page.tsx
-│   │   ├── profile
-│   │   │   └── page.tsx
-│   │   ├── quality
-│   │   │   └── page.tsx
-│   │   ├── reporting
-│   │   │   └── page.tsx
-│   │   ├── services
-│   │   │   └── page.tsx
-│   │   ├── settings
-│   │   │   └── page.tsx
-│   │   ├── staff
-│   │   │   ├── page.tsx
-│   │   │   ├── performance
-│   │   │   │   └── page.tsx
-│   │   │   ├── schedules
-│   │   │   │   ├── bulk
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── new
-│   │   │   │   │   └── page.tsx
-│   │   │   │   ├── page.tsx
-│   │   │   │   └── replacement
-│   │   │   │       └── page.tsx
-│   │   │   ├── time-off
-│   │   │   │   └── page.tsx
-│   │   │   └── workload
-│   │   │       └── page.tsx
-│   │   └── users
-│   │       ├── active
-│   │       ├── advanced
-│   │       ├── all
-│   │       ├── analytics
-│   │       ├── assignments
-│   │       ├── blocked
-│   │       ├── bulk
-│   │       ├── citizens
-│   │       ├── create
-│   │       ├── curators
-│   │       ├── import
-│   │       ├── inactive
-│   │       ├── management
-│   │       ├── new
-│   │       ├── page.tsx
-│   │       ├── retention
-│   │       ├── roles
-│   │       └── volunteers
+│   │   └── [...slug]
+│   │       └── page.tsx
 │   └── page.tsx
 ├── page.tsx
 ├── social.txt
 ├── types.ts
 └── user
-    ├── components
-    │   └── BentoCard.tsx
-    ├── demo-data.ts
     ├── layout.tsx
     ├── modules
-    │   ├── benefits
-    │   │   └── page.tsx
-    │   ├── documents
-    │   │   └── page.tsx
-    │   ├── profile
-    │   │   ├── notifications
-    │   │   │   └── page.tsx
-    │   │   ├── page.tsx
-    │   │   └── personal
-    │   │       └── page.tsx
-    │   ├── requests
-    │   │   └── page.tsx
-    │   ├── services
-    │   │   └── page.tsx
-    │   └── support
+    │   └── [...slug]
     │       └── page.tsx
     └── page.tsx
-
-80 directories, 70 files

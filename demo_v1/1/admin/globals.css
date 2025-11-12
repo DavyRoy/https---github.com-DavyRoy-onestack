@@ -1,0 +1,52 @@
+/* app/demo/global.css */
+
+/* --- Печать A4 и белый фон --- */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  :root { color-scheme: light; }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Скрываем всё, что помечено как "только экран" */
+  .no-print { display: none !important; }
+
+  /* Бумага и всё внутри — чёрный текст, без теней/подложек */
+  .paper {
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    border-color: #0002 !important;
+  }
+  .paper * {
+    color: #000 !important;
+    background: transparent !important;
+  }
+
+  /* Чтобы tfoot/thead нормально повторялись между страницами */
+  table { page-break-inside: auto; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+
+  /* Подавляем тёмные utility-классы Tailwind при печати */
+  .bg-white\/\[0\.05\], .bg-white\/\[0\.04\], .bg-white\/5, .bg-white\/10, .bg-black\/60, .backdrop-blur-md, .backdrop-blur-sm {
+    background: transparent !important;
+    backdrop-filter: none !important;
+  }
+  .border-white\/15, .border-white\/10, .border-white\/5, .border-white\/20 {
+    border-color: #0003 !important;
+  }
+
+  /* Корректная передача цветов в печать */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

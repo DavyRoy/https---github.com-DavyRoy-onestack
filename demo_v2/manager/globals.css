@@ -1,0 +1,271 @@
+/* app/demo/global.css */
+
+/* ==========================================================================
+   Base admin theme
+   ========================================================================== */
+:root {
+  --admin-shell-bg: #050911;
+  --admin-shell-gradient: radial-gradient(120% 140% at 10% -10%, rgba(58, 99, 255, 0.18), transparent),
+    radial-gradient(200% 120% at 90% 10%, rgba(109, 84, 255, 0.22), transparent),
+    radial-gradient(140% 120% at 50% 100%, rgba(11, 208, 255, 0.15), transparent);
+  --admin-surface: rgba(255, 255, 255, 0.06);
+  --admin-surface-hover: rgba(255, 255, 255, 0.1);
+  --admin-border: rgba(255, 255, 255, 0.12);
+  --admin-border-soft: rgba(255, 255, 255, 0.08);
+  --admin-muted: rgba(236, 240, 255, 0.64);
+  --admin-muted-soft: rgba(236, 240, 255, 0.48);
+  --admin-bright: rgba(255, 255, 255, 0.92);
+  --admin-shadow: 0 20px 60px -40px rgba(8, 12, 40, 0.7);
+}
+
+.admin-shell {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(160deg, rgba(5, 9, 18, 0.88), rgba(5, 9, 32, 0.92)),
+    var(--admin-shell-gradient);
+  background-color: var(--admin-shell-bg);
+  color: var(--admin-bright);
+  overflow-x: hidden;
+  isolation: isolate;
+}
+
+.admin-shell::before,
+.admin-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.admin-shell::before {
+  background: radial-gradient(80% 80% at 0% 0%, rgba(84, 112, 255, 0.35), transparent 55%);
+  mix-blend-mode: screen;
+  opacity: 0.65;
+}
+
+.admin-shell::after {
+  background: radial-gradient(70% 60% at 100% 20%, rgba(15, 218, 255, 0.35), transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0.4;
+}
+
+.admin-shell a {
+  color: inherit;
+}
+
+.admin-shell .admin-surface {
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 1.25rem;
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-shell .admin-surface-bleed {
+  background: color-mix(in srgb, var(--admin-surface) 82%, transparent);
+  border: 1px solid var(--admin-border-soft);
+  border-radius: 1.25rem;
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-shell .admin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid var(--admin-border-soft);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--admin-muted);
+}
+
+.admin-shell .admin-text-muted {
+  color: var(--admin-muted);
+}
+
+.admin-shell .admin-text-soft {
+  color: var(--admin-muted-soft);
+}
+
+.admin-shell .admin-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.14), transparent);
+}
+
+.admin-shell .admin-glass {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 24px 60px -45px rgba(12, 15, 35, 0.9);
+}
+
+@supports (backdrop-filter: blur(12px)) {
+  .admin-shell .admin-surface,
+  .admin-shell .admin-surface-bleed,
+  .admin-shell .admin-glass {
+    backdrop-filter: blur(16px);
+  }
+}
+
+.admin-shell .admin-page {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.admin-shell .admin-section {
+  display: grid;
+  gap: 1rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 1.2rem;
+  padding: 1.25rem;
+}
+
+.admin-shell .admin-section:hover {
+  background: var(--admin-surface-hover);
+}
+
+.admin-shell .admin-heading {
+  font-size: clamp(1.2rem, 2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--admin-bright);
+}
+
+.admin-shell .admin-subheading {
+  font-size: clamp(0.9rem, 1.6vw, 1.05rem);
+  color: var(--admin-muted);
+  max-width: 60ch;
+}
+
+.admin-shell .admin-grid-auto {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .admin-shell .admin-grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+.admin-shell :is(button, a, .btn).bg-white,
+.admin-shell :is(button, a, .btn).bg-white\/90,
+.admin-shell :is(button, a, .btn).bg-white\/80,
+.admin-shell :is(button, a, .btn).bg-white\/75,
+.admin-shell :is(button, a, .btn).bg-white\/70,
+.admin-shell :is(button, a, .btn).bg-white\/60,
+.admin-shell :is(button, a, .btn).bg-white\/\[0\.95\],
+.admin-shell :is(button, a, .btn).bg-white\/\[0\.9\],
+.admin-shell :is(button, a, .btn).bg-white\/\[0\.85\],
+.admin-shell :is(button, a, .btn).bg-white\/\[0\.8\],
+.admin-shell :is(button, a, .btn).bg-white\/\[0\.75\],
+.admin-shell :is(button, a, .btn).bg-white\/\[0\.7\],
+.admin-shell :is(button, a, .btn).bg-white\/\[0\.65\],
+.admin-shell :is(button, a, .btn).bg-white\/\[0\.6\] {
+  color: #050505 !important;
+}
+
+.admin-shell .bg-white,
+.admin-shell .bg-white\/90,
+.admin-shell .bg-white\/80,
+.admin-shell .bg-white\/\[0\.95\] {
+  color: #050505 !important;
+}
+
+.admin-shell .border-white\/20,
+.admin-shell .border-white\/18,
+.admin-shell .border-white\/15,
+.admin-shell .border-white\/12,
+.admin-shell .border-white\/10 {
+  border-color: color-mix(in srgb, rgba(255, 255, 255, 0.7) 18%, transparent) !important;
+}
+
+.admin-shell .bg-white\/\[0\.05\],
+.admin-shell .bg-white\/\[0\.06\],
+.admin-shell .bg-white\/\[0\.08\],
+.admin-shell .bg-white\/\[0\.1\],
+.admin-shell .bg-white\/10,
+.admin-shell .bg-white\/8,
+.admin-shell .bg-white\/6,
+.admin-shell .bg-white\/5 {
+  background-color: color-mix(in srgb, rgba(255, 255, 255, 0.92) 9%, transparent) !important;
+}
+
+.admin-shell .hover\:bg-white\/15:hover,
+.admin-shell .hover\:bg-white\/14:hover,
+.admin-shell .hover\:bg-white\/12:hover,
+.admin-shell .hover\:bg-white\/10:hover {
+  background-color: color-mix(in srgb, rgba(255, 255, 255, 0.92) 14%, transparent) !important;
+}
+
+.admin-shell .hover\:border-white\/15:hover,
+.admin-shell .hover\:border-white\/18:hover {
+  border-color: color-mix(in srgb, rgba(255, 255, 255, 0.7) 26%, transparent) !important;
+}
+
+.admin-shell .shadow-soft {
+  box-shadow: var(--admin-shadow);
+}
+
+.admin-shell .card-grid {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+/* --- Печать A4 и белый фон --- */
+@page {
+  size: A4;
+  margin: 12mm;
+}
+
+@media print {
+  :root { color-scheme: light; }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Скрываем всё, что помечено как "только экран" */
+  .no-print { display: none !important; }
+
+  /* Бумага и всё внутри — чёрный текст, без теней/подложек */
+  .paper {
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    border-color: #0002 !important;
+  }
+  .paper * {
+    color: #000 !important;
+    background: transparent !important;
+  }
+
+  /* Чтобы tfoot/thead нормально повторялись между страницами */
+  table { page-break-inside: auto; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+  tr { page-break-inside: avoid; page-break-after: auto; }
+
+  /* Подавляем тёмные utility-классы Tailwind при печати */
+  .bg-white\/\[0\.05\], .bg-white\/\[0\.04\], .bg-white\/5, .bg-white\/10, .bg-black\/60, .backdrop-blur-md, .backdrop-blur-sm {
+    background: transparent !important;
+    backdrop-filter: none !important;
+  }
+  .border-white\/15, .border-white\/10, .border-white\/5, .border-white\/20 {
+    border-color: #0003 !important;
+  }
+
+  /* Корректная передача цветов в печать */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

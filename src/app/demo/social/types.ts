@@ -1,6 +1,7 @@
 import type { ElementType } from 'react';
 
 export type RoleId = 'user' | 'manager' | 'owner';
+export type Trend = 'up' | 'down' | 'stable';
 
 export type KPI = { 
   label: string; 
@@ -155,3 +156,108 @@ export type Action =
   | { type: 'OPEN_TEAM_MEMBER'; payload: TeamMember }
   | { type: 'OPEN_VIDEO'; payload: { url: string; title: string } };
 import type React from 'react';
+
+export interface ModuleHeroAction {
+  label: string;
+  href?: string;
+  icon?: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+}
+
+export interface ModuleHeroStat {
+  label: string;
+  value: string;
+  change?: number;
+  trend?: Trend;
+}
+
+export interface ModuleHero {
+  badge: string;
+  title: string;
+  description: string;
+  metadata: Array<{ label: string; value: string }>;
+  stats: ModuleHeroStat[];
+  actions: ModuleHeroAction[];
+}
+
+export interface ModuleMetric {
+  id: string;
+  label: string;
+  value: string;
+  change: number;
+  trend: Trend;
+  hint: string;
+  target?: string;
+}
+
+export interface ModuleTable {
+  title: string;
+  subtitle: string;
+  columns: string[];
+  rows: Array<Record<string, string>>;
+  footnote?: string;
+}
+
+export interface ModuleTimelineItem {
+  id: string;
+  time: string;
+  title: string;
+  description: string;
+  owner: string;
+  status: 'done' | 'in_progress' | 'planned';
+}
+
+export interface ModuleUpdate {
+  id: string;
+  title: string;
+  channel: string;
+  timestamp: string;
+  owner: string;
+  summary: string;
+}
+
+export interface ModuleInsight {
+  id: string;
+  title: string;
+  value: string;
+  change: number;
+  trend: Trend;
+  description: string;
+}
+
+export interface ModuleResource {
+  id: string;
+  label: string;
+  type: string;
+  updated: string;
+  href?: string;
+}
+
+export interface ModuleContact {
+  owner: string;
+  role: string;
+  email: string;
+  phone: string;
+  shift: string;
+  responseTime: string;
+  avatar: string;
+}
+
+export interface ModuleContent {
+  id: string;
+  role: RoleId;
+  slug: string[];
+  title: string;
+  category: string;
+  icon: string;
+  hero: ModuleHero;
+  metrics: ModuleMetric[];
+  table: ModuleTable;
+  timeline: ModuleTimelineItem[];
+  updates: ModuleUpdate[];
+  insights: ModuleInsight[];
+  resources: ModuleResource[];
+  contact: ModuleContact;
+  status: 'stable' | 'beta' | 'internal';
+  tags: string[];
+}

@@ -1,0 +1,58 @@
+{
+  "bookings": [
+    {
+      "id": "1",
+      "serviceId": "1",
+      "customerName": "Иван Петров",
+      "customerPhone": "+7 999 123-45-67",
+      "customerEmail": "ivan@example.com",
+      "date": "2024-11-15",
+      "time": "14:00",
+      "status": "confirmed",
+      "price": 1500,
+      "employeeId": "1"
+    }
+  ],
+  "services": [
+    {
+      "id": "1",
+      "name": "Стрижка мужская",
+      "category": "Парикмахерская",
+      "price": 1500,
+      "duration": 60,
+      "description": "Классическая мужская стрижка с укладкой",
+      "available": true
+    }
+  ],
+  "employees": [
+    {
+      "id": "1",
+      "name": "Анна Смирнова",
+      "position": "Старший барбер",
+      "services": ["1", "2"],
+      "schedule": ["mon", "tue", "wed", "thu", "fri"]
+    }
+  ],
+  "inventory": [
+    {
+      "id": "1",
+      "name": "Шампунь профессиональный",
+      "category": "Расходники",
+      "currentStock": 12,
+      "minStock": 5,
+      "price": 850,
+      "supplier": "BeautyPro"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "1",
+      "serviceId": "1",
+      "customerName": "Иван Петров",
+      "rating": 5,
+      "comment": "Отличный сервис, мастер - профессионал!",
+      "status": "published",
+      "createdAt": "2024-11-10T14:30:00Z"
+    }
+  ]
+}

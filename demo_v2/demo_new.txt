@@ -1,0 +1,1035 @@
+.
+├── (shared)
+│   ├── audit
+│   │   ├── health.ts
+│   │   └── logs.ts
+│   ├── booking
+│   │   └── index.ts
+│   ├── components
+│   │   ├── EmptyState.tsx
+│   │   └── icon-loader.tsx
+│   ├── crm
+│   │   ├── data
+│   │   │   ├── clients.demo.ts
+│   │   │   ├── managers.demo.ts
+│   │   │   └── pipelines.demo.ts
+│   │   ├── filters.ts
+│   │   ├── hooks
+│   │   │   └── useCRM.ts
+│   │   ├── index.ts
+│   │   └── types.ts
+│   ├── data
+│   │   ├── catalog
+│   │   │   ├── categories.food.ts
+│   │   │   ├── index.ts
+│   │   │   └── products.food.ts
+│   │   └── services
+│   │       └── index.ts
+│   ├── hooks
+│   │   └── useCatalog.ts
+│   ├── integrations
+│   │   ├── data
+│   │   │   ├── mockAdminIntegrationsCatalog.ts
+│   │   │   ├── mockAdminIntegrationsChannels.ts
+│   │   │   └── mockAdminIntegrationsWebhooks.ts
+│   │   └── hooks
+│   │       └── useIntegrationsStore.ts
+│   ├── payments
+│   │   ├── data
+│   │   │   ├── mockAdminPayments.ts
+│   │   │   └── mockAdminPaymentsMetrics.ts
+│   │   ├── hooks
+│   │   │   └── usePayments.ts
+│   │   └── index.ts
+│   ├── reports
+│   │   ├── analytics
+│   │   │   └── index.ts
+│   │   ├── crm
+│   │   │   └── index.ts
+│   │   └── sales
+│   │       └── index.ts
+│   └── users
+│       ├── data
+│       │   └── index.ts
+│       └── roles
+│           ├── index.ts
+│           └── roles.ts
+├── admin
+│   ├── audit
+│   │   ├── components
+│   │   │   ├── AuditHero.tsx
+│   │   │   ├── AuditStats.tsx
+│   │   │   ├── HealthHeader.tsx
+│   │   │   ├── IncidentsTable.tsx
+│   │   │   ├── LinkedObjects.tsx
+│   │   │   ├── LogDiff.tsx
+│   │   │   ├── LogMeta.tsx
+│   │   │   ├── LogsFiltersBar.tsx
+│   │   │   ├── LogsTable.tsx
+│   │   │   ├── ProvidersHealthTable.tsx
+│   │   │   ├── QuickActions.tsx
+│   │   │   ├── SloTiles.tsx
+│   │   │   ├── WebhooksDeliveryStats.tsx
+│   │   │   └── index.ts
+│   │   ├── data
+│   │   │   ├── mockAuditHealth.ts
+│   │   │   └── mockAuditLogs.ts
+│   │   ├── health
+│   │   │   └── page.tsx
+│   │   ├── logs
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── booking
+│   │   ├── components
+│   │   │   ├── BookingHero.tsx
+│   │   │   ├── BookingStats.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── ExceptionModal.tsx
+│   │   │   ├── Legend.tsx
+│   │   │   ├── PoliciesForm.tsx
+│   │   │   ├── QuickActions.tsx
+│   │   │   ├── ResourceForm.tsx
+│   │   │   ├── SchedulesHeader.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── SlotTemplateModal.tsx
+│   │   │   ├── WeekGrid.tsx
+│   │   │   └── grid
+│   │   │       ├── ConflictsPanel.tsx
+│   │   │       ├── ExceptionBlock.tsx
+│   │   │       ├── ReservationBadge.tsx
+│   │   │       └── TemplateBlock.tsx
+│   │   ├── data
+│   │   │   └── mockAdminBooking.ts
+│   │   ├── page.tsx
+│   │   ├── policies
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   └── schedules
+│   │       ├── exceptions
+│   │       │   ├── [id]
+│   │       │   │   └── page.tsx
+│   │       │   ├── new
+│   │       │   │   └── page.tsx
+│   │       │   └── page.tsx
+│   │       ├── page.tsx
+│   │       ├── resources
+│   │       │   ├── [id]
+│   │       │   │   └── page.tsx
+│   │       │   ├── new
+│   │       │   │   └── page.tsx
+│   │       │   └── page.tsx
+│   │       └── templates
+│   │           ├── [id]
+│   │           │   └── page.tsx
+│   │           ├── new
+│   │           │   └── page.tsx
+│   │           └── page.tsx
+│   ├── calendar
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── AdminBreadcrumbs.client.tsx
+│   │   ├── AdminSidebar.client.tsx
+│   │   ├── AdminTopbar.tsx
+│   │   ├── MobileTabbar.client.tsx
+│   │   ├── adminNav.data.ts
+│   │   ├── icon-loader.tsx
+│   │   └── nav.config.json
+│   ├── crm
+│   │   ├── clients
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── AuditStrip.tsx
+│   │   │   ├── ClientHeader.tsx
+│   │   │   ├── ClientProfileForm.tsx
+│   │   │   ├── ClientRelations.tsx
+│   │   │   ├── ClientTagsCard.tsx
+│   │   │   ├── ClientsFiltersBar.tsx
+│   │   │   ├── ClientsTable.tsx
+│   │   │   ├── CrmHero.tsx
+│   │   │   ├── CrmStats.tsx
+│   │   │   ├── ImportExportMenu.tsx
+│   │   │   ├── PipelineEditor.tsx
+│   │   │   ├── PipelinesTable.tsx
+│   │   │   ├── QuickActions.tsx
+│   │   │   ├── SegmentEditor.tsx
+│   │   │   ├── SegmentsFiltersBar.tsx
+│   │   │   ├── SegmentsTable.tsx
+│   │   │   └── SourcesTable.tsx
+│   │   ├── data
+│   │   │   ├── mockAdminCrmClients.ts
+│   │   │   ├── mockAdminCrmPipelines.ts
+│   │   │   └── mockAdminCrmSegments.ts
+│   │   ├── page.tsx
+│   │   ├── pipelines
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   └── segments
+│   │       ├── [id]
+│   │       │   └── page.tsx
+│   │       ├── new
+│   │       │   └── page.tsx
+│   │       └── page.tsx
+│   ├── dashboard
+│   │   ├── components
+│   │   │   ├── AccessOverview.tsx
+│   │   │   ├── AlertsPanel.tsx
+│   │   │   ├── ChannelMix.tsx
+│   │   │   ├── CompliancePanel.tsx
+│   │   │   ├── DashboardFilters.client.tsx
+│   │   │   ├── LocationHeat.tsx
+│   │   │   ├── OpsHealth.tsx
+│   │   │   ├── OrgKpiCards.tsx
+│   │   │   ├── QuickAdminActions.tsx
+│   │   │   ├── RecentAudit.tsx
+│   │   │   ├── RevenueTrend.tsx
+│   │   │   ├── ServiceCategoryBars.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   └── SystemsStatus.tsx
+│   │   ├── data
+│   │   │   ├── mockAdminDashboard.ts
+│   │   │   └── mockSystems.ts
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── integrations
+│   │   ├── catalog
+│   │   │   └── page.tsx
+│   │   ├── channels
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── AccessHero.tsx
+│   │   │   ├── CatalogGrid.tsx
+│   │   │   ├── ChannelCard.tsx
+│   │   │   ├── ChannelModal.tsx
+│   │   │   ├── ChannelsTable.tsx
+│   │   │   ├── DeliveriesOverview.tsx
+│   │   │   ├── DeliveryDetails.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── IntegrationsHero.tsx
+│   │   │   ├── IntegrationsStats.tsx
+│   │   │   ├── ProviderBadge.tsx
+│   │   │   ├── QuickActions.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── WebhookForm.tsx
+│   │   │   ├── WebhookModal.tsx
+│   │   │   └── WebhooksTable.tsx
+│   │   ├── data
+│   │   │   ├── mockAdminIntegrationsCatalog.ts
+│   │   │   ├── mockAdminIntegrationsChannels.ts
+│   │   │   ├── mockAdminIntegrationsWebhooks.ts
+│   │   │   └── store.ts
+│   │   ├── deliveries
+│   │   │   └── [deliveryId]
+│   │   │       └── page.tsx
+│   │   ├── page.tsx
+│   │   └── webhooks
+│   │       ├── [id]
+│   │       │   └── page.tsx
+│   │       └── page.tsx
+│   ├── layout.tsx
+│   ├── orders
+│   │   ├── [id]
+│   │   │   ├── invoice
+│   │   │   │   └── page.tsx
+│   │   │   ├── packing
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── AdminOrderAudit.tsx
+│   │   │   ├── AdminOrderHeader.tsx
+│   │   │   ├── AdminOrderSummary.tsx
+│   │   │   ├── AdminOrdersFiltersBar.tsx
+│   │   │   └── AdminOrdersTable.tsx
+│   │   ├── data
+│   │   │   └── mockAdminOrders.ts
+│   │   └── page.tsx
+│   ├── page.tsx
+│   ├── payments
+│   │   ├── components
+│   │   │   ├── AdminPaymentsHeader.tsx
+│   │   │   ├── AlertsPanel.tsx
+│   │   │   ├── AuditStrip.tsx
+│   │   │   ├── DonutByMethod.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── FeesMatrix.tsx
+│   │   │   ├── ImportExportMenu.tsx
+│   │   │   ├── KpiRow.tsx
+│   │   │   ├── ProviderHealth.tsx
+│   │   │   ├── ProviderKeysForm.tsx
+│   │   │   ├── ReconciliationBlock.tsx
+│   │   │   ├── RoutingRulesEditor.tsx
+│   │   │   ├── SettlementSchedule.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── TestPaymentPanel.tsx
+│   │   │   ├── TrendLine.tsx
+│   │   │   └── WebhooksStatus.tsx
+│   │   ├── data
+│   │   │   ├── mockAdminFees.ts
+│   │   │   └── mockAdminPayments.ts
+│   │   ├── fees
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   └── providers
+│   │       ├── [id]
+│   │       │   └── page.tsx
+│   │       └── page.tsx
+│   ├── reports
+│   │   ├── booking
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── BarStack.tsx
+│   │   │   ├── CompareToggle.tsx
+│   │   │   ├── DonutChart.tsx
+│   │   │   ├── DrilldownLink.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── ExportMenu.tsx
+│   │   │   ├── FiltersInline.tsx
+│   │   │   ├── HeatmapGrid.tsx
+│   │   │   ├── KpiRow.tsx
+│   │   │   ├── ReportsHeader.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── TableBasic.tsx
+│   │   │   └── TrendLine.tsx
+│   │   ├── crm
+│   │   │   └── page.tsx
+│   │   ├── data
+│   │   │   ├── mockAdminReportsBooking.ts
+│   │   │   ├── mockAdminReportsCrm.ts
+│   │   │   └── mockAdminReportsSales.ts
+│   │   ├── page.tsx
+│   │   └── sales
+│   │       └── page.tsx
+│   ├── services
+│   │   ├── [id]
+│   │   │   └── page.tsx
+│   │   ├── bundles
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── categories
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── BundleForm.tsx
+│   │   │   ├── BundleItemsEditor.tsx
+│   │   │   ├── BundlePricingPanel.tsx
+│   │   │   ├── BundleRulesPanel.tsx
+│   │   │   ├── CategoryForm.tsx
+│   │   │   ├── CategoryTree.tsx
+│   │   │   ├── PricingTable.tsx
+│   │   │   ├── QuickActions.tsx
+│   │   │   ├── ServiceHeader.tsx
+│   │   │   ├── ServiceTabs.tsx
+│   │   │   ├── ServicesHero.tsx
+│   │   │   ├── ServicesStats.tsx
+│   │   │   └── Skeletons.tsx
+│   │   ├── data
+│   │   │   └── mockAdminServices.ts
+│   │   ├── page.tsx
+│   │   └── pricing
+│   │       └── page.tsx
+│   ├── settings
+│   │   ├── branding
+│   │   │   └── page.tsx
+│   │   ├── business
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── AuditStrip.tsx
+│   │   │   ├── BrandingAssetsUploader.tsx
+│   │   │   ├── BrandingThemePicker.tsx
+│   │   │   ├── BusinessLocationsTable.tsx
+│   │   │   ├── BusinessOrgForm.tsx
+│   │   │   ├── CurrencyForm.tsx
+│   │   │   ├── DangerZone.tsx
+│   │   │   ├── FormatPreview.tsx
+│   │   │   ├── LivePreviewFrame.tsx
+│   │   │   ├── LocationForm.tsx
+│   │   │   ├── RatesTable.tsx
+│   │   │   ├── SaveBar.tsx
+│   │   │   ├── SettingsHero.tsx
+│   │   │   ├── SettingsNav.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── TaxRuleEditor.tsx
+│   │   │   └── TaxesTable.tsx
+│   │   ├── currency
+│   │   │   └── page.tsx
+│   │   ├── data
+│   │   │   ├── mockSettingsBranding.ts
+│   │   │   ├── mockSettingsBusiness.ts
+│   │   │   ├── mockSettingsCurrency.ts
+│   │   │   └── mockSettingsTaxes.ts
+│   │   ├── page.tsx
+│   │   └── taxes
+│   │       └── page.tsx
+│   ├── shop
+│   │   ├── categories
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── components
+│   │   │   │   ├── CategoryBreadcrumbs.tsx
+│   │   │   │   ├── CategoryForm.tsx
+│   │   │   │   ├── CategoryProductsTable.tsx
+│   │   │   │   └── CategoryTree.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── ProductIcon.tsx
+│   │   │   ├── QuickActions.tsx
+│   │   │   ├── ShopHero.tsx
+│   │   │   └── ShopStats.tsx
+│   │   ├── data
+│   │   │   ├── mockAdminCategories.ts
+│   │   │   └── mockAdminProducts.ts
+│   │   ├── page.tsx
+│   │   └── products
+│   │       ├── [id]
+│   │       │   └── page.tsx
+│   │       ├── components
+│   │       │   ├── BulkBar.tsx
+│   │       │   ├── ProductHeader.tsx
+│   │       │   ├── ProductTabs.tsx
+│   │       │   ├── ProductsFiltersBar.tsx
+│   │       │   ├── ProductsTable.tsx
+│   │       │   └── Skeletons.tsx
+│   │       ├── new
+│   │       │   └── page.tsx
+│   │       └── page.tsx
+│   └── users
+│       ├── components
+│       │   ├── AccessHero.tsx
+│       │   ├── AccessStats.tsx
+│       │   ├── AuditStrip.tsx
+│       │   ├── DangerZone.tsx
+│       │   ├── PermissionMatrix.tsx
+│       │   ├── PresetSelector.tsx
+│       │   ├── QuickActions.tsx
+│       │   ├── RoleEditor.tsx
+│       │   ├── RoleMembersTable.tsx
+│       │   ├── RolesTable.tsx
+│       │   ├── UserActivityCard.tsx
+│       │   ├── UserHeader.tsx
+│       │   ├── UserProfileForm.tsx
+│       │   ├── UserRolesCard.tsx
+│       │   ├── UserSecurityCard.tsx
+│       │   ├── UsersFiltersBar.tsx
+│       │   └── UsersTable.tsx
+│       ├── data
+│       │   ├── mockAdminPermissions.ts
+│       │   ├── mockAdminRoles.ts
+│       │   └── mockAdminUsers.ts
+│       ├── list
+│       │   ├── [id]
+│       │   │   └── page.tsx
+│       │   └── page.tsx
+│       ├── page.tsx
+│       ├── permissions
+│       │   └── page.tsx
+│       └── roles
+│           ├── [id]
+│           │   └── page.tsx
+│           ├── new
+│           │   └── page.tsx
+│           └── page.tsx
+├── components
+│   ├── DemoCapabilities.tsx
+│   ├── DemoFAQ.tsx
+│   ├── DemoHeader.tsx
+│   ├── DemoHero.tsx
+│   ├── DemoShowcase.tsx
+│   ├── NavBar.tsx
+│   ├── RoleNavClient.tsx
+│   └── RoleTabs.tsx
+├── data
+│   ├── products.ts
+│   └── services.ts
+├── demo.txt
+├── demo_new.txt
+├── home
+│   └── page.tsx
+├── layout.tsx
+├── manager
+│   ├── _parts
+│   │   ├── storage.ts
+│   │   ├── tokens.ts
+│   │   └── useLocalStorage.ts
+│   ├── booking
+│   │   ├── [id]
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── BookingActionsMenu.tsx
+│   │   │   ├── BookingFiltersBar.tsx
+│   │   │   ├── BookingRow.tsx
+│   │   │   ├── BookingTimeline.tsx
+│   │   │   ├── BookingsTable.tsx
+│   │   │   ├── BulkBar.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── SlotPicker.tsx
+│   │   │   ├── StaffServiceSelector.tsx
+│   │   │   └── StatusBadge.tsx
+│   │   ├── data
+│   │   │   ├── mockBookings.ts
+│   │   │   └── mockSlotSearch.ts
+│   │   ├── hooks
+│   │   │   └── useBookingsData.ts
+│   │   ├── new
+│   │   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   └── reschedule
+│   │       └── [id]
+│   │           └── page.tsx
+│   ├── calendar
+│   │   ├── components
+│   │   │   ├── CalendarEventCard.tsx
+│   │   │   ├── CalendarFiltersBar.tsx
+│   │   │   ├── CalendarGridWeek.tsx
+│   │   │   ├── CalendarHeader.tsx
+│   │   │   ├── DragGhost.tsx
+│   │   │   ├── EventPopover.tsx
+│   │   │   ├── Legend.tsx
+│   │   │   ├── NewEventInline.tsx
+│   │   │   ├── StatusBadge.tsx
+│   │   │   ├── tokens.ts
+│   │   │   └── types.ts
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── ManagerBreadcrumbs.client.tsx
+│   │   ├── ManagerSidebar.client.tsx
+│   │   ├── ManagerTopbar.tsx
+│   │   ├── MobileTabbar.client.tsx
+│   │   ├── managerNav.data.ts
+│   │   └── nav.config.json
+│   ├── crm
+│   │   ├── clients
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── ClientsTable.tsx
+│   │   │   ├── CrmHero.tsx
+│   │   │   ├── CrmQuickActions.tsx
+│   │   │   ├── CrmStats.tsx
+│   │   │   ├── DealForm.tsx
+│   │   │   ├── DealsKanban.tsx
+│   │   │   ├── DealsMiniKanban.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── ExportMenu.tsx
+│   │   │   ├── FiltersBar.tsx
+│   │   │   ├── LeadForm.tsx
+│   │   │   ├── LeadTimeline.tsx
+│   │   │   ├── LeadsMiniTable.tsx
+│   │   │   ├── LeadsTable.tsx
+│   │   │   └── Skeletons.tsx
+│   │   ├── data
+│   │   │   ├── mockClients.ts
+│   │   │   ├── mockDeals.ts
+│   │   │   └── mockLeads.ts
+│   │   ├── deals
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   ├── leads
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── new
+│   │   │   │   └── page.tsx
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── dashboard
+│   │   ├── components
+│   │   │   ├── BookingCalendarMini.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── KpiCards.tsx
+│   │   │   ├── PipelineMini.tsx
+│   │   │   ├── QuickActions.tsx
+│   │   │   ├── RecentActivity.tsx
+│   │   │   ├── RiskAlerts.tsx
+│   │   │   ├── SalesTrendChart.tsx
+│   │   │   ├── StatusDistribution.tsx
+│   │   │   └── TodayAgenda.tsx
+│   │   ├── data
+│   │   │   └── mockManagerDashboard.ts
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx
+│   ├── orders
+│   │   ├── [id]
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── ExportMenu.tsx
+│   │   │   ├── OrderActionsMenu.tsx
+│   │   │   ├── OrderAmount.tsx
+│   │   │   ├── OrderAssigneeSelect.tsx
+│   │   │   ├── OrderPaymentPanel.tsx
+│   │   │   ├── OrderStatusBadge.tsx
+│   │   │   ├── OrderTimeline.tsx
+│   │   │   ├── OrdersBulkBar.tsx
+│   │   │   ├── OrdersFiltersBar.tsx
+│   │   │   ├── OrdersTable.tsx
+│   │   │   ├── OrdersTableRow.tsx
+│   │   │   └── Skeletons.tsx
+│   │   ├── data
+│   │   │   └── mockOrders.ts
+│   │   ├── new
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── page.tsx
+│   ├── payments
+│   │   ├── [id]
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── MethodBadge.tsx
+│   │   │   ├── PaymentRow.tsx
+│   │   │   ├── PaymentStatusBadge.tsx
+│   │   │   ├── PaymentsFiltersBar.tsx
+│   │   │   ├── PaymentsTable.tsx
+│   │   │   └── RefundPanel.tsx
+│   │   ├── data
+│   │   │   ├── mockPayments.ts
+│   │   │   └── storage.ts
+│   │   ├── invoices
+│   │   │   ├── [id]
+│   │   │   │   └── page.tsx
+│   │   │   ├── components
+│   │   │   │   ├── InvoiceFiltersBar.tsx
+│   │   │   │   ├── InvoiceStatusBadge.tsx
+│   │   │   │   └── InvoicesTable.tsx
+│   │   │   └── page.tsx
+│   │   ├── new-invoice
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── reports
+│   │   ├── booking
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── BarStack.tsx
+│   │   │   ├── CompareToggle.tsx
+│   │   │   ├── DonutChart.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── ExportMenu.tsx
+│   │   │   ├── FiltersInline.tsx
+│   │   │   ├── HeatMapGrid.tsx
+│   │   │   ├── KpiRow.tsx
+│   │   │   ├── PeriodPicker.tsx
+│   │   │   ├── ReportsHeader.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── TableBasic.tsx
+│   │   │   └── TrendLine.tsx
+│   │   ├── crm
+│   │   │   └── page.tsx
+│   │   ├── data
+│   │   │   ├── mockReportsBooking.ts
+│   │   │   ├── mockReportsCrm.ts
+│   │   │   └── mockReportsSales.ts
+│   │   ├── page.tsx
+│   │   └── sales
+│   │       └── page.tsx
+│   ├── services
+│   │   ├── [id]
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── AvailabilityGrid.tsx
+│   │   │   ├── AvailabilityLegend.tsx
+│   │   │   ├── DurationBadge.tsx
+│   │   │   ├── EmptyState.tsx
+│   │   │   ├── PriceBadge.tsx
+│   │   │   ├── ServiceCard.tsx
+│   │   │   ├── ServiceDetailHeader.tsx
+│   │   │   ├── ServicesFiltersBar.tsx
+│   │   │   ├── ServicesGrid.tsx
+│   │   │   ├── ServicesTable.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── SlotEditorModal.tsx
+│   │   │   └── StaffSelector.tsx
+│   │   ├── data
+│   │   │   ├── mockAvailability.ts
+│   │   │   ├── mockServices.ts
+│   │   │   └── mockStaff.ts
+│   │   ├── page.tsx
+│   │   └── schedule
+│   │       └── page.tsx
+│   ├── settings
+│   │   ├── calendar
+│   │   │   └── page.tsx
+│   │   ├── components
+│   │   │   ├── ChannelToggles.tsx
+│   │   │   ├── DangerZone.tsx
+│   │   │   ├── DaysOfWeekPicker.tsx
+│   │   │   ├── FormRow.tsx
+│   │   │   ├── IntegrationCard.tsx
+│   │   │   ├── MultiSelect.tsx
+│   │   │   ├── NumberWithUnit.tsx
+│   │   │   ├── SavedViewCard.tsx
+│   │   │   ├── SectionHeader.tsx
+│   │   │   ├── SettingsLayout.tsx
+│   │   │   ├── SettingsNav.tsx
+│   │   │   ├── Skeletons.tsx
+│   │   │   ├── TimeRangePicker.tsx
+│   │   │   └── ToastArea.tsx
+│   │   ├── data
+│   │   │   ├── mockSettingsCalendar.ts
+│   │   │   ├── mockSettingsIntegrations.ts
+│   │   │   ├── mockSettingsNotifications.ts
+│   │   │   ├── mockSettingsPayments.ts
+│   │   │   ├── mockSettingsPreferences.ts
+│   │   │   └── mockSettingsProfile.ts
+│   │   ├── integrations
+│   │   │   └── page.tsx
+│   │   ├── notifications
+│   │   │   └── page.tsx
+│   │   ├── page.tsx
+│   │   ├── payments
+│   │   │   └── page.tsx
+│   │   ├── preferences
+│   │   │   └── page.tsx
+│   │   ├── profile
+│   │   │   └── page.tsx
+│   │   ├── saved-views
+│   │   │   └── page.tsx
+│   │   └── security
+│   │       └── page.tsx
+│   ├── sidebar
+│   │   └── ManagerSidebar.tsx
+│   └── ui
+│       └── managerTheme.tsx
+├── page.tsx
+├── store
+│   └── userStore.ts
+├── ui
+│   ├── badge.tsx
+│   ├── button.tsx
+│   ├── card.tsx
+│   ├── skeleton.tsx
+│   ├── tag.tsx
+│   ├── textarea.tsx
+│   └── tooltip.tsx
+└── user
+    ├── _parts
+    │   └── tokens.ts
+    ├── booking
+    │   ├── components
+    │   │   ├── AddonsPicker.tsx
+    │   │   ├── BookingBreadcrumbs.tsx
+    │   │   ├── BookingPageClient.tsx
+    │   │   ├── CalendarExport.tsx
+    │   │   ├── ConfirmPageClient.tsx
+    │   │   ├── ConfirmSummary.tsx
+    │   │   ├── DateNavigator.tsx
+    │   │   ├── DurationBadge.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── LocationPicker.tsx
+    │   │   ├── PolicyNote.tsx
+    │   │   ├── PriceBox.tsx
+    │   │   ├── ServiceHeader.tsx
+    │   │   ├── Skeletons.tsx
+    │   │   ├── SlotsBoard.tsx
+    │   │   ├── StaffPicker.tsx
+    │   │   ├── StickyBar.tsx
+    │   │   └── SuccessPageClient.tsx
+    │   ├── confirm
+    │   │   └── page.tsx
+    │   ├── data
+    │   │   ├── mockBookingPolicies.ts
+    │   │   ├── mockBookingServices.ts
+    │   │   └── mockBookingSlots.ts
+    │   ├── page.tsx
+    │   └── success
+    │       └── page.tsx
+    ├── calendar
+    │   ├── components
+    │   │   ├── AllDayRail.tsx
+    │   │   ├── CalendarGrid.tsx
+    │   │   ├── CalendarHeader.tsx
+    │   │   ├── CalendarLegend.tsx
+    │   │   ├── CalendarPageClient.tsx
+    │   │   ├── CancelModal.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── EventChip.tsx
+    │   │   ├── EventDrawer.tsx
+    │   │   ├── EventPopover.tsx
+    │   │   ├── ExportMenu.tsx
+    │   │   ├── FiltersBar.tsx
+    │   │   ├── MoveRescheduleModal.tsx
+    │   │   └── Skeletons.tsx
+    │   ├── data
+    │   │   └── mockUserCalendar.ts
+    │   └── page.tsx
+    ├── cart
+    │   ├── components
+    │   │   ├── CartHeader.tsx
+    │   │   ├── CartItemRow.tsx
+    │   │   ├── CartItems.tsx
+    │   │   ├── CartPageClient.tsx
+    │   │   ├── CartTotals.tsx
+    │   │   ├── CouponBox.tsx
+    │   │   ├── DeliveryPicker.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── LoyaltyToggle.tsx
+    │   │   ├── NotesField.tsx
+    │   │   ├── Skeletons.tsx
+    │   │   ├── StickyCheckout.tsx
+    │   │   ├── UpsellRail.tsx
+    │   │   └── _shared.ts
+    │   ├── data
+    │   │   └── mockUserCart.ts
+    │   └── page.tsx
+    ├── checkout
+    │   ├── components
+    │   │   ├── CheckoutHeader.tsx
+    │   │   ├── CheckoutPromo.tsx
+    │   │   ├── ContactBlock.tsx
+    │   │   ├── CouponPointsBlock.tsx
+    │   │   ├── DeliveryBlock.tsx
+    │   │   ├── PayButton.tsx
+    │   │   ├── PaymentMethods.tsx
+    │   │   ├── PrivacyNote.tsx
+    │   │   ├── ReceiptCard.tsx
+    │   │   ├── RetryOptions.tsx
+    │   │   ├── Skeletons.tsx
+    │   │   ├── SummaryBlock.tsx
+    │   │   ├── TermsCheckbox.tsx
+    │   │   └── ThreeDSCard.tsx
+    │   ├── confirm-3ds
+    │   │   └── page.tsx
+    │   ├── data
+    │   │   └── mockCheckout.ts
+    │   ├── fail
+    │   │   └── page.tsx
+    │   ├── page.tsx
+    │   └── success
+    │       └── page.tsx
+    ├── components
+    │   ├── UserBreadcrumbs.client.tsx
+    │   ├── UserMobileMenu.client.tsx
+    │   ├── UserMobileTabbar.client.tsx
+    │   ├── UserSidebar.client.tsx
+    │   ├── UserTopbar.tsx
+    │   ├── nav.config.json
+    │   └── userNav.data.ts
+    ├── dashboard
+    │   ├── components
+    │   │   ├── Announcements.tsx
+    │   │   ├── CalendarPeek.tsx
+    │   │   ├── CartWidget.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── KpiRow.tsx
+    │   │   ├── LoyaltyWidget.tsx
+    │   │   ├── NextBookingCard.tsx
+    │   │   ├── OrdersWidget.tsx
+    │   │   ├── PaymentsWidget.tsx
+    │   │   ├── QuickActions.tsx
+    │   │   ├── ServicesWidget.tsx
+    │   │   ├── Skeletons.tsx
+    │   │   ├── SupportShortcut.tsx
+    │   │   ├── UserGreeting.tsx
+    │   │   └── _shared.ts
+    │   ├── data
+    │   │   └── mockUserDashboard.ts
+    │   └── page.tsx
+    ├── globals.css
+    ├── help
+    │   ├── components
+    │   │   ├── ArticleBody.tsx
+    │   │   ├── ArticleTOC.tsx
+    │   │   ├── ChatButton.tsx
+    │   │   ├── ContactForm.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── FaqAccordion.tsx
+    │   │   ├── FeedbackWidget.tsx
+    │   │   ├── GuideCard.tsx
+    │   │   ├── HelpHero.tsx
+    │   │   ├── HelpSearch.tsx
+    │   │   ├── InlineTip.tsx
+    │   │   ├── PopularList.tsx
+    │   │   ├── QuickTiles.tsx
+    │   │   ├── Skeletons.tsx
+    │   │   └── StatusSummary.tsx
+    │   ├── contact
+    │   │   └── page.tsx
+    │   ├── data
+    │   │   ├── userFaq.ts
+    │   │   ├── userHelpArticles.ts
+    │   │   └── userStatusMock.ts
+    │   ├── faq
+    │   │   └── page.tsx
+    │   ├── guides
+    │   │   ├── [slug]
+    │   │   │   └── page.tsx
+    │   │   └── page.tsx
+    │   ├── page.tsx
+    │   └── status
+    │       └── page.tsx
+    ├── layout.tsx
+    ├── my-bookings
+    │   ├── [id]
+    │   │   └── page.tsx
+    │   ├── components
+    │   │   ├── AddToCalendar.tsx
+    │   │   ├── BookingCard.tsx
+    │   │   ├── BookingDetailHeader.tsx
+    │   │   ├── BookingDetailPageClient.tsx
+    │   │   ├── BookingDrawer.tsx
+    │   │   ├── BookingInfo.tsx
+    │   │   ├── BookingTimeline.tsx
+    │   │   ├── BookingsCalendar.tsx
+    │   │   ├── BookingsHeader.tsx
+    │   │   ├── BookingsList.tsx
+    │   │   ├── BulkActionsBar.tsx
+    │   │   ├── CancelModal.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── FiltersBar.tsx
+    │   │   ├── MyBookingsPageClient.tsx
+    │   │   ├── RescheduleModal.tsx
+    │   │   └── Skeletons.tsx
+    │   ├── data
+    │   │   └── mockUserMyBookings.ts
+    │   └── page.tsx
+    ├── my-orders
+    │   ├── [id]
+    │   │   └── page.tsx
+    │   ├── components
+    │   │   ├── AddressBlock.tsx
+    │   │   ├── BulkActionsBar.tsx
+    │   │   ├── CancelOrderModal.tsx
+    │   │   ├── DeliveryBadge.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── FiltersBar.tsx
+    │   │   ├── InvoiceLinks.tsx
+    │   │   ├── MyOrdersPageClient.tsx
+    │   │   ├── OrderCard.tsx
+    │   │   ├── OrderDetailPageClient.tsx
+    │   │   ├── OrderHeader.tsx
+    │   │   ├── OrderItems.tsx
+    │   │   ├── OrderSummary.tsx
+    │   │   ├── OrderTimeline.tsx
+    │   │   ├── OrdersHeader.tsx
+    │   │   ├── OrdersTable.tsx
+    │   │   ├── PaymentBadge.tsx
+    │   │   ├── ReturnRequestModal.tsx
+    │   │   ├── StatusBadge.tsx
+    │   │   └── TrackParcel.tsx
+    │   ├── data
+    │   │   └── mockUserMyOrders.ts
+    │   └── page.tsx
+    ├── page.tsx
+    ├── services
+    │   ├── [slug]
+    │   │   └── page.tsx
+    │   ├── components
+    │   │   ├── CategoryRail.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── FiltersPanel.tsx
+    │   │   ├── Pagination.tsx
+    │   │   ├── QuickSlotBar.tsx
+    │   │   ├── SDPDetails.tsx
+    │   │   ├── SDPHeader.tsx
+    │   │   ├── SDPPriceBox.tsx
+    │   │   ├── SDPStaffPicker.tsx
+    │   │   ├── SDPTimePicker.tsx
+    │   │   ├── SDPUpsell.tsx
+    │   │   ├── SafeLink.tsx
+    │   │   ├── ServiceCard.tsx
+    │   │   ├── ServicePageClient.tsx
+    │   │   ├── ServiceQuickView.tsx
+    │   │   ├── ServicesGrid.tsx
+    │   │   ├── ServicesHeader.tsx
+    │   │   ├── ServicesPageClient.tsx
+    │   │   └── StickyBookBar.tsx
+    │   ├── data
+    │   │   ├── mockUserServices.ts
+    │   │   └── mockUserServicesCategories.ts
+    │   └── page.tsx
+    ├── settings
+    │   ├── addresses
+    │   │   └── page.tsx
+    │   ├── components
+    │   │   ├── AddressList.tsx
+    │   │   ├── AvatarUploader.tsx
+    │   │   ├── ContactForm.tsx
+    │   │   ├── DangerZone.tsx
+    │   │   ├── EmptyState.tsx
+    │   │   ├── LocaleCurrencyForm.tsx
+    │   │   ├── NotificationsForm.tsx
+    │   │   ├── PasswordForm.tsx
+    │   │   ├── PaymentMethods.tsx
+    │   │   ├── PrivacyControls.tsx
+    │   │   ├── SectionCard.tsx
+    │   │   ├── SessionsList.tsx
+    │   │   ├── SettingsTabs.tsx
+    │   │   ├── Skeletons.tsx
+    │   │   └── TwoFASetup.tsx
+    │   ├── data
+    │   │   └── mockUserSettings.ts
+    │   ├── notifications
+    │   │   └── page.tsx
+    │   ├── page.tsx
+    │   ├── payments
+    │   │   └── page.tsx
+    │   ├── privacy
+    │   │   └── page.tsx
+    │   ├── profile
+    │   │   └── page.tsx
+    │   └── security
+    │       └── page.tsx
+    └── shop
+        ├── components
+        │   ├── CategoryHero.tsx
+        │   ├── CategoryTiles.tsx
+        │   ├── FiltersPanel.tsx
+        │   ├── ProductCard.tsx
+        │   ├── ProductQuickView.tsx
+        │   ├── ProductsGrid.tsx
+        │   ├── ShopClient.tsx
+        │   └── _shared.ts
+        ├── data
+        │   ├── mockUserShop.ts
+        │   └── mockUserShopCategories.ts
+        ├── page.tsx
+        └── products
+            ├── [slug]
+            │   └── page.tsx
+            ├── components
+            │   ├── Breadcrumbs.tsx
+            │   ├── CompareDrawer.tsx
+            │   ├── EmptyState.tsx
+            │   ├── FavoritesRail.tsx
+            │   ├── Pagination.tsx
+            │   ├── ProductsFilters.tsx
+            │   ├── ProductsHeader.tsx
+            │   ├── ProductsList.tsx
+            │   ├── ProductsPageClient.tsx
+            │   ├── ProductsToolbar.tsx
+            │   ├── RecentlyViewed.tsx
+            │   └── _shared.ts
+            ├── data
+            │   ├── mockAttributes.ts
+            │   └── mockProducts.ts
+            └── page.tsx
+
+262 directories, 771 files

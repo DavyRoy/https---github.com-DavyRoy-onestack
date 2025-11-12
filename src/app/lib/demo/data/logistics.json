@@ -1,0 +1,67 @@
+{
+  "overview": {
+    "totalOrders": 245,
+    "activeDeliveries": 18,
+    "onTimeRate": 0.93,
+    "revenue": 1450000,
+    "warehouseItems": 156,
+    "lowStockItems": 12
+  },
+  "orders": [
+    {
+      "id": "ORD-001",
+      "customerName": "Иван Петров",
+      "customerPhone": "+7 912 345-67-89",
+      "fromAddress": "Москва, ул. Тверская, д. 1",
+      "toAddress": "Москва, ул. Арбат, д. 25",
+      "cargoType": "Документы",
+      "weight": 0.5,
+      "volume": 0.1,
+      "deliveryWindow": "14:00-16:00",
+      "status": "in_transit",
+      "createdAt": "2024-01-15T10:00:00Z",
+      "estimatedDelivery": "2024-01-15T15:30:00Z",
+      "cost": 450,
+      "insurance": false,
+      "doorDelivery": true
+    }
+  ],
+  "couriers": [
+    {
+      "id": "1",
+      "name": "Алексей Смирнов",
+      "phone": "+7 912 345-67-90",
+      "vehicle": "Hyundai Solaris",
+      "status": "on_route",
+      "currentLocation": { "lat": 55.7558, "lng": 37.6173 },
+      "completedToday": 8,
+      "rating": 4.8
+    }
+  ],
+  "warehouse": [
+    {
+      "sku": "SKU-001",
+      "name": "Картонная коробка 30x30x30",
+      "category": "Упаковка",
+      "currentStock": 45,
+      "minStock": 50,
+      "maxStock": 200,
+      "unit": "шт",
+      "location": "Зона A-1",
+      "lastUpdated": "2024-01-15T08:00:00Z",
+      "status": "low"
+    }
+  ],
+  "reports": {
+    "daily": {
+      "shipments": 58,
+      "deliveries": 54,
+      "returns": 2,
+      "damages": 1,
+      "onTimeRate": 0.93,
+      "averageDeliveryTime": 2.5,
+      "revenue": 145000,
+      "costs": 89000
+    }
+  }
+}

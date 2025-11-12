@@ -1,0 +1,50 @@
+[
+  {
+    "title": "Обзор",
+    "items": [
+      { "label": "Дашборд", "href": "/demo/manager/dashboard", "icon": "layout-grid" }
+    ]
+  },
+  {
+    "title": "CRM",
+    "items": [
+      {
+        "label": "CRM",
+        "href": "/demo/manager/crm",
+        "icon": "users-2",
+        "children": [
+          { "label": "Лиды", "href": "/demo/manager/crm/leads" },
+          { "label": "Сделки", "href": "/demo/manager/crm/deals" }
+        ]
+      }
+    ]
+  },
+  {
+    "title": "Планирование",
+    "items": [
+      { "label": "Бронирование", "href": "/demo/manager/booking", "icon": "calendar-days" },
+      { "label": "Календарь", "href": "/demo/manager/calendar", "icon": "calendar" }
+    ]
+  },
+  {
+    "title": "Операции",
+    "items": [
+      { "label": "Заказы", "href": "/demo/manager/orders", "icon": "receipt" },
+      { "label": "Платежи", "href": "/demo/manager/payments", "icon": "credit-card" },
+      { "label": "Отчёты", "href": "/demo/manager/reports", "icon": "file-bar-chart-2" }
+    ]
+  },
+  {
+    "title": "Система",
+    "items": [
+      { "label": "Настройки", "href": "/demo/manager/settings", "icon": "settings" },
+      { "label": "Помощь", "href": "/demo/manager/help", "icon": "help-circle" }
+    ]
+  },
+  {
+    "title": "Сессия",
+    "items": [
+      { "label": "Выход", "href": "/demo/manager/login", "icon": "log-out" }
+    ]
+  }
+]

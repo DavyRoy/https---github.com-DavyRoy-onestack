@@ -1,0 +1,128 @@
+services:
+  # ─────────────── Next.js (приложение сайта) ───────────────
+  app-prod:
+    container_name: onestack_app_prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_SITE_URL: https://${DOMAIN}
+    expose:
+      - "3000"
+    networks: [web]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    profiles: ["prod"]
+
+  # ────────────────────── MariaDB ───────────────────────────
+  mariadb:
+    image: mariadb:11.4
+    container_name: onestack_mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${SUITECRM_DB}
+      MARIADB_USER: ${SUITECRM_DB_USER}
+      MARIADB_PASSWORD: ${SUITECRM_DB_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks: [web]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p${MARIADB_ROOT_PASSWORD} --silent"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    profiles: ["prod"]
+
+  # ───────────────────── SuiteCRM 8 ─────────────────────────
+  suitecrm:
+    image: bitnami/suitecrm:8
+    container_name: onestack_suitecrm
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      MARIADB_HOST: mariadb
+      MARIADB_PORT_NUMBER: "3306"
+      SUITECRM_DATABASE_NAME: ${SUITECRM_DB}
+      SUITECRM_DATABASE_USER: ${SUITECRM_DB_USER}
+      SUITECRM_DATABASE_PASSWORD: ${SUITECRM_DB_PASSWORD}
+      SUITECRM_USERNAME: ${SUITECRM_USERNAME}
+      SUITECRM_PASSWORD: ${SUITECRM_PASSWORD}
+      SUITECRM_EMAIL: ${SUITECRM_EMAIL}
+      #SUITECRM_SMTP_HOST: ${SUITECRM_SMTP_HOST}
+      #SUITECRM_SMTP_PORT: ${SUITECRM_SMTP_PORT}
+      #SUITECRM_SMTP_USER: ${SUITECRM_SMTP_USER}
+      #SUITECRM_SMTP_PASSWORD: ${SUITECRM_SMTP_PASSWORD}
+      #SUITECRM_SMTP_PROTOCOL: ${SUITECRM_SMTP_PROTOCOL}
+    volumes:
+      - suitecrm_data:/bitnami
+    expose:
+      - "8080"
+    networks: [web]
+    restart: unless-stopped
+    profiles: ["prod"]
+
+  # ─────────────── Автобэкап БД (mysqldump + cron) ─────────
+  db-backup:
+    image: fradelg/mysql-cron-backup:latest
+    container_name: onestack_db_backup
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mariadb
+      MYSQL_PORT: 3306
+      MYSQL_USER: ${SUITECRM_DB_USER}
+      MYSQL_PASSWORD: ${SUITECRM_DB_PASSWORD}
+      MYSQL_DATABASE: ${SUITECRM_DB}
+      CRON_TIME: "0 2 * * *"
+      MYSQLDUMP_OPTS: "--single-transaction --quick --lock-tables=false --hex-blob"
+      GZIP_LEVEL: "6"
+      TZ: "Europe/Moscow"
+    volumes:
+      - db_backups:/backup
+    networks: [web]
+    restart: unless-stopped
+    profiles: ["prod"]
+
+  # ──────────────────────── Caddy (TLS/Proxy) ───────────────
+  caddy:
+    image: caddy:2-alpine
+    container_name: onestack_caddy
+    depends_on:
+      app-prod:
+        condition: service_started
+      suitecrm:
+        condition: service_started
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    networks: [web]
+    restart: unless-stopped
+    profiles: ["prod"]
+
+volumes:
+  mariadb_data:
+  suitecrm_data:
+  db_backups:
+  caddy_data:
+  caddy_config:
+
+networks:
+  web:
+    driver: bridge
