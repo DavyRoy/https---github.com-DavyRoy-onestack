@@ -1623,7 +1623,7 @@ const industries: Industry[] = [
     id: 'medicine',
     title: 'Медицина',
     description: 'Запись, телемедицина, биллинг, отчёты',
-    href: '/demo/medicine',
+    href: '/demo/application/user',
     icon: Heart,
     gradient: 'from-red-500 via-pink-500 to-rose-600',
     tech: ['HL7/FHIR', 'WebRTC', 'Keycloak', 'Stripe', 'PostgreSQL', 'Redis', 'Kafka'],
@@ -1665,7 +1665,7 @@ const industries: Industry[] = [
     id: 'logistics',
     title: 'Логистика',
     description: 'Доставка, трекинг, склад, накладные',
-    href: '/demo/logistics',
+    href: '/demo/application/user',
     icon: Truck,
     gradient: 'from-amber-500 via-orange-500 to-yellow-600',
     tech: ['WMS/OMS', 'Route Optimization', 'Barcode/RFID', '1C/ERP', 'Redis'],
@@ -1707,7 +1707,7 @@ const industries: Industry[] = [
     id: 'autoservice',
     title: 'Автосервис',
     description: 'Заявки, расчёт, расписание, фотоотчёты',
-    href: '/demo/autoservice',
+    href: '/demo/application/user',
     icon: Wrench,
     gradient: 'from-emerald-500 via-green-500 to-lime-600',
     tech: ['VIN-decoder', 'Payments', 'SMS/WhatsApp', 'S3 Media', 'Keycloak'],
@@ -1749,7 +1749,7 @@ const industries: Industry[] = [
     id: 'social',
     title: 'Социальные услуги',
     description: 'Кейсы сопровождения граждан, заявки, выплаты, отчеты',
-    href: '/demo/social',
+    href: '/demo/application/user',
     icon: Users,
     gradient: 'from-cyan-500 via-blue-500 to-sky-500',
     tech: ['ESIA/ГОСУслуги', 'Case Management', 'BI Reports', '1C', 'Docflow'],
@@ -1791,7 +1791,7 @@ const industries: Industry[] = [
     id: 'transport',
     title: 'Общественный транспорт',
     description: 'Маршруты, GPS-мониторинг, билеты, расписания',
-    href: '/demo/transport',
+    href: '/demo/application/user',
     icon: Bus,
     gradient: 'from-violet-500 via-purple-500 to-indigo-500',
     tech: ['GTFS', 'AVL/GPS', 'Payment Hub', 'BI', 'Digital Twins'],
@@ -1833,7 +1833,7 @@ const industries: Industry[] = [
     id: 'services',
     title: 'Сфера услуг',
     description: 'Онлайн-бронирование, программы лояльности, продажи',
-    href: '/demo/services',
+    href: '/demo/application/user',
     icon: Monitor,
     gradient: 'from-indigo-500 via-blue-500 to-cyan-500',
     tech: ['Booking Engine', 'Loyalty', 'CDP', 'Payments', 'Marketing Automation'],
@@ -2229,15 +2229,7 @@ function Header({ onMenuToggle, scrollProgress }: {
 
           {/* CTA Buttons */}
           <div className="flex items-center gap-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {/* Open contact */}}
-              className="hidden sm:flex items-center gap-2 rounded-xl bg-white/10 border border-white/20 px-3 py-2 text-sm font-semibold hover:bg-white/20 transition backdrop-blur"
-            >
-              <MessageSquareMore className="h-4 w-4" />
-              <span className="hidden md:inline">Контакты</span>
-            </motion.button>
+            
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -2872,25 +2864,6 @@ function CaseStudiesSection({ onOpen }: { onOpen: (cs: CaseStudy) => void }) {
             </motion.div>
           ))}
         </div>
-
-        {/* CTA */}
-        <motion.div
-          {...fadeUp(0.8)}
-          className="text-center mt-12 sm:mt-16"
-        >
-          <p className="text-white/60 mb-6 text-sm sm:text-base">
-            Хотите такой же результат для вашего бизнеса?
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onOpen(caseStudies[0])}
-            className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-6 sm:px-8 py-3 sm:py-4 font-semibold hover:from-cyan-600 hover:to-blue-600 transition-all shadow-2xl text-sm sm:text-base"
-          >
-            <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
-            Обсудить мой проект
-          </motion.button>
-        </motion.div>
       </div>
     </section>
   );
@@ -3080,7 +3053,6 @@ function ProcessSection() {
                   <div className="grid grid-cols-2 gap-3 sm:gap-4 mt-3 sm:mt-4">
                     {[
                       { icon: Clock, text: `Этап ${step.step}` },
-                      { icon: CheckCircle2, text: 'Agile методология' },
                     ].map((detail, i) => (
                       <div key={i} className="flex items-center gap-2 text-white/60 text-xs sm:text-sm">
                         <detail.icon className="h-3 w-3 sm:h-4 sm:w-4 text-cyan-400" />
@@ -3177,7 +3149,7 @@ function TestimonialsSection() {
                 </div>
 
                 {/* Quote Icon */}
-                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 text-cyan-400/20">
+                <div className="absolute top-3 sm:top-1 right-3 sm:right-2 text-cyan-400/20">
                   <MessageCircle className="h-6 w-6 sm:h-8 sm:w-8" />
                 </div>
               </SpotlightCard>

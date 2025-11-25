@@ -25,18 +25,15 @@ type DockItem = {
 };
 
 const INDUSTRIES: DockItem[] = [
-  { id: 'medicine',    label: 'Медицина',   href: '/demo/medicine',   icon: Heart,   gradient: 'from-rose-500 to-pink-500',       badge: '✨' },
-  { id: 'social',      label: 'Соцуслуги',  href: '/demo/social',     icon: Users,   gradient: 'from-cyan-500 to-blue-500',       badge: '🌟' },
-  { id: 'logistics',   label: 'Логистика',  href: '/demo/logistics',  icon: Truck,   gradient: 'from-amber-500 to-orange-500',    badge: '🚚' },
-  { id: 'autoservice', label: 'Автосервис', href: '/demo/autoservice',icon: Wrench,  gradient: 'from-emerald-500 to-green-500',    badge: '⚙️' },
-  { id: 'transport',   label: 'Транспорт',  href: '/demo/transport',  icon: Bus,     gradient: 'from-violet-500 to-purple-500',    badge: '🚌' },
-  { id: 'services',    label: 'Услуги',     href: '/demo/services',   icon: Monitor, gradient: 'from-indigo-500 to-sky-500',      badge: '🎯' },
+  { id: 'user',    label: 'Пользователь',   href: '/demo/application/user',   icon: Heart,   gradient: 'from-rose-500 to-pink-500',       badge: '✨' },
+  { id: 'manager',      label: 'Менеджер',  href: '/demo/application/manager',     icon: Users,   gradient: 'from-cyan-500 to-blue-500',       badge: '🌟' },
+  { id: 'owner', label: 'Администратор', href: '/demo/application/owner',icon: Wrench,  gradient: 'from-emerald-500 to-green-500',    badge: '⚙️' },
 ];
 
 const EXTRAS: DockItem[] = [
-  { id: 'home', label: 'Главная', href: '/',                 icon: Home,   gradient: 'from-slate-500 to-slate-400' },
-  { id: 'site', label: 'Сайт',    href: 'https://onestack24.ru', icon: Globe2, external: true, gradient: 'from-blue-500 to-cyan-500' },
-  { id: 'demo', label: 'Демо',    href: '/demo',             icon: Play,   gradient: 'from-green-500 to-emerald-500' },
+  { id: 'home', label: 'Главная', href: '/home',                 icon: Home,   gradient: 'from-slate-500 to-slate-400' },
+  { id: 'site', label: 'Сайт',    href: '/webapp',              icon: Globe2, gradient: 'from-slate-500 to-slate-500' },
+  { id: 'demo', label: 'Демо',    href: '/demo',             icon: Play,   gradient: 'from-slate-500 to-slate-500' },
 ];
 
 const DESKTOP_ICON = 54;
@@ -45,20 +42,14 @@ const MOBILE_ICON  = 46;
 // Пути, на которых должно показываться главное меню
 const MAIN_MENU_PATHS = [
   '/',
-  '/demo',
-  '/demo/medicine',
-  '/demo/social', 
-  '/demo/logistics',
-  '/demo/autoservice',
-  '/demo/transport',
-  '/demo/services'
+  '/demo'
 ];
 
 // Пути, на которых должно скрываться главное меню (внутренние страницы)
 const HIDDEN_MENU_PATHS = [
-  '/demo/social/owner',
-  '/demo/social/manager',
-  '/demo/social/user'
+  '/demo/application/owner',
+  '/demo/application/manager',
+  '/demo/application/user'
   // добавьте другие внутренние пути по необходимости
 ];
 
