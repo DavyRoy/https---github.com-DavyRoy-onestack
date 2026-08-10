@@ -1,34 +1,34 @@
-+ 1 - HERO.tsx
- 2 - HomeIntro.tsx
- 2.1 - HomeServices
- 2.2 - HomeSites
- 2.3 - HomeWebApp
- 2.4 - HomeMobile
- 2.5 - HomeBenefits
- 2.6 - HomeCalculator
- 2.7 - HomeContact
- 2.8 - HomeAbout
- 2.9 - HomeFooter
- 3 - SiteIntro
- 3.1 - SiteTypes
- 3.2 - SiteConfigurator
- 3.3 - SiteBenefits
- 3.4 - SiteCalculator
- 3.5 - SiteContact
- 3.6 - SiteFAQ
- 4 - WebAppIntro
- 4.1 - WebAppKinds
- 4.2 - WebAppModules
- 4.3 - WebAppBenefits
- 4.4 - WebAppCalculator
- 4.5 - WebAppPerfSecurity
- 4.6 - WebAppContact
- 4.7 - WebAppFAQ
- 5 - MobileIntro
- 5.1 - MobileTypes
- 5.2 - MobileFeatures
- 5.3 - MobileBenefits
- 5.4 - MobileCalculator
- 5.5 - MobilePerfSecurity
- 5.6 - MobileContact
++ 1 - HERO.tsx 1
+ 2 - HomeIntro.tsx 1 
+ 2.1 - HomeServices -  
+ 2.2 - HomeSites 1
+ 2.3 - HomeWebApp 1
+ 2.4 - HomeMobile 1
+ 2.5 - HomeBenefits 1
+ 2.6 - HomeCalculator 1
+ 2.7 - HomeContact 1
+ 2.8 - HomeAbout 1
+ 2.9 - HomeFooter 1 
+ 3 - SiteIntro 1 
+ 3.1 - SiteTypes 1 
+ 3.2 - SiteConfigurator 1 
+ 3.3 - SiteBenefits 1
+ 3.4 - SiteCalculator 1
+ 3.5 - SiteContact 1
+ 3.6 - SiteFAQ 1 
+ 4 - WebAppIntro 1 
+ 4.1 - WebAppKinds 1 
+ 4.2 - WebAppModules 1 
+ 4.3 - WebAppBenefits 1
+ 4.4 - WebAppCalculator 1 
+ 4.5 - WebAppPerfSecurity 1 
+ 4.6 - WebAppContact 1
+ 4.7 - WebAppFAQ 1
+ 5 - MobileIntro 1 
+ 5.1 - MobileTypes 1 
+ 5.2 - MobileFeatures 1 
+ 5.3 - MobileBenefits 1
+ 5.4 - MobileCalculator 1
+ 5.5 - MobilePerfSecurity 1
+ 5.6 - MobileContact 1
  5.7 - MobileFAQ

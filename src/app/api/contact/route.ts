@@ -21,12 +21,14 @@ export async function POST(req: NextRequest) {
       return json({ ok: false, error: "Payload too large" }, 413);
     }
 
-    const raw = await req.text();
     let data: any;
     try {
-      data = JSON.parse(raw || "{}");
-    } catch {
-      return json({ ok: false, error: "Invalid JSON" }, 400);
+      data = await parseRequestBody(req);
+    } catch (err) {
+      if ((err as Error)?.message === "invalid-json") {
+        return json({ ok: false, error: "Invalid JSON" }, 400);
+      }
+      throw err;
     }
 
     // honeypot-поле: если боты заполняют скрытое поле, игнорим
@@ -93,12 +95,29 @@ export async function POST(req: NextRequest) {
         )
       );
     }
-    // Fallback: произвольный webhook «SiteCRM»
-    else if (process.env.SITECRM_URL) {
+
+    // Лид → внутреннее веб-приложение (task-master Lead model)
+    if (process.env.SITECRM_URL) {
+      const contact = [payload.phone, payload.email].filter(Boolean).join(" / ") || "не указан";
+      const serviceLabel = Array.isArray(payload.chosenKinds) && payload.chosenKinds.length
+        ? payload.chosenKinds.join(", ")
+        : "";
+      const details = [
+        payload.message,
+        payload.budget   ? `Бюджет: ${payload.budget}`   : "",
+        payload.timeline ? `Сроки: ${payload.timeline}`   : "",
+        payload.company  ? `Компания: ${payload.company}` : "",
+      ].filter(Boolean).join("\n");
+
       tasks.push(
-        postJson(process.env.SITECRM_URL, payload).catch((e) =>
-          console.error("[CONTACT] SiteCRM webhook error:", e?.message || e)
-        )
+        postJson(process.env.SITECRM_URL, {
+          name:    payload.name,
+          contact,
+          service: serviceLabel,
+          details,
+          source:  "site",
+          status:  "new",
+        }).catch((e) => console.error("[CONTACT] CRM webhook error:", e?.message || e))
       );
     }
 
@@ -131,6 +150,48 @@ function corsHeaders() {
     "access-control-allow-methods": "POST,OPTIONS",
     "access-control-allow-headers": "content-type",
   };
+}
+
+async function parseRequestBody(req: NextRequest) {
+  const contentType = (req.headers.get("content-type") || "").toLowerCase();
+
+  if (
+    contentType.includes("multipart/form-data") ||
+    contentType.includes("application/x-www-form-urlencoded")
+  ) {
+    const form = await req.formData();
+    const data: Record<string, any> = {};
+
+    for (const [key, value] of form.entries()) {
+      if (value instanceof File) {
+        data[key] = { name: value.name, size: value.size, type: value.type };
+        continue;
+      }
+      data[key] = value;
+    }
+
+    if (typeof data.kind === "string") data.kind = parseJsonSafe(data.kind, data.kind);
+    if (typeof data.quote === "string") data.quote = parseJsonSafe(data.quote, data.quote);
+
+    return data;
+  }
+
+  const raw = await req.text();
+  if (!raw.trim()) return {};
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    throw new Error("invalid-json");
+  }
+}
+
+function parseJsonSafe(value: string, fallback: any = null) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
 }
 
 function isValidEmail(s: string) {
@@ -207,6 +268,8 @@ function buildTelegramText(p: any) {
   if (Array.isArray(p.chosenKinds) && p.chosenKinds.length) {
     L.push(`*Интересует:* ${escMd(p.chosenKinds.join(", "))}`);
   }
+  const quoteStr = formatQuote(p.quote);
+  if (quoteStr) L.push(`*Калькулятор:* ${escMd(quoteStr)}`);
   L.push(`—`);
   L.push(`*IP:* ${escMd(p.ip)} | *UA:* ${escMd(String(p.ua).slice(0, 150))}`);
   if (p.referer) L.push(`*Referer:* ${escMd(p.referer)}`);
@@ -249,8 +312,12 @@ async function createSuiteCrmLead(p: any) {
     p.message ? `Message: ${p.message}` : "",
     p.phone ? `Phone: ${p.phone}` : "",
     p.company ? `Company: ${p.company}` : "",
+    Array.isArray(p.chosenKinds) && p.chosenKinds.length
+      ? `Chosen kinds: ${p.chosenKinds.join(", ")}`
+      : "",
     p.budget ? `Budget: ${p.budget}` : "",
     p.timeline ? `Timeline: ${p.timeline}` : "",
+    formatQuote(p.quote),
     p.referer ? `Referer: ${p.referer}` : "",
     p.ip ? `IP: ${p.ip}` : "",
     p.ua ? `UA: ${String(p.ua).slice(0, 200)}` : "",
@@ -304,4 +371,28 @@ async function suitecrmCall(restUrl: string, method: string, data: any, timeoutM
     throw new Error("SuiteCRM invalid login");
   }
   return json;
+}
+
+function formatQuote(q: any) {
+  if (!q || typeof q !== "object") return "";
+  const parts: string[] = [];
+  if (q.source) parts.push(`src=${q.source}`);
+  if (q.kind) parts.push(`kind=${q.kind}`);
+  if (q.pages) parts.push(`pages=${q.pages}`);
+  if (q.design) parts.push(`design=${q.design}`);
+  if (q.oneOff) parts.push(`oneOff=${q.oneOff}`);
+  if (q.monthly) parts.push(`monthly=${q.monthly}`);
+  if (q.modules && typeof q.modules === "object") {
+    const enabled = Object.entries(q.modules)
+      .filter(([, v]) => !!v)
+      .map(([k]) => k);
+    if (enabled.length) parts.push(`modules=${enabled.join(",")}`);
+  }
+  if (q.breakdown && typeof q.breakdown === "object") {
+    const top = Object.entries(q.breakdown)
+      .slice(0, 6)
+      .map(([k, v]) => `${k}:${v}`);
+    if (top.length) parts.push(`breakdown=${top.join("|")}`);
+  }
+  return parts.join("; ");
 }

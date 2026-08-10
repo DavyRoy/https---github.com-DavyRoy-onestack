@@ -133,13 +133,14 @@ export default function DemoMediaPreview() {
 
   return (
     <section 
-      className="relative py-16 sm:py-20 md:py-24 bg-black text-white overflow-hidden"
+      className="relative py-16 sm:py-20 md:py-24 text-white overflow-hidden"
       aria-labelledby="media-preview-heading"
+      style={{ background: "#07100e" }}
     >
       {/* Background Elements */}
       <div className="absolute inset-0 -z-10" aria-hidden="true">
-        <div className="absolute top-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 bg-blue-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-purple-500/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 right-1/4 w-48 h-48 sm:w-64 sm:h-64 rounded-full blur-3xl" style={{ background: "rgba(45,212,191,0.05)" }} />
+        <div className="absolute bottom-1/3 left-1/4 w-64 h-64 sm:w-96 sm:h-96 rounded-full blur-3xl" style={{ background: "rgba(45,212,191,0.04)" }} />
         
         {/* Grid pattern */}
         <div

@@ -1,0 +1,14 @@
+# Lightweight image for Telegram bot (polling)
+FROM node:20-bullseye-slim
+WORKDIR /app
+
+# Install only production deps
+COPY package*.json ./
+RUN npm install --production --legacy-peer-deps
+
+# Bot script
+COPY scripts/telegram-bot.js ./scripts/telegram-bot.js
+
+ENV NODE_ENV=production
+
+CMD ["node", "scripts/telegram-bot.js"]

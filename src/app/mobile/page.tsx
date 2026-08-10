@@ -15,48 +15,49 @@ import MobileFAQ from "@/components/MobileFAQ";
 import HomeFooter from "@/components/HomeFooter";
 
 import { QuoteProvider } from "@/app/context/QuoteContext";
+import { canonical, siteName, siteUrl } from "@/app/seo.config";
 
 /* ──────────────────────────── constants & SEO ───────────────────────────── */
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") || "https://onestack24.ru";
+const SITE_URL = siteUrl;
 
 const TITLE = "Разработка мобильных приложений — iOS и Android | OneStack";
 const DESC =
   "Кроссплатформенная разработка под iOS и Android: оффлайн, пуши, карты, платежи, аналитика. Единый бэкенд и CI/CD. Рассчитайте стоимость онлайн.";
-const CANONICAL = `${SITE_URL}/mobile`;
-const COVER = "/og/mobile.jpg";
-
+const CANONICAL = canonical("/mobile");
 // Контакты
-const ORG_NAME = "OneStack";
+const ORG_NAME = siteName;
 const ORG_EMAIL = "info@onestack24.ru";
 const ORG_PHONE = "+7 (910) 948 61 06";
-const ORG_SAME_AS = ["https://onestack24.ru"];
-
-// Метрики
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "G-04E9LPJ43Y";
-const YM_ID = process.env.NEXT_PUBLIC_YM_ID || "103909522";
+const ORG_SAME_AS = [SITE_URL];
 
 /* ──────────────────────────── App Router metadata ───────────────────────── */
 
 export const metadata: Metadata = {
   title: TITLE,
   description: DESC,
-  alternates: { canonical: CANONICAL },
+  alternates: {
+    canonical: CANONICAL,
+    languages: {
+      "ru": CANONICAL,
+      "en": canonical("/mobile"),
+      "x-default": CANONICAL,
+    },
+  },
   openGraph: {
     type: "website",
     url: CANONICAL,
     title: TITLE,
     description: DESC,
     siteName: ORG_NAME,
-    images: [{ url: COVER, width: 1200, height: 630, alt: "OneStack — мобильные приложения" }],
     locale: "ru_RU",
+    images: [{ url: `${SITE_URL}/og/mobile.svg`, width: 1200, height: 630, alt: TITLE }],
   },
   twitter: {
     card: "summary_large_image",
     title: TITLE,
     description: DESC,
-    images: [COVER],
+    images: [`${SITE_URL}/og/mobile.svg`],
   },
 };
 
@@ -149,54 +150,7 @@ export default function MobilePage() {
       {/* Оборачиваем клиентское дерево в Suspense,
           чтобы удовлетворить требование useSearchParams() */}
       <Suspense fallback={null}>
-        <main className="bg-black text-white">
-          {/* Google Analytics */}
-          <Script
-            id="ga-src"
-            src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_ID)}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}');
-            `}
-          </Script>
-
-          {/* Yandex.Metrika */}
-          <Script id="ym-init" strategy="afterInteractive">
-            {`
-              (function(m,e,t,r,i,k,a){
-                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-                m[i].l=1*new Date();
-                for (var j = 0; j < document.scripts.length; j++) {
-                  if (document.scripts[j].src === r) { return; }
-                }
-                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-              })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=${YM_ID}', 'ym');
-
-              ym(${YM_ID}, 'init', {
-                ssr: true,
-                webvisor: true,
-                clickmap: true,
-                ecommerce: 'dataLayer',
-                accurateTrackBounce: true,
-                trackLinks: true
-              });
-            `}
-          </Script>
-          <noscript>
-            <div>
-              <img
-                src={`https://mc.yandex.ru/watch/${YM_ID}`}
-                style={{ position: "absolute", left: "-9999px" }}
-                alt=""
-              />
-            </div>
-          </noscript>
-
+        <main style={{ background: "#07100e" }} className="text-white">
           {/* JSON-LD */}
           <Script
             id="ld-service-mobile"

@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Suspense } from "react";
 import { QuoteProvider } from "@/app/context/QuoteContext";
+import { canonical, siteName, siteUrl } from "@/app/seo.config";
 
 import NavBar from "@/components/NavBar";
 import HomeIntro from "@/components/HomeIntro";
-import HomeServices from "@/components/HomeServices";
 import HomeSites from "@/components/HomeSites";
 import HomeWebApp from "@/components/HomeWebApp";
 import HomeMobile from "@/components/HomeMobile";
@@ -20,36 +20,36 @@ import HomeFooter from "@/components/HomeFooter";
 /* SEO/константы                                                              */
 /* ────────────────────────────────────────────────────────────────────────── */
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://onestack24.ru";
-const title = "OneStack — домашняя страница";
+const title = "OneStack — разработка сайтов, веб и мобильных приложений";
 const description =
-  "Домашняя страница демо-платформы OneStack: быстрый старт, ключевые возможности, сайты, веб- и мобильные приложения.";
-const url = `${SITE_URL}/home`;
+  "OneStack — команда разработчиков полного цикла. Создаём сайты, веб- и мобильные приложения с нуля. Спринты 1–2 недели, прозрачная смета, CI/CD и SLA-поддержка.";
+const url = canonical("/home");
 
 // контакты (актуальные)
 const CONTACT_EMAIL = "info@onestack24.ru";
 const CONTACT_PHONE = "+7 (910) 948 61 06";
-const TELEGRAM_TITLE = "OneStack Assistant";
-const TELEGRAM_HANDLE = "OneStack Assistant"; // настроим ссылку позже
-
-// метрики
-const GA_ID = "G-04E9LPJ43Y";
-const YM_ID = 103909522;
 
 export const metadata: Metadata = {
   title,
   description,
-  alternates: { canonical: url },
+  alternates: {
+    canonical: url,
+    languages: {
+      "ru": url,
+      "en": canonical("/home"),
+      "x-default": url,
+    },
+  },
   openGraph: {
     type: "website",
     url,
     title,
     description,
-    siteName: "OneStack",
-    images: [{ url: "/og/home.png", width: 1200, height: 630, alt: "OneStack — домашняя" }],
+    siteName,
     locale: "ru_RU",
+    images: [{ url: `${siteUrl}/og/cover.svg`, width: 1200, height: 630, alt: title }],
   },
-  twitter: { card: "summary_large_image", title, description, images: ["/og/home.png"] },
+  twitter: { card: "summary_large_image", title, description, images: [`${siteUrl}/og/cover.svg`] },
 };
 
 /* ────────────────────────────────────────────────────────────────────────── */
@@ -62,7 +62,6 @@ function HomeClientTree() {
     <QuoteProvider>
       <NavBar />
       <HomeIntro />
-      <HomeServices />
       <HomeSites />
       <HomeWebApp />
       <HomeMobile />
@@ -84,18 +83,18 @@ export default function HomePage() {
   const ldWebsite = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "OneStack",
+    name: siteName,
     url,
     description,
     inLanguage: "ru-RU",
-    publisher: { "@type": "Organization", name: "OneStack", url: SITE_URL },
+    publisher: { "@type": "Organization", name: siteName, url: siteUrl },
   };
 
   const ldOrg = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "OneStack",
-    url: SITE_URL,
+    name: siteName,
+    url: siteUrl,
     email: CONTACT_EMAIL,
     contactPoint: [
       {
@@ -107,59 +106,48 @@ export default function HomePage() {
       },
     ],
     sameAs: [
-      // добавим точный URL Telegram, когда будет готов
-      // пример: "https://t.me/onestack_assistant"
+      "https://t.me/onestack_assistant_bot",
     ],
-    logo: `${SITE_URL}/vercal.png`,
+    logo: `${siteUrl}/logo.png`,
+  };
+
+  const ldFaq = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "Сколько стоит разработка сайта?",
+        acceptedAnswer: { "@type": "Answer", text: "Стоимость разработки лендинга — от 150 000 ₽, корпоративного сайта — от 420 000 ₽, интернет-магазина — от 720 000 ₽. Точная стоимость зависит от функциональности и сроков." },
+      },
+      {
+        "@type": "Question",
+        name: "Сколько времени займёт разработка?",
+        acceptedAnswer: { "@type": "Answer", text: "Лендинг — 1–2 недели, корпоративный сайт — 3–6 недель, веб-приложение — от 6 недель, мобильное приложение — от 8 недель. Работаем спринтами с еженедельными демо." },
+      },
+      {
+        "@type": "Question",
+        name: "Вы работаете по NDA?",
+        acceptedAnswer: { "@type": "Answer", text: "Да, мы подписываем NDA на этапе первого звонка и обеспечиваем полную конфиденциальность вашего проекта." },
+      },
+      {
+        "@type": "Question",
+        name: "Есть ли поддержка после запуска?",
+        acceptedAnswer: { "@type": "Answer", text: "Да. Мы предлагаем SLA-планы: Lite (10 ч/мес), Pro (20 ч/мес) и Enterprise (40 ч/мес). Включают мониторинг 24/7, обновления и техническую поддержку." },
+      },
+    ],
+  };
+
+  const ldBreadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Главная", item: siteUrl },
+    ],
   };
 
   return (
-    <main className="bg-black text-white">
-      {/* ─── Google Analytics (gtag) ─── */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-        strategy="afterInteractive"
-      />
-      <Script
-        id="ga-init"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_ID}');
-          `,
-        }}
-      />
-
-      {/* ─── Yandex.Metrika ─── */}
-      <Script
-        id="ym-init"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function(m,e,t,r,i,k,a){
-              m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-              m[i].l=1*new Date();
-              for (var j = 0; j < document.scripts.length; j++) {
-                if (document.scripts[j].src === r) { return; }
-              }
-              k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-            })(window, document, 'script', 'https://mc.yandex.ru/metrika/tag.js?id=${YM_ID}', 'ym');
-            ym(${YM_ID}, 'init', { ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", accurateTrackBounce:true, trackLinks:true });
-          `,
-        }}
-      />
-      {/* noscript-пиксель для Яндекс.Метрики */}
-      <noscript>
-        <img
-          src={`https://mc.yandex.ru/watch/${YM_ID}`}
-          style={{ position: "absolute", left: "-9999px" }}
-          alt=""
-        />
-      </noscript>
-
+    <main style={{ background: "#07100e" }} className="text-white">
       {/* ─── JSON-LD для SEO ─── */}
       <Script
         id="ld-website-home"
@@ -170,6 +158,16 @@ export default function HomePage() {
         id="ld-org-home"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrg) }}
+      />
+      <Script
+        id="ld-breadcrumbs-home"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumbs) }}
+      />
+      <Script
+        id="ld-faq-home"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ldFaq) }}
       />
 
       {/* Контент (клиентские компоненты внутри Suspense) */}

@@ -47,7 +47,7 @@ function isRoleMatrixOrNull(v: unknown): v is RoleMatrix | null {
   if (v === null) return true;
   if (typeof v !== "object" || v == null) return false;
   // Очень мягкая проверка: хотя бы верхнеуровневые ключи и boolean внутри
-  for (const [role, perms] of Object.entries(v as Record<string, any>)) {
+  for (const [, perms] of Object.entries(v as Record<string, any>)) {
     if (typeof perms !== "object" || perms == null) return false;
     for (const [, val] of Object.entries(perms)) {
       if (typeof val !== "boolean") return false;

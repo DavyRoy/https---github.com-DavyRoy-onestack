@@ -1,105 +1,138 @@
 // src/components/SiteContact.tsx
 "use client";
+import { serif } from "@/lib/fonts";
 
+import { useCallback, useEffect, useId, useMemo, useRef, useState, memo } from "react";
+import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  memo,
-} from "react";
-import { motion } from "framer-motion";
-import { Mail, Phone, Building2, Paperclip, CheckCircle2, X } from "lucide-react";
+  Mail, Phone, Building2, Paperclip, CheckCircle2, X,
+  ArrowRight, MessageCircle, Clock3, User, Calendar, FileText, Calculator,
+} from "lucide-react";
 import Script from "next/script";
+import { siteName, siteUrl } from "@/app/seo.config";
 import { useQuote } from "@/app/context/QuoteContext";
+import { useI18n } from "@/i18n/I18nProvider";
 
-const GTAG_ID = process.env.NEXT_PUBLIC_GA_ID || "G-04E9LPJ43Y";
-const YM_ID = Number(process.env.NEXT_PUBLIC_YM_ID || 103909522);
 
-const fade = (d = 0) => ({
-  initial: { opacity: 0, y: 16 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.45, delay: d },
-  viewport: { once: true, amount: 0.2 },
-});
+const BG    = "#07100e";
+const TEAL  = "#2dd4bf";
+const WHITE = "#f4faf8";
 
-type Kind = "landing" | "business" | "corporate" | "ecommerce" | "content" | "portfolio";
-type Budget = "100-300" | "300-700" | "700-1500" | "1500+";
+/* ─── Types ──────────────────────────────────────────────────────────────── */
+type Kind     = "landing" | "business" | "corporate" | "ecommerce" | "content" | "portfolio";
+type Budget   = "under-100" | "100-300" | "300-700" | "700-1500" | "1500+";
 type Timeline = "2-4" | "4-8" | "8-12" | "12+";
 
 type FormState = {
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  kind: Kind[];
-  budget: Budget | "";
-  timeline: Timeline | "";
-  message: string;
-  agree: boolean;
-  file: File | null;
-  hp: string; // honeypot
+  name: string; email: string; phone: string; company: string;
+  kind: Kind[]; budget: Budget | ""; timeline: Timeline | "";
+  message: string; agree: boolean; file: File | null; hp: string;
 };
 
 const INITIAL: FormState = {
-  name: "",
-  email: "",
-  phone: "",
-  company: "",
-  kind: [],
-  budget: "",
-  timeline: "",
-  message: "",
-  agree: false,
-  file: null,
-  hp: "",
+  name: "", email: "", phone: "", company: "",
+  kind: [], budget: "", timeline: "", message: "",
+  agree: false, file: null, hp: "",
 };
 
-const KIND_OPTIONS: ReadonlyArray<[Kind, string]> = [
-  ["landing", "Лендинг"],
-  ["business", "Сайт-визитка"],
-  ["corporate", "Корпоративный"],
-  ["ecommerce", "Магазин"],
-  ["content", "Информационный"],
-  ["portfolio", "Портфолио"],
+const KIND_OPTIONS_RU: ReadonlyArray<[Kind, string]> = [
+  ["landing","Лендинг"],["business","Сайт-визитка"],["corporate","Корпоративный"],
+  ["ecommerce","Магазин"],["content","Информационный"],["portfolio","Портфолио"],
+];
+const KIND_OPTIONS_EN: ReadonlyArray<[Kind, string]> = [
+  ["landing","Landing page"],["business","Business card"],["corporate","Corporate"],
+  ["ecommerce","E-commerce"],["content","Informational"],["portfolio","Portfolio"],
+];
+
+const BUDGET_OPTIONS_RU = [
+  { value: "under-100", label: "до 100 тыс ₽"      },
+  { value: "100-300",   label: "100–300 тыс ₽"     },
+  { value: "300-700",   label: "300–700 тыс ₽"     },
+  { value: "700-1500",  label: "700 тыс – 1.5 млн" },
+  { value: "1500+",     label: "от 1.5 млн ₽"      },
+] as const;
+const BUDGET_OPTIONS_EN = [
+  { value: "under-100", label: "under ₽100k" },
+  { value: "100-300",   label: "₽100–300k"   },
+  { value: "300-700",   label: "₽300–700k"   },
+  { value: "700-1500",  label: "₽700k–1.5M"  },
+  { value: "1500+",     label: "₽1.5M+"       },
 ] as const;
 
-const BUDGET_OPTIONS = [
-  { value: "100-300", label: "100–300 тыс ₽" },
-  { value: "300-700", label: "300–700 тыс ₽" },
-  { value: "700-1500", label: "700 тыс–1.5 млн ₽" },
-  { value: "1500+", label: "1.5 млн ₽ +" },
-] as const satisfies ReadonlyArray<{ value: Budget; label: string }>;
-
-const TIMELINE_OPTIONS = [
-  { value: "2-4", label: "2–4 недели" },
-  { value: "4-8", label: "4–8 недель" },
+const TIMELINE_OPTIONS_RU = [
+  { value: "2-4",  label: "2–4 недели"  },
+  { value: "4-8",  label: "4–8 недель"  },
   { value: "8-12", label: "8–12 недель" },
-  { value: "12+", label: "12+ недель" },
-] as const satisfies ReadonlyArray<{ value: Timeline; label: string }>;
+  { value: "12+",  label: "12+ недель"  },
+] as const;
+const TIMELINE_OPTIONS_EN = [
+  { value: "2-4",  label: "2–4 weeks"  },
+  { value: "4-8",  label: "4–8 weeks"  },
+  { value: "8-12", label: "8–12 weeks" },
+  { value: "12+",  label: "12+ weeks"  },
+] as const;
 
-const ACCEPTED_FILE_TYPES =
-  ".pdf,.doc,.docx,.ppt,.pptx,.txt,.md,.jpg,.jpeg,.png,.webp,.zip,.rar";
-const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
-const MESSAGE_MAX = 2000;
+const STEPS_RU = ["Бриф и консультация","Фиксированная смета и ТЗ","Дизайн и разработка","Тестирование и запуск"];
+const STEPS_EN = ["Brief and consultation","Fixed estimate and spec","Design and development","Testing and launch"];
 
+const ACCEPTED_FILE_TYPES = ".pdf,.doc,.docx,.ppt,.pptx,.txt,.md,.jpg,.jpeg,.png,.webp,.zip,.rar";
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MESSAGE_MAX    = 2000;
+
+const ORG = {
+  name: siteName,
+  email: "info@onestack24.ru",
+  phone: "+7 (910) 948 61 06",
+  phoneHref: "tel:+79109486106",
+  site: siteUrl,
+};
+
+function humanSize(bytes: number) {
+  const units = ["Б","КБ","МБ","ГБ"];
+  let i = 0; let v = bytes;
+  while (v >= 1024 && i < units.length - 1) { v /= 1024; i++; }
+  return `${v.toFixed(v < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════════════════════════════════════ */
 export default function SiteContact() {
-  const [form, setForm] = useState<FormState>(INITIAL);
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [submitErr, setSubmitErr] = useState("");
+  const { locale } = useI18n();
+  const isEn = locale === "en";
+  const KIND_OPTIONS     = isEn ? KIND_OPTIONS_EN     : KIND_OPTIONS_RU;
+  const BUDGET_OPTIONS   = isEn ? BUDGET_OPTIONS_EN   : BUDGET_OPTIONS_RU;
+  const TIMELINE_OPTIONS = isEn ? TIMELINE_OPTIONS_EN : TIMELINE_OPTIONS_RU;
+  const STEPS            = isEn ? STEPS_EN            : STEPS_RU;
 
-  const nameId = useId();
-  const emailId = useId();
-  const phoneId = useId();
+  const [form,      setForm]      = useState<FormState>(INITIAL);
+  const [sending,   setSending]   = useState(false);
+  const [sent,      setSent]      = useState(false);
+  const [errors,    setErrors]    = useState<Record<string,string>>({});
+  const [submitErr, setSubmitErr] = useState("");
+  const [isMobile,  setIsMobile]  = useState(false);
+  const [mounted,   setMounted]   = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const nameId    = useId();
+  const emailId   = useId();
+  const phoneId   = useId();
   const companyId = useId();
   const messageId = useId();
-  const statusId = useId();
+  const statusId  = useId();
+  const agreeId   = useId();
+  const hpId      = useId();
+  const titleId   = useId();
 
-  // из калькулятора
+  const reduced = useReducedMotion();
   const { quote, resetQuote } = useQuote();
   const calcRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -107,44 +140,47 @@ export default function SiteContact() {
     if (calcRef.current) calcRef.current.value = quote ? JSON.stringify(quote) : "";
   }, [quote]);
 
-  // Валидация email
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const kind = (e as CustomEvent<{ kind: Kind }>).detail?.kind;
+      if (kind) setForm(s => ({ ...s, kind: [kind] }));
+    };
+    window.addEventListener("contact-kind-prefill", handler);
+    return () => window.removeEventListener("contact-kind-prefill", handler);
+  }, []);
+
   const isEmailValid = useMemo(
     () => (form.email ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()) : false),
     [form.email]
   );
 
   const setField = useCallback(<K extends keyof FormState>(key: K, value: FormState[K]) => {
-    setForm((s) => ({ ...s, [key]: value }));
+    setForm(s => ({ ...s, [key]: value }));
   }, []);
 
   const toggleKind = useCallback((k: Kind) => {
-    setForm((s) => ({
-      ...s,
-      kind: s.kind.includes(k) ? s.kind.filter((x) => x !== k) : [...s.kind, k],
-    }));
+    setForm(s => ({ ...s, kind: s.kind.includes(k) ? s.kind.filter(x => x !== k) : [...s.kind, k] }));
   }, []);
 
-  // мягкая нормализация телефона (только цифры + плюс впереди)
   const normalizePhone = (v: string) => {
-    const digits = v.replace(/[^\d+]/g, "");
-    return digits.startsWith("+") ? "+" + digits.replace(/[^\d]/g, "") : digits.replace(/[^\d]/g, "");
+    const d = v.replace(/[^\d+]/g,"");
+    return d.startsWith("+") ? "+" + d.replace(/[^\d]/g,"") : d.replace(/[^\d]/g,"");
   };
 
-  // Лёгкая валидация
   const validate = useCallback(() => {
-    const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = "Как к вам обращаться?";
-    if (!isEmailValid) e.email = "Введите корректный email";
-    if (!form.kind.length) e.kind = "Выберите интересующие типы";
-    if (!form.budget) e.budget = "Укажите ориентир бюджета";
-    if (!form.timeline) e.timeline = "Укажите срок";
-    if (!form.agree) e.agree = "Подтвердите согласие на обработку";
-    if (form.file && form.file.size > MAX_FILE_BYTES) e.file = "Файл больше 10 МБ";
+    const e: Record<string,string> = {};
+    if (!form.name.trim()) e.name = isEn ? "What should we call you?" : "Как к вам обращаться?";
+    if (!isEmailValid && !form.phone.trim()) e.email = isEn ? "Enter email or phone" : "Введите email или телефон";
+    if (!form.kind.length) e.kind = isEn ? "Select site type" : "Выберите тип сайта";
+    if (!form.budget) e.budget = isEn ? "Select budget" : "Укажите бюджет";
+    if (!form.timeline) e.timeline = isEn ? "Select timeline" : "Укажите сроки";
+    if (!form.agree) e.agree = isEn ? "Confirm agreement" : "Подтвердите согласие";
+    if (form.file && form.file.size > MAX_FILE_BYTES) e.file = isEn ? "File exceeds 10 MB" : "Файл больше 10 МБ";
+    if (!form.message.trim() || form.message.length < 10) e.message = isEn ? "Describe the project (min 10 chars)" : "Опишите проект (минимум 10 символов)";
     setErrors(e);
     return Object.keys(e).length === 0;
-  }, [form, isEmailValid]);
+  }, [form, isEmailValid, isEn]);
 
-  // Управление отправкой (с отменой предыдущей)
   const abortRef = useRef<AbortController | null>(null);
 
   const onSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
@@ -152,19 +188,19 @@ export default function SiteContact() {
     setSubmitErr("");
     if (sending) return;
     if (!validate()) return;
-    if (form.hp) return; // honeypot
+    if (form.hp) return;
 
-    // Сборка FormData
     const fd = new FormData();
-    fd.append("name", form.name.trim());
-    fd.append("email", form.email.trim().toLowerCase());
-    fd.append("phone", form.phone.trim());
+    fd.append("subject","Заявка на разработку сайта");
+    fd.append("name",    form.name.trim());
+    fd.append("email",   form.email.trim().toLowerCase());
+    fd.append("phone",   form.phone.trim());
     fd.append("company", form.company.trim());
-    fd.append("kind", JSON.stringify(form.kind));
-    fd.append("budget", form.budget);
-    fd.append("timeline", form.timeline);
+    fd.append("kind",    JSON.stringify(form.kind));
+    fd.append("budget",  form.budget);
+    fd.append("timeline",form.timeline);
     fd.append("message", form.message.trim());
-    fd.append("agree", String(form.agree));
+    fd.append("agree",   String(form.agree));
     fd.append("createdAt", new Date().toISOString());
     fd.append("ua", typeof navigator !== "undefined" ? navigator.userAgent : "");
     fd.append("quote", quote ? JSON.stringify(quote) : "");
@@ -174,604 +210,506 @@ export default function SiteContact() {
       abortRef.current?.abort();
       const controller = new AbortController();
       abortRef.current = controller;
-
       setSending(true);
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        body: fd,
-        signal: controller.signal,
-      });
-
+      const res = await fetch("/api/contact", { method:"POST", body:fd, signal:controller.signal });
       if (!res.ok) {
         let reason = "";
-        try {
-          const data = await res.json();
-          reason = data?.error || data?.message || "";
-        } catch {}
+        try { const d = await res.json(); reason = d?.error || d?.message || ""; } catch {}
         throw new Error(reason || `Ошибка ${res.status}`);
       }
-
-      // Аналитика: GA4 + Yandex.Metrika
-      try {
-        // @ts-ignore
-        if (typeof window !== "undefined" && typeof window.gtag === "function") {
-          // @ts-ignore
-          window.gtag("event", "generate_lead", {
-            event_category: "contact",
-            event_label: "site_form",
-            value: 1,
-          });
-        }
-        // @ts-ignore
-        if (typeof window !== "undefined" && typeof window.ym === "function") {
-          // @ts-ignore
-          window.ym(YM_ID, "reachGoal", "lead_contact_form");
-        }
-      } catch {}
-
       setSent(true);
       resetQuote();
       setForm(INITIAL);
       setErrors({});
-
-      // Автоскрытие уведомления
+      try {
+        (window as any).gtag?.("event","generate_lead",{form_id:"site_contact",value:1,currency:"RUB"});
+        (window as any).ym?.(105578590,"reachGoal","site_contact_submit");
+      } catch {}
       const t = setTimeout(() => setSent(false), 5000);
       return () => clearTimeout(t);
     } catch (err: any) {
       if (err?.name === "AbortError") return;
-      setSubmitErr(err?.message || "Не удалось отправить заявку. Попробуйте позже.");
+      setSubmitErr(err?.message || "Не удалось отправить заявку.");
     } finally {
       setSending(false);
     }
-  }, [form, quote, resetQuote, sending, validate]);
+  }, [form, sending, validate, quote, resetQuote]);
 
-  // a11y ids
-  const agreeId = useId();
-  const hpId = useId();
+  const msgLeft = MESSAGE_MAX - form.message.length;
 
-  const messageLeft = MESSAGE_MAX - form.message.length;
-
-  /* ====== SEO JSON-LD ====== */
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://onestack24.ru";
-  const orgJsonLd = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "OneStack",
-      url: baseUrl,
-      email: "info@onestack24.ru",
-      telephone: "+7-910-948-61-06",
-      contactPoint: [
-        {
-          "@type": "ContactPoint",
-          contactType: "sales",
-          email: "info@onestack24.ru",
-          telephone: "+7-910-948-61-06",
-          areaServed: ["RU", "KZ", "BY", "AM"],
-          availableLanguage: ["ru", "en"],
-        },
-      ],
-    }),
-    [baseUrl]
-  );
+  const jsonLd = useMemo(() => [
+    { "@context":"https://schema.org","@type":"ContactPage", name:"Разработка сайтов под ключ | OneStack", url:`${baseUrl}/sites#contact` },
+    { "@context":"https://schema.org","@type":"Organization", name:ORG.name, url:baseUrl, email:ORG.email, telephone:ORG.phoneHref.replace("tel:",""),
+      contactPoint:[{"@type":"ContactPoint",contactType:"sales",email:ORG.email,telephone:ORG.phoneHref.replace("tel:",""),areaServed:["RU","KZ","BY","AM"],availableLanguage:["ru","en"]}] },
+  ], [baseUrl]);
 
-  const contactPageJsonLd = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "ContactPage",
-      name: "Связаться с OneStack",
-      url: `${baseUrl}/sites#contact`,
-      description:
-        "Форма обратной связи: расскажите о задаче, выберите тип сайта и получите смету.",
-      breadcrumb: {
-        "@type": "BreadcrumbList",
-        itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Домашняя", item: `${baseUrl}/` },
-          { "@type": "ListItem", position: 2, name: "Сайты", item: `${baseUrl}/sites` },
-          { "@type": "ListItem", position: 3, name: "Контакты", item: `${baseUrl}/sites#contact` },
-        ],
-      },
-      publisher: { "@type": "Organization", name: "OneStack", url: baseUrl },
-    }),
-    [baseUrl]
-  );
+  const fadeUp = (d = 0) => reduced ? {} : {
+    initial:{opacity:0,y:24}, whileInView:{opacity:1,y:0},
+    viewport:{once:true}, transition:{duration:0.65,ease:[0.22,1,0.36,1],delay:d},
+  };
+
+  /* shared input style */
+  const inputStyle = (err?: string): React.CSSProperties => ({
+    width: "100%", boxSizing: "border-box" as const,
+    background: "rgba(255,255,255,0.03)",
+    border: `1px solid ${err ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.09)"}`,
+    borderRadius: 10, padding: "11px 14px",
+    fontSize: 13, color: WHITE, caretColor: TEAL,
+    outline: "none", transition: "border-color 0.2s",
+  });
 
   return (
-    <section
-      id="contact"
-      className="relative w-full overflow-hidden bg-gradient-to-b from-black via-[#0a0a0a] to-black text-white py-24"
-      aria-labelledby="contact-title"
-      itemScope
-      itemType="https://schema.org/Organization"
-    >
-      {/* ===== Analytics (GA4 + Yandex.Metrika) ===== */}
-      {GTAG_ID && (
-        <>
-          <Script
-            id="ga4-src"
-            src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GTAG_ID}', { anonymize_ip: true });
-            `}
-          </Script>
-        </>
-      )}
-      {YM_ID && (
-        <Script id="ym-init" strategy="afterInteractive">
-          {`
-            (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-              m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0];
-              k.async=1;k.src=r;a.parentNode.insertBefore(k,a)
-            })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-            ym(${YM_ID}, "init", { clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:false });
-          `}
-        </Script>
-      )}
+    <>
+      <Script id="ld-site-contact" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* ===== JSON-LD для SEO ===== */}
-      <Script
-        id="schema-org-organization"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
-      />
-      <Script
-        id="schema-contactpage"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageJsonLd) }}
-      />
+      <section
+        id="contact"
+        aria-labelledby={titleId}
+        style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
+      >
+        {/* Glow */}
+        <div aria-hidden style={{
+          pointerEvents: "none", position: "absolute", top: -160, right: 0,
+          width: 480, height: 480, borderRadius: "50%",
+          background: TEAL, opacity: 0.06, filter: "blur(160px)",
+        }} />
 
-      {/* мягкие свечения */}
-      <div className="pointer-events-none absolute -top-40 -left-40 h-[420px] w-[420px] rounded-full bg-white/[0.035] blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full bg-white/[0.035] blur-3xl" />
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px", position: "relative", zIndex: 1 }}>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12 lg:px-20">
-        {/* заголовок */}
-        <motion.div {...fade(0)}>
-          <span className="inline-block text-xs tracking-widest text-white/60 uppercase">
-            оставить заявку
-          </span>
-          <h2 id="contact-title" className="mt-2 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
-            Расскажите о задаче — подберём решение и смету
-          </h2>
-          <p className="mt-4 text-white/70 max-w-3xl">
-            Ответим в рабочие часы в течение дня. Если удобно — приложите бриф или презентацию.
-          </p>
-        </motion.div>
-
-        {/* контент */}
-        <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* левая колонка — контакты/бейджи */}
-          <motion.div {...fade(0.05)} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <h3 className="text-lg font-semibold">
-              Как связаться <span className="sr-only">OneStack</span>
-            </h3>
-            <meta itemProp="name" content="OneStack" />
-            <link itemProp="url" href={baseUrl} />
-            <div className="mt-4 space-y-3 text-white/80">
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08]">
-                  <Mail className="h-4 w-4" />
-                </span>
-                <a href="mailto:info@onestack24.ru" className="hover:underline" itemProp="email">
-                  info@onestack24.ru
-                </a>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08]">
-                  <Phone className="h-4 w-4" />
-                </span>
-                <a href="tel:+79109486106" className="hover:underline" itemProp="telephone">
-                  +7 (910) 948 61 06
-                </a>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.08]">
-                  <Building2 className="h-4 w-4" />
-                </span>
-                <a href={baseUrl} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                  onestack24.ru
-                </a>
-              </div>
+          {/* ── Header ── */}
+          <motion.div {...(fadeUp(0) as object)} style={{ padding: isMobile ? "80px 0 60px" : "110px 0 72px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+              <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
+                {isEn ? "Discuss the project" : "Обсудить проект"}
+              </span>
             </div>
-
-            {/* бейджи-плюсы */}
-            <div className="mt-6 grid grid-cols-2 gap-3">
-              {[
-                ["Фикс-смета", "прозрачно"],
-                ["Спринты", "1–2 недели"],
-                ["Документация", "после релиза"],
-                ["Поддержка", "SLA опционально"],
-              ].map(([a, b]) => (
-                <div key={a} className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3">
-                  <div className="text-sm font-semibold">{a}</div>
-                  <div className="text-xs text-white/65">{b}</div>
-                </div>
-              ))}
-            </div>
+            <h2 id={titleId} className={serif.className}
+              style={{ margin: "0 0 16px", fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}>
+              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: "transparent", WebkitTextStroke: `1.5px ${TEAL}` }}>
+                {isEn ? "Tell us" : "Расскажите"}
+              </span>
+              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
+                {isEn ? "about your project" : "о вашем проекте"}
+              </span>
+            </h2>
+            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(244,250,248,0.4)", maxWidth: 520 }}>
+              {isEn
+                ? "We'll respond within 2 hours, sign NDA, prepare an estimate and propose the optimal solution."
+                : "Ответим в течение 2 часов, подпишем NDA, подготовим смету и предложим оптимальное решение."}
+            </p>
           </motion.div>
 
-          {/* правая колонка — форма */}
-          <motion.form
-            {...fade(0.08)}
-            onSubmit={onSubmit}
-            className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/[0.03] p-6"
-            noValidate
-            encType="multipart/form-data"
-            aria-describedby={statusId}
-            aria-busy={sending}
-          >
-            {/* скрытое поле для расчёта */}
-            <textarea ref={calcRef} name="calc" className="hidden" readOnly aria-hidden="true" />
+          {/* ── Two-column layout ── */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: isMobile ? "1fr" : "280px 1fr",
+            gap: isMobile ? 0 : 40,
+            alignItems: "start",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+          }}>
 
-            {/* honeypot для ботов */}
-            <div className="absolute left-[-9999px] top-auto w-px h-px overflow-hidden" aria-hidden="true">
-              <label htmlFor={hpId}>Ваш сайт</label>
-              <input
-                id={hpId}
-                name="company_website"
-                autoComplete="off"
-                tabIndex={-1}
-                onChange={(e) => setField("hp", e.target.value)}
-                value={form.hp}
-              />
-            </div>
-
-            {/* верхний ряд */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field
-                id={nameId}
-                label="Как вас зовут"
-                placeholder="Иван Петров"
-                value={form.name}
-                onChange={(v) => setField("name", v)}
-                error={errors.name}
-                name="name"
-                autoComplete="name"
-                required
-              />
-              <Field
-                id={emailId}
-                label="Email"
-                type="email"
-                placeholder="you@company.com"
-                value={form.email}
-                onChange={(v) => setField("email", v)}
-                error={errors.email}
-                name="email"
-                autoComplete="email"
-                inputMode="email"
-                required
-              />
-              <Field
-                id={phoneId}
-                label="Телефон"
-                placeholder="+7 (___) ___-__-__"
-                value={form.phone}
-                onChange={(v) => setField("phone", normalizePhone(v))}
-                name="tel"
-                autoComplete="tel"
-                inputMode="tel"
-              />
-              <Field
-                id={companyId}
-                label="Компания (необязательно)"
-                placeholder="ООО «Пример»"
-                value={form.company}
-                onChange={(v) => setField("company", v)}
-                name="organization"
-                autoComplete="organization"
-              />
-            </div>
-
-            {/* типы сайтов */}
-            <div className="mt-6">
-              <RowTitle title="Что интересно" hint="Можно выбрать несколько" />
-              <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Типы сайтов">
-                {KIND_OPTIONS.map(([k, l]) => (
-                  <Chip key={k} active={form.kind.includes(k)} onClick={() => toggleKind(k)}>
-                    {l}
-                  </Chip>
-                ))}
+            {/* Left: info */}
+            <motion.div
+              {...(fadeUp(0.08) as object)}
+              style={{
+                borderRight: isMobile ? "none" : "1px solid rgba(255,255,255,0.06)",
+                paddingRight: isMobile ? 0 : 40,
+                paddingBottom: 48,
+              }}
+            >
+              {/* Contacts */}
+              <div style={{ paddingTop: 36, paddingBottom: 32, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <FigLabel num="INFO" label={isEn ? "Contacts" : "Контакты"} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <ContactRow icon={<Mail size={14}/>}     label="Email"                        value={ORG.email} href={`mailto:${ORG.email}`} />
+                  <ContactRow icon={<Phone size={14}/>}    label={isEn?"Phone":"Телефон"}        value={ORG.phone} href={ORG.phoneHref} />
+                  <ContactRow icon={<Building2 size={14}/>} label={isEn?"Website":"Сайт"}       value="onestack24.ru" href={ORG.site} />
+                </div>
               </div>
-              {errors.kind && <ErrText id="err-kind">{errors.kind}</ErrText>}
-            </div>
 
-            {/* бюджет/сроки */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Select
-                label="Ориентир бюджета"
-                value={form.budget}
-                onChange={(v) => setField("budget", v as Budget)}
-                options={BUDGET_OPTIONS}
-                error={errors.budget}
-              />
-              <Select
-                label="Желаемые сроки"
-                value={form.timeline}
-                onChange={(v) => setField("timeline", v as Timeline)}
-                options={TIMELINE_OPTIONS}
-                error={errors.timeline}
-              />
-            </div>
+              {/* Steps */}
+              <div style={{ paddingTop: 32, paddingBottom: 32, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                <FigLabel num="PROC" label={isEn ? "Work stages" : "Этапы работы"} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  {STEPS.map((s, i) => (
+                    <div key={s} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        width: 24, height: 24, borderRadius: "50%", flexShrink: 0,
+                        background: `${TEAL}18`, border: `1px solid ${TEAL}40`,
+                        fontSize: 10, fontWeight: 600, color: TEAL,
+                      }}>{i + 1}</span>
+                      <span style={{ fontSize: 13, color: "rgba(244,250,248,0.55)" }}>{s}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            {/* сообщение */}
-            <div className="mt-6">
-              <Label>Опишите задачу / ссылки / пожелания</Label>
-              <textarea
-                id={messageId}
-                name="message"
-                value={form.message}
-                onChange={(e) => setField("message", e.target.value.slice(0, MESSAGE_MAX))}
-                rows={5}
-                maxLength={MESSAGE_MAX}
-                className={`mt-2 w-full rounded-xl border px-4 py-3 outline-none ring-0 placeholder:text-white/40 ${
-                  errors.message ? "border-red-500/70 bg-red-500/5" : "border-white/10 bg-black/30"
-                }`}
-                placeholder="Какая цель проекта? Есть ли референсы, контент, ТЗ?"
-                aria-invalid={!!errors.message || undefined}
-                aria-describedby={errors.message ? "err-message" : undefined}
-              />
-              <div className="mt-1 text-xs text-white/45">{messageLeft} / {MESSAGE_MAX}</div>
-              {errors.message && <ErrText id="err-message">{errors.message}</ErrText>}
-            </div>
+              {/* Guarantees */}
+              <div style={{ paddingTop: 32 }}>
+                <FigLabel num="SLA" label={isEn ? "Guarantees" : "Гарантии"} />
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {(isEn
+                    ? ["Fixed estimate","Demo every 1–2 weeks","Technical documentation","Post-launch support"]
+                    : ["Фиксированная смета","Демо каждые 1–2 недели","Техническая документация","Поддержка после запуска"]
+                  ).map(g => (
+                    <div key={g} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <div style={{ width: 5, height: 5, borderRadius: "50%", flexShrink: 0, background: TEAL }} />
+                      <span style={{ fontSize: 13, color: "rgba(244,250,248,0.5)" }}>{g}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
 
-            {/* файл */}
-            <div className="mt-4">
-              <Label>Бриф / презентация (необязательно)</Label>
-              <div className="mt-2 flex items-center gap-3">
-                <label className="flex-1 flex items-center gap-3 cursor-pointer rounded-xl border border-white/10 bg-black/30 px-4 py-3">
-                  <Paperclip className="h-4 w-4" />
-                  <span className="text-sm truncate">
-                    {form.file ? `${form.file.name} (${humanSize(form.file.size)})` : "Прикрепить файл (до 10 МБ)"}
-                  </span>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept={ACCEPTED_FILE_TYPES}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0] || null;
-                      if (f && f.size > MAX_FILE_BYTES) {
-                        setErrors((s) => ({ ...s, file: "Файл больше 10 МБ" }));
-                        return;
-                      }
-                      setErrors((s) => ({ ...s, file: "" }));
-                      setField("file", f);
+            {/* Right: form */}
+            <motion.div {...(fadeUp(0.12) as object)} style={{ paddingTop: 36, paddingBottom: isMobile ? 80 : 110 }}>
+              <form
+                onSubmit={onSubmit}
+                noValidate
+                encType="multipart/form-data"
+                aria-describedby={statusId}
+                aria-busy={sending}
+              >
+                {/* Hidden calc payload */}
+                <textarea ref={calcRef} name="calc" style={{ display: "none" }} readOnly aria-hidden="true" />
+
+                {/* Honeypot */}
+                <div style={{ position: "absolute", left: -9999, top: "auto", width: 1, height: 1, overflow: "hidden" }}>
+                  <label htmlFor={hpId}>Ваш сайт</label>
+                  <input id={hpId} name="company_website" autoComplete="off" tabIndex={-1}
+                    onChange={e => setField("hp", e.target.value)} value={form.hp} />
+                </div>
+
+                {/* Calculator banner */}
+                <AnimatePresence>
+                  {mounted && quote && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 10,
+                        borderRadius: 10, padding: "10px 14px", marginBottom: 28,
+                        background: `${TEAL}10`, border: `1px solid ${TEAL}30`,
+                      }}
+                    >
+                      <Calculator size={14} style={{ color: TEAL, flexShrink: 0 }} />
+                      <p style={{ margin: 0, fontSize: 12, color: "rgba(244,250,248,0.65)" }}>
+                        {isEn ? "Calculator data attached to this request" : "Данные из калькулятора прикреплены к заявке"}
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* 01 · Personal */}
+                <FormSection label={isEn ? "Contact details" : "Контактные данные"} num="01">
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 12 }}>
+                    <FormField id={nameId} label={isEn ? "Your name *" : "Как вас зовут *"}
+                      placeholder={isEn ? "John Smith" : "Иван Петров"}
+                      value={form.name} onChange={v => setField("name", v)}
+                      error={errors.name} icon={<User size={13}/>} inputStyle={inputStyle} />
+                    <FormField id={emailId} label="Email"
+                      placeholder="you@company.com" type="email"
+                      value={form.email} onChange={v => setField("email", v)}
+                      error={errors.email} icon={<Mail size={13}/>} inputStyle={inputStyle} />
+                    <FormField id={phoneId} label={isEn ? "Phone" : "Телефон"}
+                      placeholder="+7 (___) ___-__-__"
+                      value={form.phone} onChange={v => setField("phone", normalizePhone(v))}
+                      icon={<Phone size={13}/>} inputStyle={inputStyle} />
+                    <FormField id={companyId} label={isEn ? "Company" : "Компания"}
+                      placeholder={isEn ? "Acme Corp" : "ООО «Пример»"}
+                      value={form.company} onChange={v => setField("company", v)}
+                      icon={<Building2 size={13}/>} inputStyle={inputStyle} />
+                  </div>
+                </FormSection>
+
+                {/* 02 · Project type */}
+                <FormSection label={isEn ? "Site type *" : "Тип сайта *"} num="02" hint={isEn ? "multiple" : "можно несколько"}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                    {KIND_OPTIONS.map(([k, l]) => (
+                      <ContactChip key={k} active={form.kind.includes(k)} onClick={() => toggleKind(k)} label={l} />
+                    ))}
+                  </div>
+                  {errors.kind && <ErrText>{errors.kind}</ErrText>}
+                </FormSection>
+
+                {/* 03 · Budget + Timeline */}
+                <FormSection label={isEn ? "Budget & timeline" : "Бюджет и сроки"} num="03">
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 24 }}>
+                    <div>
+                      <SubLabel label={isEn ? "Budget *" : "Бюджет *"} />
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 10 }}>
+                        {BUDGET_OPTIONS.map(o => (
+                          <ContactChip key={o.value} active={form.budget === o.value}
+                            onClick={() => setField("budget", o.value as Budget)} label={o.label} />
+                        ))}
+                      </div>
+                      {errors.budget && <ErrText>{errors.budget}</ErrText>}
+                    </div>
+                    <div>
+                      <SubLabel label={isEn ? "Timeline *" : "Сроки *"} />
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 10 }}>
+                        {TIMELINE_OPTIONS.map(o => (
+                          <ContactChip key={o.value} active={form.timeline === o.value}
+                            onClick={() => setField("timeline", o.value as Timeline)} label={o.label} />
+                        ))}
+                      </div>
+                      {errors.timeline && <ErrText>{errors.timeline}</ErrText>}
+                    </div>
+                  </div>
+                </FormSection>
+
+                {/* 04 · Message */}
+                <FormSection label={isEn ? "Project description *" : "Описание проекта *"} num="04">
+                  <div style={{ position: "relative" }}>
+                    <textarea
+                      id={messageId} name="message"
+                      value={form.message}
+                      onChange={e => setField("message", e.target.value.slice(0, MESSAGE_MAX))}
+                      rows={6} maxLength={MESSAGE_MAX}
+                      placeholder={isEn
+                        ? "Describe your project: goals, target audience, main pages, functionality, integrations..."
+                        : "Опишите ваш проект: цели, целевая аудитория, основные страницы, функциональность, интеграции..."}
+                      style={{
+                        ...inputStyle(errors.message),
+                        resize: "none", lineHeight: 1.6,
+                        paddingBottom: 28,
+                      }}
+                      onFocus={e => { e.currentTarget.style.borderColor = `${TEAL}60`; }}
+                      onBlur={e => { e.currentTarget.style.borderColor = errors.message ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.09)"; }}
+                    />
+                    <span style={{
+                      position: "absolute", bottom: 10, right: 12, fontSize: 10,
+                      color: msgLeft < 100 ? "#fbbf24" : "rgba(244,250,248,0.25)",
+                    }}>{msgLeft}</span>
+                  </div>
+                  {errors.message && <ErrText>{errors.message}</ErrText>}
+                </FormSection>
+
+                {/* 05 · File */}
+                <FormSection label={isEn ? "Additional materials" : "Дополнительные материалы"} num="05" hint={isEn ? "optional" : "необязательно"}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <label style={{
+                      flex: 1, display: "flex", alignItems: "center", gap: 10, cursor: "pointer",
+                      borderRadius: 10, padding: "11px 14px",
+                      background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.08)",
+                      transition: "border-color 0.2s",
                     }}
-                  />
-                </label>
-                {form.file && (
-                  <button
-                    type="button"
-                    className="inline-flex items-center justify-center rounded-full border border-white/20 px-3 py-2 text-sm hover:bg-white/10"
-                    onClick={() => setField("file", null)}
-                    aria-label="Убрать прикрепленный файл"
-                    title="Убрать файл"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-              {errors.file && <ErrText>{errors.file}</ErrText>}
-            </div>
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = `${TEAL}40`}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)"}
+                    >
+                      <Paperclip size={14} style={{ color: "rgba(244,250,248,0.3)", flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, color: "rgba(244,250,248,0.45)" }}>
+                        {form.file ? `${form.file.name} (${humanSize(form.file.size)})` : (isEn ? "Attach file up to 10 MB" : "Прикрепить файл до 10 МБ")}
+                      </span>
+                      <input type="file" style={{ display: "none" }} accept={ACCEPTED_FILE_TYPES}
+                        onChange={e => {
+                          const f = e.target.files?.[0] || null;
+                          if (f && f.size > MAX_FILE_BYTES) { setErrors(s => ({...s, file:"Файл больше 10 МБ"})); return; }
+                          setErrors(s => ({...s, file:""})); setField("file", f);
+                        }} />
+                    </label>
+                    {form.file && (
+                      <button type="button" onClick={() => setField("file", null)}
+                        aria-label={isEn ? "Remove file" : "Удалить файл"}
+                        style={{
+                          width: 38, height: 38, borderRadius: 8, flexShrink: 0,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          background: "transparent", border: "1px solid rgba(255,255,255,0.08)",
+                          color: "rgba(244,250,248,0.4)", cursor: "pointer", transition: "all 0.15s",
+                        }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(239,68,68,0.4)"; (e.currentTarget as HTMLElement).style.color = "#f87171"; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)"; (e.currentTarget as HTMLElement).style.color = "rgba(244,250,248,0.4)"; }}
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                  {errors.file && <ErrText>{errors.file}</ErrText>}
+                </FormSection>
 
-            {/* согласие */}
-            <div className="mt-6 flex items-start gap-3">
-              <input
-                id={agreeId}
-                type="checkbox"
-                checked={form.agree}
-                onChange={(e) => setField("agree", e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-white/20 bg-black/30"
-                aria-invalid={!!errors.agree || undefined}
-                aria-describedby={errors.agree ? "err-agree" : undefined}
-              />
-              <label htmlFor={agreeId} className="text-sm text-white/80">
-                Согласен(на) на обработку персональных данных и получение ответа
-              </label>
-            </div>
-            {errors.agree && <ErrText id="err-agree">{errors.agree}</ErrText>}
+                {/* Agreement */}
+                <div style={{ marginBottom: 24, padding: "16px 0", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <label htmlFor={agreeId} style={{ display: "flex", cursor: "pointer", alignItems: "flex-start", gap: 12 }}>
+                    <div style={{ position: "relative", marginTop: 2, flexShrink: 0 }}>
+                      <input id={agreeId} type="checkbox" checked={form.agree}
+                        onChange={e => setField("agree", e.target.checked)}
+                        style={{ position: "absolute", opacity: 0, width: 0, height: 0 }} required />
+                      <div style={{
+                        width: 18, height: 18, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center",
+                        background: form.agree ? TEAL : "transparent",
+                        border: `1.5px solid ${form.agree ? TEAL : "rgba(255,255,255,0.25)"}`,
+                        transition: "all 0.2s",
+                      }}>
+                        {form.agree && (
+                          <svg viewBox="0 0 12 10" fill="none" style={{ width: 11, height: 11 }}>
+                            <path d="M1 5l3.5 3.5L11 1" stroke={BG} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 12, lineHeight: 1.6, color: "rgba(244,250,248,0.45)" }}>
+                      {isEn
+                        ? "I consent to the processing of personal data and to receiving a commercial proposal"
+                        : "Согласен на обработку персональных данных в соответствии с ФЗ № 152 и получение коммерческого предложения"}
+                    </span>
+                  </label>
+                  {errors.agree && <ErrText>{errors.agree}</ErrText>}
+                </div>
 
-            {/* submit / back */}
-            <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-start gap-3">
-              <button
-                type="submit"
-                disabled={sending}
-                className="w-full sm:w-auto !h-12 min-w-[220px] inline-flex items-center justify-center whitespace-nowrap rounded-full bg-white px-6 font-semibold text-black hover:shadow-white/20 hover:shadow-lg transition disabled:opacity-60 text-center"
-              >
-                {sending ? "Отправляем…" : "Отправить заявку"}
-              </button>
-              <a
-                href="#calculator"
-                className="w-full sm:w-auto !h-12 min-w-[220px] inline-flex items-center justify-center whitespace-nowrap rounded-full border border-white/20 px-6 font-semibold hover:bg-white/10 transition text-center"
-              >
-                Вернуться к калькулятору
-              </a>
-            </div>
+                {/* Submit */}
+                <button
+                  type="submit" disabled={sending}
+                  style={{
+                    width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    borderRadius: 99, padding: "14px 24px", border: "none", cursor: sending ? "not-allowed" : "pointer",
+                    background: TEAL, color: BG, fontSize: 14, fontWeight: 600,
+                    opacity: sending ? 0.6 : 1, transition: "opacity 0.2s",
+                  }}
+                >
+                  {sending
+                    ? <><motion.span animate={{rotate:360}} transition={{duration:1,repeat:Infinity,ease:"linear"}} style={{display:"flex"}}><Clock3 size={15}/></motion.span> {isEn?"Sending...":"Отправляем..."}</>
+                    : <><MessageCircle size={15}/> {isEn?"Submit request":"Отправить заявку"} <ArrowRight size={14}/></>
+                  }
+                </button>
 
-            {/* submit error */}
-            {submitErr && (
-              <div
-                className="mt-4 rounded-2xl border border-white/10 bg-rose-500/10 text-rose-200 px-5 py-4 text-sm"
-                role="alert"
-                aria-live="assertive"
-              >
-                {submitErr}
-              </div>
-            )}
+                {/* Status messages */}
+                <AnimatePresence>
+                  {submitErr && (
+                    <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0}}
+                      style={{
+                        display:"flex",alignItems:"center",gap:10,
+                        marginTop:12,borderRadius:10,padding:"12px 14px",
+                        background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.25)",
+                      }}>
+                      <X size={14} style={{color:"#f87171",flexShrink:0}} />
+                      <p style={{margin:0,fontSize:13,color:"#f87171"}}>{submitErr}</p>
+                    </motion.div>
+                  )}
+                  {sent && (
+                    <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0}}
+                      style={{
+                        display:"flex",alignItems:"center",gap:10,
+                        marginTop:12,borderRadius:10,padding:"12px 14px",
+                        background:`${TEAL}10`,border:`1px solid ${TEAL}30`,
+                      }}>
+                      <CheckCircle2 size={14} style={{color:TEAL,flexShrink:0}} />
+                      <div>
+                        <p style={{margin:0,fontSize:13,fontWeight:600,color:TEAL}}>{isEn?"Request sent!":"Заявка отправлена!"}</p>
+                        <p style={{margin:0,fontSize:11,color:"rgba(244,250,248,0.45)"}}>{isEn?"We'll contact you within 2 hours":"Свяжемся с вами в течение 2 часов"}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
-            {/* success */}
-            {sent && (
-              <div
-                className="mt-6 rounded-2xl border border-white/10 bg-emerald-500/10 text-emerald-200 px-5 py-4 flex items-center gap-3"
-                role="status"
-                aria-live="polite"
-                aria-atomic
-              >
-                <CheckCircle2 className="h-5 w-5" />
-                <div className="text-sm">Спасибо! Мы получили вашу заявку и свяжемся с вами в ближайшее время.</div>
-              </div>
-            )}
-
-            {/* живой статус для скринридеров */}
-            <div id={statusId} className="sr-only" aria-live="polite" aria-atomic />
-          </motion.form>
+                <div id={statusId} style={{position:"absolute",left:-9999}} aria-live="polite" aria-atomic="true" />
+              </form>
+            </motion.div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
 
-/* ==== UI helpers ==== */
-
-const Label = memo(function Label({ children }: { children: React.ReactNode }) {
-  return <div className="text-sm uppercase tracking-[0.18em] text-white/60">{children}</div>;
-});
-
-const Field = memo(function Field({
-  id,
-  label,
-  placeholder,
-  value,
-  onChange,
-  type = "text",
-  error,
-  name,
-  autoComplete,
-  inputMode,
-  required,
-}: {
-  id?: string;
-  label: string;
-  placeholder?: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  error?: string;
-  name?: string;
-  autoComplete?: string;
-  inputMode?: "text" | "email" | "tel" | "numeric" | "search" | "url" | "none";
-  required?: boolean;
-}) {
-  const errId = error ? `${id}-error` : undefined;
+/* ── UI helpers ──────────────────────────────────────────────────────────── */
+function FigLabel({ num, label }: { num: string; label: string }) {
   return (
-    <div>
-      <Label>{label}</Label>
-      <input
-        id={id}
-        name={name}
-        type={type}
-        inputMode={inputMode}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        required={required}
-        aria-invalid={!!error || undefined}
-        aria-describedby={errId}
-        className={`mt-2 w-full rounded-xl border px-4 py-3 outline-none ring-0 placeholder:text-white/40 ${
-          error ? "border-red-500/70 bg-red-500/5" : "border-white/10 bg-black/30"
-        }`}
-      />
-      {error && <ErrText id={errId}>{error}</ErrText>}
+    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+      <span style={{ fontFamily: "monospace", fontSize: 10, color: TEAL, opacity: 0.7 }}>{num}</span>
+      <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.3)", fontWeight: 500 }}>{label}</span>
     </div>
   );
-});
+}
 
-const Select = memo(function Select<T extends string>({
-  label,
-  value,
-  onChange,
-  options,
-  error,
-}: {
-  label: string;
-  value: T | "";
-  onChange: (v: T) => void;
-  options: ReadonlyArray<{ value: T; label: string }>;
-  error?: string;
+function SubLabel({ label }: { label: string }) {
+  return (
+    <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.3)" }}>
+      {label}
+    </div>
+  );
+}
+
+function FormSection({ num, label, hint, children }: { num: string; label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 28, paddingBottom: 28 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+        <span style={{ fontFamily: "monospace", fontSize: 10, color: TEAL, opacity: 0.7 }}>{num}</span>
+        <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.3)", fontWeight: 500 }}>{label}</span>
+        {hint && <span style={{ fontSize: 10, color: "rgba(244,250,248,0.2)" }}>· {hint}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function ContactRow({ icon, label, value, href }: { icon: React.ReactNode; label: string; value: string; href: string }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={{
+        width: 34, height: 34, borderRadius: 8, flexShrink: 0,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+        color: "rgba(244,250,248,0.35)",
+      }}>{icon}</div>
+      <div>
+        <div style={{ fontSize: 9, letterSpacing: "0.12em", textTransform: "uppercase", color: "rgba(244,250,248,0.28)", marginBottom: 2 }}>{label}</div>
+        <a href={href} style={{ fontSize: 13, fontWeight: 500, color: "rgba(244,250,248,0.7)", textDecoration: "none", transition: "color 0.2s" }}
+          onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = TEAL}
+          onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = "rgba(244,250,248,0.7)"}
+        >{value}</a>
+      </div>
+    </div>
+  );
+}
+
+function FormField({ id, label, placeholder, value, onChange, type = "text", error, icon, inputStyle }: {
+  id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void;
+  type?: string; error?: string; icon?: React.ReactNode; inputStyle: (e?: string) => React.CSSProperties;
 }) {
-  const groupId = useId();
   return (
     <div>
-      <Label>{label}</Label>
-      <div className="mt-2 grid grid-cols-2 gap-2" role="group" aria-labelledby={groupId}>
-        <span id={groupId} className="sr-only">{label}</span>
-        {options.map((o) => (
-          <button
-            key={o.value}
-            type="button"
-            onClick={() => onChange(o.value)}
-            aria-pressed={value === o.value}
-            className={`rounded-full px-4 py-2 text-sm border transition ${
-              value === o.value
-                ? "bg-white text-black border-white"
-                : "border-white/30 text-white/85 hover:bg-white/10"
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
+      <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.08em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.3)", marginBottom: 8 }}>{label}</div>
+      <div style={{ position: "relative" }}>
+        {icon && (
+          <div style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "rgba(244,250,248,0.25)" }}>
+            {icon}
+          </div>
+        )}
+        <input id={id} type={type} value={value} onChange={e => onChange(e.target.value)}
+          placeholder={placeholder} autoComplete="off"
+          style={{ ...inputStyle(error), paddingLeft: icon ? 34 : 14 }}
+          onFocus={e => { e.currentTarget.style.borderColor = `${TEAL}60`; }}
+          onBlur={e => { e.currentTarget.style.borderColor = error ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.09)"; }}
+        />
       </div>
       {error && <ErrText>{error}</ErrText>}
     </div>
   );
-});
+}
 
-const RowTitle = memo(function RowTitle({ title, hint }: { title: string; hint?: string }) {
+function ContactChip({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="text-sm uppercase tracking-[0.18em] text-white/60">{title}</div>
-      {hint && <div className="text-xs text-white/45">{hint}</div>}
-    </div>
-  );
-});
-
-const Chip = memo(function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`rounded-full px-4 py-2 text-sm border transition ${
-        active ? "bg-white text-black border-white" : "border-white/30 text-white/85 hover:bg-white/10"
-      }`}
-    >
-      {children}
-    </button>
-  );
-});
-
-function ErrText({ children, id }: { children: React.ReactNode; id?: string }) {
-  return (
-    <div id={id} className="mt-1 text-xs text-red-400">
-      {children}
-    </div>
+    <button type="button" onClick={onClick} aria-pressed={active}
+      style={{
+        textAlign: "left", borderRadius: 8, padding: "8px 10px", cursor: "pointer",
+        border: "none", transition: "all 0.15s", fontSize: 11, fontWeight: 500,
+        background: active ? `${TEAL}15` : "rgba(255,255,255,0.02)",
+        outline: active ? `1px solid ${TEAL}` : "1px solid rgba(255,255,255,0.07)",
+        color: active ? WHITE : "rgba(244,250,248,0.5)",
+      }}
+    >{label}</button>
   );
 }
 
-function humanSize(bytes: number) {
-  const units = ["Б", "КБ", "МБ", "ГБ"];
-  let i = 0;
-  let v = bytes;
-  while (v >= 1024 && i < units.length - 1) {
-    v /= 1024;
-    i++;
-  }
-  return `${v.toFixed(v < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
+function ErrText({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div initial={{opacity:0,y:-4}} animate={{opacity:1,y:0}}
+      style={{ display:"flex",alignItems:"center",gap:6,marginTop:6,fontSize:11,color:"#f87171" }}>
+      <X size={12} style={{flexShrink:0}} />
+      {children}
+    </motion.div>
+  );
 }

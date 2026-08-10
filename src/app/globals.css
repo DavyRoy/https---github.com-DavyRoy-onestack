@@ -1,9 +1,12 @@
 /* src/app/globals.css */
 
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap');
+
 /* ==========================================================================
    Tailwind v4 core + plugins
    ========================================================================== */
 @import "tailwindcss";
+@source "../../src/**/*.{ts,tsx}";
 /* Подключаем плагины через CSS — так рекомендует Tailwind v4 */
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-animate";
@@ -196,6 +199,48 @@
 
 /* Links */
 a { text-underline-offset: 2px; transition: color .15s, text-decoration-color .15s; }
+
+/* ==========================================================================
+   CRM dark theme — OneStack palette
+   Applied via .crm-root class on /crm layout
+   ========================================================================== */
+.crm-root {
+  --background:       #07100e;
+  --foreground:       #f4faf8;
+  --card:             #0b1612;
+  --card-foreground:  #f4faf8;
+  --popover:          #0d1c18;
+  --popover-foreground: #f4faf8;
+  --primary:          #2dd4bf;
+  --primary-foreground: #07100e;
+  --secondary:        #0f1d18;
+  --secondary-foreground: rgba(244,250,248,0.7);
+  --muted:            #0f1d18;
+  --muted-foreground: rgba(244,250,248,0.45);
+  --accent:           rgba(45,212,191,0.1);
+  --accent-foreground: #2dd4bf;
+  --destructive:      #f87171;
+  --border:           rgba(255,255,255,0.07);
+  --input:            rgba(255,255,255,0.06);
+  --ring:             rgba(45,212,191,0.4);
+  --radius:           0.75rem;
+
+  /* Status colors */
+  --status-new:        #60a5fa;
+  --status-review:     #fbbf24;
+  --status-approved:   #2dd4bf;
+  --status-progress:   #a78bfa;
+  --status-completed:  #34d399;
+  --status-cancelled:  #f87171;
+
+  /* Priority */
+  --priority-low:      rgba(244,250,248,0.35);
+  --priority-medium:   #60a5fa;
+  --priority-high:     #fbbf24;
+  --priority-urgent:   #f87171;
+
+  color-scheme: dark;
+}
 
 /* Typography (prose) */
 .prose :where(a):not(:where([class~="not-prose"] *)){

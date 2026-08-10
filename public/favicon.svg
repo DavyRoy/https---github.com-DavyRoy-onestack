@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="14" fill="#07100e"/>
+  <rect x="1" y="1" width="62" height="62" rx="13" stroke="#2dd4bf" stroke-opacity="0.25"/>
+  <!-- Crown triangle -->
+  <path d="M32 10 L42 26 L32 23 L22 26 Z" fill="#2dd4bf"/>
+  <!-- OS monogram -->
+  <text x="32" y="50" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif"
+    font-size="22" font-weight="700" letter-spacing="-1" fill="#2dd4bf">OS</text>
+  <!-- Base line -->
+  <rect x="16" y="53" width="32" height="2.5" rx="1.25" fill="#2dd4bf" fill-opacity="0.35"/>
+</svg>

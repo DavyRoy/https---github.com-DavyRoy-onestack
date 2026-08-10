@@ -66,6 +66,24 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // 1b) SiteCRM / webhook для заявок
+    if (process.env.SITECRM_URL) {
+      try {
+        const resp = await fetch(process.env.SITECRM_URL, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ type: "quote", data: enriched }),
+          signal: timeoutSignal(8000),
+        });
+        if (!resp.ok) {
+          const txt = await resp.text().catch(() => "");
+          console.error("[QUOTE] SiteCRM HTTP", resp.status, txt.slice(0, 200));
+        }
+      } catch (e) {
+        console.error("[QUOTE] SiteCRM error:", (e as Error)?.message || e);
+      }
+    }
+
     // 2) Telegram
     let telegram = false;
     const tgToken = process.env.TELEGRAM_BOT_TOKEN;

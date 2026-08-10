@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import { Suspense } from "react";
 import { QuoteProvider } from "@/app/context/QuoteContext";
+import { canonical, siteName, siteUrl } from "@/app/seo.config";
 
 import NavBar from "@/components/NavBar";
 import SiteIntro from "@/components/SiteIntro";
@@ -15,40 +16,37 @@ import SiteContact from "@/components/SiteContact";
 import SiteFAQ from "@/components/SiteFAQ";
 
 /* ───────────────── SEO constants ───────────────── */
-const SITE_URL =
-  (process.env.NEXT_PUBLIC_SITE_URL || "https://onestack24.ru").replace(/\/$/, "");
-const title =
-  "Разработка сайтов — лендинги, корпоративные, e-commerce | OneStack";
+const title = "Разработка сайтов под ключ — лендинги, порталы, e-commerce | OneStack";
 const description =
-  "Делаем быстрые, адаптивные и SEO-готовые сайты: лендинги, корпоративные порталы и интернет-магазины. Чистая архитектура, Core Web Vitals, доступность и поддержка.";
-const url = `${SITE_URL}/sites`;
+  "Делаем быстрые SEO-готовые сайты: лендинги от 1–2 нед., корпоративные порталы и интернет-магазины. Прозрачная смета, Core Web Vitals, поддержка после запуска. 150+ проектов.";
+const url = canonical("/sites");
 
 /* ───────────────── Metadata (App Router) ───────────────── */
 export const metadata: Metadata = {
   title,
   description,
-  alternates: { canonical: url },
+  alternates: {
+    canonical: url,
+    languages: {
+      "ru": url,
+      "en": canonical("/sites"),
+      "x-default": url,
+    },
+  },
   openGraph: {
     type: "website",
     url,
     title,
     description,
-    siteName: "OneStack",
-    images: [
-      {
-        url: "/og/sites.png",
-        width: 1200,
-        height: 630,
-        alt: "OneStack — сайты",
-      },
-    ],
+    siteName,
     locale: "ru_RU",
+    images: [{ url: `${siteUrl}/og/sites.svg`, width: 1200, height: 630, alt: title }],
   },
   twitter: {
     card: "summary_large_image",
     title,
     description,
-    images: ["/og/sites.png"],
+    images: [`${siteUrl}/og/sites.svg`],
   },
 };
 
@@ -82,8 +80,8 @@ export default function SitesPage() {
     url,
     provider: {
       "@type": "Organization",
-      name: "OneStack",
-      url: SITE_URL,
+      name: siteName,
+      url: siteUrl,
       email: "info@onestack24.ru",
       telephone: "+7 (910) 948 61 06",
     },
@@ -104,7 +102,7 @@ export default function SitesPage() {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Главная", item: SITE_URL },
+      { "@type": "ListItem", position: 1, name: "Главная", item: siteUrl },
       { "@type": "ListItem", position: 2, name: "Разработка сайтов", item: url },
     ],
   };
@@ -112,11 +110,11 @@ export default function SitesPage() {
   const LD_ORG = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "OneStack",
-    url: SITE_URL,
+    name: siteName,
+    url: siteUrl,
     email: "info@onestack24.ru",
     telephone: "+7 (910) 948 61 06",
-    sameAs: [SITE_URL],
+    sameAs: ["https://t.me/onestack_assistant_bot"],
     contactPoint: [
       {
         "@type": "ContactPoint",
@@ -130,7 +128,17 @@ export default function SitesPage() {
   };
 
   return (
-    <main className="bg-black text-white">
+    <main style={{ background: "#07100e", position: "relative" }} className="text-white">
+      {/* Единый grain на весь сайт */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: "180px 180px",
+          opacity: 0.027,
+        }}
+      />
       {/* JSON-LD для SEO (серверный рендер через Script) */}
       <Script
         id="ld-service-sites"

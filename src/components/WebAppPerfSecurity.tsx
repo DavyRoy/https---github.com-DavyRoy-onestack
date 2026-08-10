@@ -1,396 +1,322 @@
 // src/components/WebAppPerfSecurity.tsx
 "use client";
+import { serif } from "@/lib/fonts";
 
-import React, { memo, useMemo } from "react";
+import React, { memo, useMemo, useId, useState } from "react";
 import Script from "next/script";
 import { motion, useReducedMotion } from "framer-motion";
 import {
-  Timer,
-  Activity,
-  Boxes,
-  ShieldCheck,
-  KeyRound,
-  Database,
+  Timer, Activity, Boxes, ShieldCheck, KeyRound, Database,
 } from "lucide-react";
-import Link from "next/link";
+import { siteName, siteUrl } from "@/app/seo.config";
+import { useI18n } from "@/i18n/I18nProvider";
 
-/* ---------------- Motion helpers ---------------- */
-const fadeUp = (d = 0) => ({
-  initial: { opacity: 0, y: 18 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.55, ease: "easeOut", delay: d },
-  viewport: { once: true, amount: 0.25 },
-});
-const pop = (d = 0) => ({
-  initial: { opacity: 0, scale: 0.98, y: 10 },
-  whileInView: { opacity: 1, scale: 1, y: 0 },
-  transition: { duration: 0.5, ease: "easeOut", delay: d },
-  viewport: { once: true, amount: 0.25 },
-});
 
-/* ---------------- Types ---------------- */
+const TEAL  = "#2dd4bf";
+const WHITE = "#f4faf8";
+
+/* ─── Data ───────────────────────────────────────────────────────────────── */
 type Metric = {
-  icon: React.ReactNode;
+  icon: React.ElementType;
   title: string;
-  value?: string;
-  badge?: string;
-  text: string;
-  microcopy?: string;
+  subtitle: string;
+  teaser: string;
+  badge: string;
+  benefits: string[];
 };
 
-/* ---------------- Data ---------------- */
-const PERFORMANCE: Metric[] = [
+const PERFORMANCE_RU: Metric[] = [
   {
-    icon: <Timer className="h-5 w-5" />,
-    title: "TTFB (средний)",
-    value: "≤ 120 мс",
+    icon: Timer,
+    title: "Время ответа",
+    subtitle: "Edge/SSR, кэширование",
+    teaser: "Серверный рендер и кэширование для высокой скорости. Оптимизация первого байта и контента для мгновенной загрузки.",
     badge: "Edge/SSR",
-    text:
-      "Серверный рендер и edge-кеширование. Ускоряем первый байт и «первый контент».",
-    microcopy: "Результат зависит от региона и бэкенда",
+    benefits: ["Серверный рендер", "Кэширование", "Оптимизация контента"],
   },
   {
-    icon: <Activity className="h-5 w-5" />,
-    title: "Пропускаемость",
-    value: "до 3–5k RPS*",
+    icon: Activity,
+    title: "Пропускная способность",
+    subtitle: "Автомасштабирование",
+    teaser: "Горизонтальное масштабирование и health-чеки. Стабильная работа под высокой нагрузкой без деградации сервиса.",
     badge: "Autoscale",
-    text:
-      "Горизонтальное масштабирование, сессия без липкости, health-чеки и авто-скейл.",
-    microcopy: "Тесты под профиль нагрузки",
+    benefits: ["Горизонтальное масштабирование", "Health-чеки", "Стабильность под нагрузкой"],
   },
   {
-    icon: <Boxes className="h-5 w-5" />,
+    icon: Boxes,
     title: "Кэш и очереди",
-    value: "Redis / SQS",
+    subtitle: "Redis, SQS, CQRS",
+    teaser: "Кэширование, очереди задач и ретраи для стабильной обработки. Оптимизация сложных операций и гарантия доставки.",
     badge: "CQRS",
-    text:
-      "Smart-кэш (TTL/инвалидация), очереди задач и ретраи для стабильной обработки.",
-    microcopy: "Idempotency + DLQ",
+    benefits: ["Кэширование", "Очереди задач", "Гарантия доставки"],
   },
 ];
 
-const SECURITY: Metric[] = [
+const PERFORMANCE_EN: Metric[] = [
+  { icon: Timer,    title: "Response time",       subtitle: "Edge/SSR, caching",
+    teaser: "Server-side rendering and caching for high speed. Optimizing time-to-first-byte and content for instant loading.",
+    badge: "Edge/SSR", benefits: ["Server rendering", "Caching", "Content optimization"] },
+  { icon: Activity, title: "Throughput",           subtitle: "Auto-scaling",
+    teaser: "Horizontal scaling and health checks. Stable performance under high load without service degradation.",
+    badge: "Autoscale", benefits: ["Horizontal scaling", "Health checks", "Stability under load"] },
+  { icon: Boxes,    title: "Cache & queues",       subtitle: "Redis, SQS, CQRS",
+    teaser: "Caching, task queues, and retries for stable processing. Complex operation optimization and delivery guarantee.",
+    badge: "CQRS", benefits: ["Caching", "Task queues", "Delivery guarantee"] },
+];
+
+const SECURITY_EN: Metric[] = [
+  { icon: ShieldCheck, title: "Security",          subtitle: "OWASP, validations, audit",
+    teaser: "Validations, rate-limiting, dependency audits, and secrets management. Compliance with modern security standards.",
+    badge: "OWASP", benefits: ["Data validation", "Rate limiting", "Dependency audit"] },
+  { icon: KeyRound,    title: "Roles & access",    subtitle: "RBAC, SSO, action audit",
+    teaser: "Granular permissions, action logs, SSO integration. Access control for your organizational structure.",
+    badge: "RBAC", benefits: ["Granular permissions", "SSO integration", "Action audit"] },
+  { icon: Database,    title: "Backups",            subtitle: "Encryption, migrations",
+    teaser: "Regular backups, data encryption, and migrations with rollbacks. Guaranteed data integrity and recovery.",
+    badge: "Backup", benefits: ["Regular backups", "Data encryption", "Migrations with rollbacks"] },
+];
+
+const SECURITY_RU: Metric[] = [
   {
-    icon: <ShieldCheck className="h-5 w-5" />,
-    title: "Модель угроз",
-    badge: "OWASP ASVS",
-    text:
-      "Харднинг, валидации, rate-limit, аудит зависимостей, секрет-менеджмент.",
-    microcopy: "Регулярные security-ревью",
+    icon: ShieldCheck,
+    title: "Безопасность",
+    subtitle: "OWASP, валидации, аудит",
+    teaser: "Валидации, rate-limit, аудит зависимостей и управление секретами. Соответствие современным стандартам защиты данных.",
+    badge: "OWASP",
+    benefits: ["Валидации данных", "Rate limiting", "Аудит зависимостей"],
   },
   {
-    icon: <KeyRound className="h-5 w-5" />,
-    title: "Аудит ролей",
-    badge: "RBAC/ABAC",
-    text:
-      "Гранулярные права, журналы действий, SSO/OIDC/SAML, scoped-tokens и ротация ключей.",
-    microcopy: "Принцип наименьших привилегий",
+    icon: KeyRound,
+    title: "Роли и доступы",
+    subtitle: "RBAC, SSO, аудит действий",
+    teaser: "Гранулярные права, журналы действий, SSO интеграция. Контроль доступа для вашей организационной структуры.",
+    badge: "RBAC",
+    benefits: ["Гранулярные права", "SSO интеграция", "Аудит действий"],
   },
   {
-    icon: <Database className="h-5 w-5" />,
-    title: "Бэкапы",
-    badge: "RPO/RTO",
-    text:
-      "Ежедневные бэкапы, шифрование «на диске», миграции с откатами и миг-окнами.",
-    microcopy: "Тестовые восстановления",
+    icon: Database,
+    title: "Резервные копии",
+    subtitle: "Шифрование, миграции",
+    teaser: "Регулярные бэкапы, шифрование данных и миграции с откатами. Гарантия сохранности и восстановления данных.",
+    badge: "Backup",
+    benefits: ["Регулярные бэкапы", "Шифрование данных", "Миграции с откатами"],
   },
 ];
 
-/* ---------------- Organization for SEO ---------------- */
-const ORG = {
-  name: "OneStack",
-  url: "https://onestack24.ru",
-  email: "info@onestack24.ru",
-  telephone: "+7-910-948-61-06",
-  logo: "https://onestack24.ru/og-logo.png",
-};
-
-/* ---------------- Component ---------------- */
+/* ═══════════════════════════════════════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════════════════════════════════════ */
 export default function WebAppPerfSecurity() {
+  const { locale } = useI18n();
+  const isEn = locale === "en";
+  const PERFORMANCE = isEn ? PERFORMANCE_EN : PERFORMANCE_RU;
+  const SECURITY    = isEn ? SECURITY_EN    : SECURITY_RU;
   const reduced = useReducedMotion();
+  const titleId = useId();
 
-  // JSON-LD: Service + BreadcrumbList (микроразметка для поисковиков)
-  const jsonLdService = useMemo(() => {
-    return {
-      "@context": "https://schema.org",
-      "@type": "Service",
-      name: "Оптимизация производительности и безопасность веб-приложений",
-      description:
-        "Edge-кеш, SSR, очереди, мониторинг, RBAC/ABAC, OWASP ASVS, бэкапы и миграции БД. Настройка SLO/SLA и алертов.",
-      areaServed: "RU",
-      provider: {
-        "@type": "Organization",
-        name: ORG.name,
-        url: ORG.url,
-        email: ORG.email,
-        telephone: ORG.telephone,
-        logo: ORG.logo,
-      },
-      serviceType: "Web application performance & security",
-      termsOfService: `${ORG.url}/terms`,
-      hasOfferCatalog: {
-        "@type": "OfferCatalog",
-        name: "Пакеты SLO/SLA",
-        itemListElement: [
-          {
-            "@type": "Offer",
-            name: "SLO-настройка и мониторинг",
-          },
-          {
-            "@type": "Offer",
-            name: "Security-аудит по OWASP ASVS",
-          },
-        ],
-      },
-      url: `${ORG.url}/#perf-security`,
-    };
-  }, []);
+  const PAGE_URL = `${siteUrl}/webapp#perf-security`;
 
-  const jsonLdBreadcrumbs = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Главная",
-          item: ORG.url,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Веб-приложения",
-          item: `${ORG.url}/webapp`,
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: "Производительность и безопасность",
-          item: `${ORG.url}/#perf-security`,
-        },
-      ],
-    }),
-    []
-  );
+  const jsonLdService = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: "Производительность и безопасность веб-приложений",
+    description: "Оптимизация производительности и безопасности: кэш, масштабирование, защита и резервные копии",
+    provider: { "@type": "Organization", name: siteName, url: siteUrl },
+    areaServed: ["RU", "KZ", "BY"],
+    url: PAGE_URL,
+  }), [PAGE_URL]);
 
-  // Анимации для фоновых бликов — без движения при reduced motion
-  const glowStyleTop = reduced
-    ? {}
-    : { transform: "translate3d(0,0,0)", animation: "floatY 10s ease-in-out infinite" };
-  const glowStyleBottom = reduced
-    ? {}
-    : { transform: "translate3d(0,0,0)", animation: "floatX 12s ease-in-out infinite" };
+  const jsonLdList = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Метрики производительности и безопасности",
+    url: PAGE_URL,
+    numberOfItems: PERFORMANCE.length + SECURITY.length,
+    itemListElement: [
+      ...PERFORMANCE.map((m, i) => ({ "@type": "ListItem", position: i + 1,
+        item: { "@type": "Service", name: m.title, description: m.teaser, category: "Performance" } })),
+      ...SECURITY.map((m, i) => ({ "@type": "ListItem", position: PERFORMANCE.length + i + 1,
+        item: { "@type": "Service", name: m.title, description: m.teaser, category: "Security" } })),
+    ],
+  }), [PAGE_URL]);
+
+  const fadeUp = (d = 0) => reduced ? {} : {
+    initial: { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: d },
+  };
 
   return (
-    <section
-      id="perf-security"
-      className="relative w-full overflow-hidden bg-gradient-to-b from-black via-[#0a0a0a] to-black text-white
-                 pt-20 pb-24 md:pt-24 md:pb-28"
-      aria-labelledby="perfsec-title"
-      role="region"
-    >
-      {/* мягкие подсветки */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-40 -left-40 h-[420px] w-[420px] rounded-full bg-white/[0.04] blur-3xl"
-        style={glowStyleTop as React.CSSProperties}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full bg-white/[0.04] blur-3xl"
-        style={glowStyleBottom as React.CSSProperties}
-      />
+    <>
+      <Script id="ld-webapp-perf-service" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdService) }} />
+      <Script id="ld-webapp-perf-list" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdList) }} />
 
-      {/* tiny keyframes (scoped) */}
-      {!reduced && (
-        <style jsx>{`
-          @keyframes floatY {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(14px); }
-            100% { transform: translateY(0px); }
-          }
-          @keyframes floatX {
-            0% { transform: translateX(0px); }
-            50% { transform: translateX(-16px); }
-            100% { transform: translateX(0px); }
-          }
-        `}</style>
-      )}
-
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-20">
-        {/* Заголовок секции */}
-        <motion.p
-          {...(reduced ? {} : fadeUp(0))}
-          className="text-sm uppercase tracking-[0.25em] text-white/50 mb-3"
-        >
-          производительность и безопасность
-        </motion.p>
-
-        <motion.h2
-          id="perfsec-title"
-          {...(reduced ? {} : fadeUp(0.05))}
-          className="text-[clamp(1.9rem,4vw,3.2rem)] font-extrabold leading-tight tracking-tight max-w-3xl"
-        >
-          Быстро, устойчиво, безопасно
-        </motion.h2>
-
-        <motion.p
-          {...(reduced ? {} : fadeUp(0.1))}
-          className="mt-6 max-w-2xl text-white/70 text-lg"
-        >
-          Настраиваем архитектуру под рост и отказоустойчивость — от edge-кеша и очередей
-          до RBAC и журналирования. Метрики и алерты всегда под рукой.
-        </motion.p>
-
-        {/* Перформанс */}
-        <motion.div {...(reduced ? {} : pop(0.15))} className="mt-10">
-          <SectionTitle
-            icon={<Activity className="h-4 w-4" />}
-            title="Перформанс"
-            as="h3"
-          />
-          <ul
-            className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-            role="list"
-            aria-label="Карточки метрик производительности"
-          >
-            {PERFORMANCE.map((m, i) => (
-              <MetricCard key={m.title} {...m} delay={reduced ? 0 : 0.18 + i * 0.05} />
-            ))}
-          </ul>
-        </motion.div>
-
-        {/* Безопасность */}
-        <motion.div {...(reduced ? {} : pop(0.25))} className="mt-10">
-          <SectionTitle
-            icon={<ShieldCheck className="h-4 w-4" />}
-            title="Безопасность и надёжность"
-            as="h3"
-          />
-          <ul
-            className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-            role="list"
-            aria-label="Карточки практик безопасности"
-          >
-            {SECURITY.map((m, i) => (
-              <MetricCard key={m.title} {...m} delay={reduced ? 0 : 0.28 + i * 0.05} />
-            ))}
-          </ul>
-        </motion.div>
-
-        {/* Примечание и CTA */}
+      <section
+        id="perf-security"
+        className="relative overflow-hidden pt-16 sm:pt-20 pb-20 sm:pb-28"
+        aria-labelledby={titleId}
+      >
+        {/* Ambient glow */}
         <motion.div
-          {...(reduced ? {} : fadeUp(0.4))}
-          className="mt-10 rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/70"
-        >
-          <div className="text-white/85 font-medium mb-2">Примечание</div>
-          <p>
-            Значения зависят от выбранного хостинга, региона, нагрузки и профиля
-            приложения. Для вашего кейса настроим SLO/SLA, алерты и тестовые планки
-            по метрикам (TTFB, p95, ошибка/мин и др.).
-          </p>
-          <div className="mt-4">
-            <Link
-              href="#contact"
-              className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 text-black font-semibold hover:shadow-white/20 hover:shadow-lg transition"
-            >
-              Обсудить SLO/SLA
-              <svg className="ml-2 h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M5 12h14m0 0l-5-5m5 5l-5 5" stroke="currentColor" strokeWidth="1.8" />
-              </svg>
-            </Link>
-          </div>
-        </motion.div>
-      </div>
+          className="pointer-events-none absolute -top-40 -right-40 rounded-full blur-[180px]"
+          style={{ width: 560, height: 560, background: TEAL, opacity: 0.07 }}
+          animate={reduced ? undefined : { scale: [1, 1.1, 1], opacity: [0.07, 0.11, 0.07] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          aria-hidden="true"
+        />
 
-      {/* JSON-LD для SEO */}
-      <Script id="ld-perfsec-service" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdService) }} />
-      <Script id="ld-perfsec-breadcrumbs" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbs) }} />
-    </section>
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-14">
+
+          {/* ── Header ── */}
+          <motion.div className="mb-16 sm:mb-20" {...(fadeUp(0) as object)}>
+            <div className="flex items-center gap-3 mb-6">
+              <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
+              <span className="text-[11px] tracking-[0.22em] uppercase font-medium" style={{ color: TEAL }}>
+                {isEn ? "Performance & security" : "Производительность и безопасность"}
+              </span>
+            </div>
+
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+              <h2
+                id={titleId}
+                className={`${serif.className} font-normal tracking-[-0.04em]`}
+                style={{ lineHeight: 0.9 }}
+              >
+                <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }}>{isEn ? "Speed" : "Скорость"}</span>
+                <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", color: WHITE }}>{isEn ? "and protection" : "и защита"}</span>
+              </h2>
+
+              <p className="text-sm sm:text-base leading-relaxed max-w-sm lg:text-right"
+                style={{ color: "rgba(244,250,248,0.45)" }}>
+                {isEn ? "We configure architecture for growth and stability — from caching and queues to access control and monitoring." : "Настраиваем архитектуру для роста и стабильности — от кэширования и очередей до контроля доступа и мониторинга."}
+              </p>
+            </div>
+          </motion.div>
+
+          {/* ── Производительность ── */}
+          <motion.div className="mb-14" {...(fadeUp(0.1) as object)}>
+            <SubLabel icon={<Activity className="h-3.5 w-3.5" />} label={isEn ? "Performance" : "Производительность"} />
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+              {PERFORMANCE.map((m, i) => (
+                <MetricCard key={m.title} metric={m} index={i} reduced={!!reduced} />
+              ))}
+            </div>
+          </motion.div>
+
+          {/* ── Безопасность ── */}
+          <motion.div {...(fadeUp(0.2) as object)}>
+            <SubLabel icon={<ShieldCheck className="h-3.5 w-3.5" />} label={isEn ? "Security & reliability" : "Безопасность и надёжность"} />
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+              {SECURITY.map((m, i) => (
+                <MetricCard key={m.title} metric={m} index={i} reduced={!!reduced} />
+              ))}
+            </div>
+          </motion.div>
+
+        </div>
+      </section>
+    </>
   );
 }
 
-/* ---------------- MetricCard ---------------- */
-const MetricCard = memo(function MetricCard({
-  icon,
-  title,
-  value,
-  badge,
-  text,
-  microcopy,
-  delay = 0,
-}: Metric & { delay?: number }) {
+/* ─── SubLabel ───────────────────────────────────────────────────────────── */
+function SubLabel({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
-    <motion.li
-      role="listitem"
-      initial={{ opacity: 0, y: 18, scale: 0.98 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.5, ease: "easeOut", delay }}
-      className="group relative rounded-2xl border border-white/10 bg-white/[0.04] p-6 hover:bg-white/[0.07] hover:shadow-[0_20px_60px_rgba(255,255,255,0.08)] transition"
+    <div className="flex items-center gap-2 mb-1">
+      <span style={{ color: TEAL }}>{icon}</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.15em]"
+        style={{ color: "rgba(244,250,248,0.4)" }}>{label}</span>
+      <div className="flex-1 h-px ml-2" style={{ background: "rgba(255,255,255,0.06)" }} />
+    </div>
+  );
+}
+
+/* ─── MetricCard ─────────────────────────────────────────────────────────── */
+const MetricCard = memo(function MetricCard({
+  metric, index, reduced,
+}: { metric: Metric; index: number; reduced: boolean }) {
+  const Icon = metric.icon;
+  const [hovered, setHovered] = useState(false);
+
+  const anim = reduced ? {} : {
+    initial: { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: 0.04 * index },
+    whileHover: { y: -4 },
+  };
+
+  return (
+    <motion.article
+      {...(anim as object)}
+      className="group relative flex flex-col rounded-2xl overflow-hidden"
+      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      itemScope
+      itemType="https://schema.org/Service"
     >
-      {/* мягкая подсветка на hover */}
-      <span
+      {/* Hover border glow */}
+      <div
+        className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+        style={{ border: `1px solid ${TEAL}50`, boxShadow: `inset 0 0 24px ${TEAL}08` }}
         aria-hidden
-        className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 blur-2xl transition group-hover:opacity-100"
-        style={{
-          background:
-            "radial-gradient(60% 50% at 20% 0%, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 70%)",
-        }}
       />
-      <div className="relative z-10">
-        <div className="flex items-start gap-4">
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.08] text-white">
-            {icon}
-          </span>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h4 className="text-lg font-semibold">{title}</h4>
-              {badge ? (
-                <span className="rounded-full border border-white/15 bg-white/[0.06] px-2 py-0.5 text-[11px] leading-5 text-white/85">
-                  {badge}
-                </span>
-              ) : null}
-            </div>
-            {value ? (
-              <div
-                className="mt-1 text-2xl font-extrabold tracking-tight tabular-nums"
-                aria-label={`${title}: ${value}`}
-              >
-                {value}
-              </div>
-            ) : null}
-            <p className="mt-2 text-sm text-white/70">{text}</p>
-            {microcopy && (
-              <div className="mt-2 text-[11px] text-white/45">{microcopy}</div>
-            )}
+
+      <div className="relative z-10 flex flex-col h-full p-6">
+        {/* Icon + badge */}
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200"
+            style={{
+              background: hovered ? `${TEAL}18` : "rgba(255,255,255,0.05)",
+              border: `1px solid ${hovered ? TEAL + "40" : "rgba(255,255,255,0.08)"}`,
+            }}>
+            <Icon className="h-[18px] w-[18px] transition-colors duration-200"
+              style={{ color: hovered ? TEAL : "rgba(244,250,248,0.5)" }} aria-hidden />
           </div>
+          <span className="text-[10px] font-semibold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full transition-all duration-200"
+            style={hovered
+              ? { background: `${TEAL}18`, border: `1px solid ${TEAL}40`, color: TEAL }
+              : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "rgba(244,250,248,0.3)" }
+            }>
+            {metric.badge}
+          </span>
         </div>
 
-        {/* акцентная линия снизу */}
-        <span className="pointer-events-none absolute left-6 right-6 -bottom-[1px] h-[2px] bg-gradient-to-r from-white/0 via-white/30 to-white/0 opacity-0 group-hover:opacity-100 transition" />
+        {/* Title */}
+        <h3 className="text-base sm:text-lg font-semibold mb-1 transition-colors duration-200"
+          style={{ color: hovered ? WHITE : "rgba(244,250,248,0.85)" }}
+          itemProp="name">
+          {metric.title}
+        </h3>
+
+        {/* Subtitle */}
+        <p className="text-xs mb-3" style={{ color: "rgba(244,250,248,0.35)" }}>
+          {metric.subtitle}
+        </p>
+
+        {/* Teaser */}
+        <p className="text-sm leading-relaxed flex-1 mb-4" style={{ color: "rgba(244,250,248,0.45)" }}
+          itemProp="description">
+          {metric.teaser}
+        </p>
+
+        {/* Benefits chips */}
+        <div className="flex flex-wrap gap-1.5 mt-auto">
+          {metric.benefits.map(b => (
+            <span key={b} className="text-[10px] px-2 py-0.5 rounded-full transition-all duration-200"
+              style={hovered
+                ? { background: `${TEAL}12`, border: `1px solid ${TEAL}25`, color: TEAL }
+                : { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", color: "rgba(244,250,248,0.35)" }
+              }>
+              {b}
+            </span>
+          ))}
+        </div>
       </div>
-    </motion.li>
+    </motion.article>
   );
 });
-
-/* ---------------- UI helper ---------------- */
-function SectionTitle({
-  icon,
-  title,
-  as: Tag = "h3",
-}: {
-  icon: React.ReactNode;
-  title: string;
-  as?: "h3" | "h4" | "div";
-}) {
-  return (
-    <Tag className="flex items-center gap-2 text-white/85 text-xl font-semibold">
-      <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-white/[0.07]">
-        {icon}
-      </span>
-      <span>{title}</span>
-    </Tag>
-  );
-}

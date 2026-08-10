@@ -1,0 +1,44 @@
+services:
+  mariadb:
+    image: mariadb:11.4
+    container_name: crm_mariadb_local
+    environment:
+      MARIADB_ROOT_PASSWORD: 290315Gs
+      MARIADB_DATABASE: suitecrm
+      MARIADB_USER: suitecrm
+      MARIADB_PASSWORD: 290315GsG
+      MARIADB_EXTRA_FLAGS: "--character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+    volumes:
+      - crm_mariadb_local:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p290315Gs --silent"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+
+  suitecrm:
+    image: bitnami/suitecrm:8
+    container_name: crm_suitecrm_local
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      MARIADB_HOST: mariadb
+      MARIADB_PORT_NUMBER: "3306"
+      SUITECRM_DATABASE_NAME: suitecrm
+      SUITECRM_DATABASE_USER: suitecrm
+      SUITECRM_DATABASE_PASSWORD: 290315GsG
+      SUITECRM_USERNAME: admin
+      SUITECRM_PASSWORD: 290315Gs
+      SUITECRM_EMAIL: info@onestack24.ru
+    volumes:
+      - crm_suitecrm_local:/bitnami
+    ports:
+      - "8088:8080"
+    restart: unless-stopped
+
+volumes:
+  crm_mariadb_local:
+  crm_suitecrm_local:

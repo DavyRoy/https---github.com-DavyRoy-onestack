@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  password  String
+  name      String?
+  phone     String?
+  company   String?
+  pushToken String?
+  balance   Int       @default(0)
+  // Реквизиты
+  payerType String?   // "individual" | "company"
+  inn       String?
+  orgName   String?
+  kpp       String?
+  ogrn      String?
+  legalAddress String?
+  bik       String?
+  bankName  String?
+  bankAccount String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  requests   Request[]
+  payments   Payment[]
+  pushTokens PushToken[]
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  amount      Int
+  status      PaymentStatus @default(PENDING)
+  provider    String        @default("yookassa")
+  providerId  String?
+  description String?
+  meta        Json?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  CANCELLED
+  REFUNDED
+}
+
+model Request {
+  id           String          @id @default(cuid())
+  userId       String
+  user         User            @relation(fields: [userId], references: [id])
+  service      String
+  features     Json
+  price        Int?
+  priceStatus  PriceStatus     @default(PENDING)
+  message      String?         @db.Text
+  status       RequestStatus   @default(NEW)
+  priority     RequestPriority @default(MEDIUM)
+  type         RequestType     @default(TASK)
+  managerNote  String?         @db.Text
+  claimToken   String?         @unique  // anonymous request claim token
+  // Analytics: when each status was reached
+  reviewedAt   DateTime?
+  approvedAt   DateTime?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  cancelledAt  DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  project      Project?
+  chatMessages ChatMessage[]
+  comments     RequestComment[]
+  files        RequestFile[]
+}
+
+enum RequestStatus {
+  NEW
+  IN_REVIEW
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PriceStatus {
+  PENDING   // цена не установлена
+  PROPOSED  // менеджер предложил цену, ждём клиента
+  ACCEPTED  // клиент принял → уходит в проект
+  REJECTED  // клиент отклонил → остаётся в предложениях
+}
+
+enum RequestPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum RequestType {
+  TASK
+  BUG
+  FEATURE
+  SUPPORT
+  AGREEMENT
+}
+
+model ChatMessage {
+  id         String   @id @default(cuid())
+  requestId  String
+  request    Request  @relation(fields: [requestId], references: [id])
+  role       String
+  authorName String   @default("")
+  text       String   @db.Text
+  createdAt  DateTime @default(now())
+}
+
+model RequestComment {
+  id        String   @id @default(cuid())
+  requestId String
+  request   Request  @relation(fields: [requestId], references: [id])
+  author    String   // "client" | "manager"
+  text      String   @db.Text
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @db.VarChar(512)
+  platform  String   // "ios" | "android"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, token(length: 255)])
+}
+
+model RequestFile {
+  id        String   @id @default(cuid())
+  requestId String
+  request   Request  @relation(fields: [requestId], references: [id])
+  name      String
+  url       String   @db.Text
+  size      Int?
+  mimeType  String?
+  uploadedBy String  // "client" | "manager"
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id        String    @id @default(cuid())
+  requestId String    @unique
+  request   Request   @relation(fields: [requestId], references: [id])
+  title     String
+  startDate DateTime?
+  endDate   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  stages    Stage[]
+}
+
+model Stage {
+  id          String      @id @default(cuid())
+  projectId   String
+  project     Project     @relation(fields: [projectId], references: [id])
+  title       String
+  description String?     @db.Text
+  status      StageStatus @default(PENDING)
+  order       Int
+  completedAt DateTime?
+  subtasks    SubTask[]
+}
+
+enum StageStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model SubTask {
+  id          String   @id @default(cuid())
+  stageId     String
+  stage       Stage    @relation(fields: [stageId], references: [id])
+  title       String
+  isCompleted Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Demo {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  service     String
+  imageUrl    String?
+  url         String?
+  tags        Json     @default("[]")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}

@@ -54,7 +54,8 @@ export default function DemoHeroSection() {
     <section
       id="demo-hero"
       aria-labelledby={titleId}
-      className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] bg-black text-white"
+      className="relative flex items-center justify-center overflow-hidden min-h-[100dvh] text-white"
+      style={{ background: "#07100e" }}
     >
       {/* SEO structured data */}
       <Script
@@ -68,8 +69,8 @@ export default function DemoHeroSection() {
       <div className="absolute inset-0 -z-10">
         {/* Soft gradients */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] via-transparent to-white/[0.02]" />
-        <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-blue-500/10 blur-3xl rounded-full" />
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-500/10 blur-3xl rounded-full" />
+        <div className="absolute top-1/4 left-1/4 w-72 h-72 blur-3xl rounded-full" style={{ background: "rgba(45,212,191,0.07)" }} />
+        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 blur-3xl rounded-full" style={{ background: "rgba(45,212,191,0.05)" }} />
         {/* Subtle grid */}
         <div
           className="absolute inset-0 opacity-[0.08]"

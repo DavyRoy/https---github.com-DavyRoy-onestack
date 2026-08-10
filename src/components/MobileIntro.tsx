@@ -1,275 +1,420 @@
 // src/components/MobileIntro.tsx
 "use client";
+import { serif } from "@/lib/fonts";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  useMotionValue,
+  useSpring,
+} from "framer-motion";
 import Link from "next/link";
 import Script from "next/script";
-import { useEffect, useMemo, useState, useId } from "react";
-import { CheckCircle } from "lucide-react";
+import { useRef, useMemo, useId, useEffect, useCallback, useState } from "react";
+import { siteUrl } from "@/app/seo.config";
+import { useI18n } from "@/i18n/I18nProvider";
 
-const fadeUp = (d = 0) => ({
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: "easeOut", delay: d },
+/* ─── Font ──────────────────────────────────────────────────────────────── */
+
+/* ─── Palette ────────────────────────────────────────────────────────────── */
+const BG    = "#07100e";
+const TEAL  = "#2dd4bf";
+const WHITE = "#f4faf8";
+
+/* ─── Copy ───────────────────────────────────────────────────────────────── */
+const COPY_RU = {
+  tag:   "Разработка мобильных приложений",
+  word0: "Приложения,",
+  word1: "которые",
+  word2: "остаются",
+  word3: "на экране",
+  sub:   "iOS и Android с нуля: платёжные интеграции, оффлайн-режим, пуши и аналитика. MVP за 3–6 недель, поддержка после релиза.",
+  cta1:  "Обсудить проект",
+  cta2:  "Рассчитать стоимость",
+  scroll: "ПРОКРУТИТЕ",
+  what:  "На этой странице",
+  stats: [
+    { v: "40+",  l: "приложений" },
+    { v: "3–6",  l: "нед. на MVP" },
+    { v: "≤ 2 с", l: "холодный старт" },
+  ],
+  sections: [
+    { num: "01", name: "Типы приложений",  href: "#types"      },
+    { num: "02", name: "Возможности",      href: "#capabilities" },
+    { num: "03", name: "Преимущества",     href: "#benefits"   },
+    { num: "04", name: "Калькулятор",      href: "#calculator" },
+  ],
+} as const;
+
+const COPY_EN = {
+  tag:   "Mobile application development",
+  word0: "Apps",
+  word1: "that stay",
+  word2: "on the",
+  word3: "screen",
+  sub:   "iOS and Android from scratch: payments, offline mode, push notifications, analytics. MVP in 3–6 weeks, support after release.",
+  cta1:  "Discuss the project",
+  cta2:  "Calculate the cost",
+  scroll: "SCROLL",
+  what:  "On this page",
+  stats: [
+    { v: "40+",  l: "apps launched" },
+    { v: "3–6",  l: "wks to MVP" },
+    { v: "≤ 2 s", l: "cold start" },
+  ],
+  sections: [
+    { num: "01", name: "App types",       href: "#types"        },
+    { num: "02", name: "Capabilities",    href: "#capabilities" },
+    { num: "03", name: "Why us",          href: "#benefits"     },
+    { num: "04", name: "Calculator",      href: "#calculator"   },
+  ],
+} as const;
+
+/* ─── Pre-computed ring dot positions ── */
+const RING_DOTS = [0, 60, 120, 180, 240, 300].map((deg) => {
+  const r = (deg * Math.PI) / 180;
+  return { cx: +(450 + 430 * Math.cos(r)).toFixed(2), cy: +(450 + 430 * Math.sin(r)).toFixed(2) };
 });
 
+const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE INTRO
+═══════════════════════════════════════════════════════════════════════════ */
 export default function MobileIntro() {
-  const [reduced, setReduced] = useState(false);
-  const titleId = useId();
-  const subtitleId = useId();
+  const { locale } = useI18n();
+  const isEn = locale === "en";
+  const COPY = isEn ? COPY_EN : COPY_RU;
+  const reduced    = useReducedMotion();
+  const titleId    = useId();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [hoverSec, setHoverSec] = useState<number | null>(null);
 
+  /* parallax */
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+  const bgY      = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
+
+  /* cursor glow */
+  const mx = useMotionValue(-600);
+  const my = useMotionValue(-600);
+  const gx = useSpring(mx, { stiffness: 70, damping: 20, mass: 0.6 });
+  const gy = useSpring(my, { stiffness: 70, damping: 20, mass: 0.6 });
+  const onMove = useCallback((e: MouseEvent) => {
+    const r = sectionRef.current?.getBoundingClientRect();
+    if (r) { mx.set(e.clientX - r.left); my.set(e.clientY - r.top); }
+  }, [mx, my]);
   useEffect(() => {
-    const q = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(q.matches);
-    const on = (e: MediaQueryListEvent) => setReduced(e.matches);
-    q.addEventListener?.("change", on);
-    return () => q.removeEventListener?.("change", on);
-  }, []);
+    const el = sectionRef.current;
+    if (!el || reduced) return;
+    el.addEventListener("mousemove", onMove);
+    return () => el.removeEventListener("mousemove", onMove);
+  }, [onMove, reduced]);
 
-  // CTA стили
-  const btnBase =
-    "inline-flex items-center justify-center rounded-full font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition text-center";
-  const btnSize = "h-12 min-w-[220px] px-6";
-
-  const line = (d = 0) => ({
-    initial: { opacity: 0, y: 14 },
-    animate: { opacity: 1, y: 0, transition: { delay: d, duration: 0.5, ease: "easeOut" } },
-  });
-
-  /* ===== SEO JSON-LD ===== */
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://onestack24.ru";
-  const PAGE_PATH = "/mobile-apps";
-  const PAGE_URL = `${SITE_URL}${PAGE_PATH}`;
-
-  // Service: разработка мобильных приложений
-  const jsonLdService = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "Service",
-      name: "Разработка мобильных приложений",
-      serviceType: "Mobile app development",
-      provider: { "@type": "Organization", name: "OneStack", url: SITE_URL },
-      areaServed: ["RU", "KZ", "BY", "AM"],
-      url: PAGE_URL,
-      description:
-        "Мобильные приложения с удобным UX и надёжной архитектурой: нативные и кроссплатформенные решения, интеграции с CRM и оплатами, уведомления, аналитика. Готовность к масштабированию и SLA-поддержка.",
-    }),
-    [PAGE_URL, SITE_URL]
-  );
-
-  // WebPage
-  const jsonLdWebPage = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      name: "Мобильные приложения — разработка под рост и удержание",
-      url: PAGE_URL,
-      inLanguage: "ru",
-      isPartOf: { "@type": "WebSite", name: "OneStack", url: SITE_URL },
-      breadcrumb: { "@id": "#breadcrumbs" },
-      primaryImageOfPage: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/mobile1.png`,
-      },
-      description:
-        "Создаём мобильные приложения, которые повышают вовлечённость и удержание: нативные/кроссплатформенные, интеграции с CRM и платежами, аналитика и уведомления.",
-    }),
-    [PAGE_URL, SITE_URL]
-  );
-
-  // Хлебные крошки
-  const jsonLdBreadcrumbs = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "@id": "#breadcrumbs",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Главная", item: SITE_URL },
-        { "@type": "ListItem", position: 2, name: "Мобильные приложения", item: PAGE_URL },
-      ],
-    }),
-    [PAGE_URL, SITE_URL]
-  );
-
-  // FAQ (по желанию; полезно для расширенных сниппетов)
-  const jsonLdFAQ = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "Какие сроки первых релизов?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Первые релизы — через 1–2 спринта (обычно 2–4 недели). Зависит от платформ, интеграций и объёма функционала.",
-          },
-        },
-        {
-          "@type": "Question",
-          name: "Какие интеграции поддерживаете?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Платёжные шлюзы, CRM (Bitrix24/amoCRM), push-уведомления, аналитика, авторизация/SSO, backend API, склад/учёт.",
-          },
-        },
-      ],
-    }),
-    []
-  );
+  /* JSON-LD */
+  const jsonLdSvc = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: `Разработка мобильных приложений | OneStack`,
+    description: "Создаём нативные и кроссплатформенные мобильные приложения для iOS и Android. С платёжными интеграциями, push-уведомлениями и поддержкой после релиза.",
+    provider: {
+      "@type": "Organization",
+      "@id": `${siteUrl}/#organization`,
+      name: "OneStack",
+      url: siteUrl,
+    },
+    areaServed: "RU",
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "RUB",
+      lowPrice: 250000,
+      highPrice: 5000000,
+      priceValidUntil: "2026-12-31",
+    },
+  }), []);
 
   return (
-    <section
-      id="intro"
-      aria-labelledby={titleId}
-      aria-describedby={subtitleId}
-      className="relative flex items-center overflow-hidden bg-black text-white min-h-[100dvh] pt-[64px] md:pt-[72px]"
-    >
-      {/* JSON-LD */}
-      <Script id="ld-mobile-service" type="application/ld+json" strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdService) }} />
-      <Script id="ld-mobile-webpage" type="application/ld+json" strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebPage) }} />
-      <Script id="ld-mobile-breadcrumbs" type="application/ld+json" strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbs) }} />
-      <Script id="ld-mobile-faq" type="application/ld+json" strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdFAQ) }} />
-      <Script id="favicon" strategy="afterInteractive">
-        {`
-          const link = document.createElement('link');
-          link.rel = 'icon';
-          link.type = 'image/png';
-          link.sizes = '32x32';
-          link.href = '/vercal.png';
-          document.head.appendChild(link);
-        `}
-      </Script>
-      
-      {/* ===== Desktop BG (декоративно) ===== */}
-      <div className="absolute inset-0 hidden md:block z-0" aria-hidden>
-        <Image
-          src="/mobile1.png"
-          alt=""           /* декоративный фон */
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-contain object-right"
-        />
+    <>
+      <Script
+        id="ld-mi-svc"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSvc) }}
+      />
+
+      <section
+        ref={sectionRef}
+        id="intro"
+        aria-labelledby={titleId}
+        className="relative flex min-h-[100svh] flex-col overflow-hidden"
+        style={{ background: BG }}
+      >
+        {/* ── Decorative rotating ring ── */}
+        <motion.div
+          className="pointer-events-none absolute top-[5%] right-[-15%] w-[700px] h-[700px] xl:w-[900px] xl:h-[900px]"
+          style={reduced ? undefined : { y: bgY }}
+          animate={reduced ? undefined : { rotate: 360 }}
+          transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 900 900" fill="none" className="w-full h-full">
+            <circle cx="450" cy="450" r="430" stroke={TEAL} strokeWidth="0.5" opacity="0.12" strokeDasharray="6 14"/>
+            <circle cx="450" cy="450" r="300" stroke={TEAL} strokeWidth="0.5" opacity="0.07"/>
+            <circle cx="450" cy="450" r="160" stroke={TEAL} strokeWidth="0.5" opacity="0.05" strokeDasharray="3 8"/>
+            <line x1="450" y1="20" x2="450" y2="880" stroke={TEAL} strokeWidth="0.3" opacity="0.04"/>
+            <line x1="20"  y1="450" x2="880" y2="450" stroke={TEAL} strokeWidth="0.3" opacity="0.04"/>
+            {RING_DOTS.map((d, i) => (
+              <circle key={i} cx={d.cx} cy={d.cy} r="3" fill={TEAL} opacity="0.25"/>
+            ))}
+          </svg>
+        </motion.div>
+
+        {/* Grain */}
         <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.82) 54%, rgba(0,0,0,0.40) 72%, rgba(0,0,0,5) 98%)",
-          }}
+          className="pointer-events-none absolute inset-0 opacity-[0.028]"
+          style={{ backgroundImage: GRAIN, backgroundSize: "180px 180px" }}
+          aria-hidden="true"
         />
+
+        {/* Cursor glow */}
         {!reduced && (
           <motion.div
+            className="pointer-events-none absolute rounded-full hidden lg:block"
+            style={{
+              left: gx, top: gy, translateX: "-50%", translateY: "-50%",
+              width: 600, height: 600,
+              background: `radial-gradient(circle, ${TEAL}16 0%, transparent 65%)`,
+            }}
             aria-hidden="true"
-            className="absolute inset-0"
-            initial={{ opacity: 0.04 }}
-            animate={{ opacity: [0.04, 0.08, 0.04] }}
-            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
-            style={{ background: "radial-gradient(60% 40% at 62% 48%, rgba(255,255,255,0.08), transparent 70%)" }}
           />
         )}
-      </div>
 
-      {/* ===== Mobile BG (декоративно) ===== */}
-      <div className="absolute inset-0 block md:hidden z-0" aria-hidden>
-        <Image
-          src="/mobile1.png"
-          alt=""           /* декоративный фон */
-          fill
-          priority
-          fetchPriority="high"
-          sizes="100vw"
-          className="object-cover"
+        {/* Ambient glow top-right */}
+        <motion.div
+          className="pointer-events-none absolute -top-32 -right-32 rounded-full blur-[180px]"
+          style={{ width: 600, height: 600, background: TEAL, opacity: 0.09 }}
+          animate={reduced ? undefined : { scale: [1, 1.12, 1], opacity: [0.09, 0.13, 0.09] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-black/70" />
-      </div>
+        {/* Ambient glow bottom-left */}
+        <div
+          className="pointer-events-none absolute -bottom-20 -left-20 rounded-full blur-[160px]"
+          style={{ width: 500, height: 500, background: TEAL, opacity: 0.05 }}
+          aria-hidden="true"
+        />
 
-      {/* ===== TEXT ===== */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-20">
-        <p className="sr-only">
-          Разработка мобильных приложений: нативные и кроссплатформенные решения, интеграции с CRM и оплатами, уведомления и аналитика.
-        </p>
-
-        <div className="grid grid-cols-2 gap-x-6">
-          <div className="col-span-12 md:col-span-6 text-center md:text-left">
-            <motion.p
-              {...(reduced ? {} : fadeUp(0))}
-              className="text-[12px] uppercase tracking-[0.25em] text-white/40 mb-2"
-            >
-              мобильные приложения
-            </motion.p>
-
-            <motion.h1
-              id={titleId}
-              aria-label="Мобильные приложения, которые повышают вовлечённость"
-              className="max-w-[64rem] text-white font-extrabold tracking-tight leading-[0.9]"
-            >
-              <motion.span {...(reduced ? {} : line(0.00))} className="block text-[clamp(3rem,5vw,5rem)]">
-                Мобильные приложения,
-              </motion.span>
-              <motion.span {...(reduced ? {} : line(0.05))} className="block text-[clamp(3rem,4.5vw,4.5rem)] text-white/60">
-                которые работают
-              </motion.span>
-              <motion.span {...(reduced ? {} : line(0.10))} className="block text-[clamp(3rem,4.5vw,4.5rem)] text-white/60">
-                ваш сервис
-              </motion.span>
-            </motion.h1>
-
-            <motion.p
-              id={subtitleId}
-              {...(reduced ? {} : fadeUp(0.1))}
-              className="mt-5 max-w-[36rem] mx-auto md:mx-0 text-white/70 text-[clamp(1rem,2.1vw,1.15rem)] leading-[1.28]"
-            >
-              Мобильные приложения с удобным UX и надёжной архитектурой — под рост бизнеса и удержание клиентов.
-            </motion.p>
-
-            {/* преимущества */}
-            <motion.ul
-              {...(reduced ? {} : fadeUp(0.15))}
-              className="mt-5 space-y-3 text-white/65 text-base"
-            >
-              {[
-                "Спринты 1–2 недели",
-                "Интеграции: оплаты, уведомления",
-                "SEO-ready (лендинги и сторожки)",
-                "Готовность к масштабированию",
-              ].map((f, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <CheckCircle className="h-5 w-5 text-emerald-400 flex-shrink-0" aria-hidden="true" />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </motion.ul>
-
-            {/* CTA */}
+        {/* ── Content ── */}
+        <motion.div
+          style={reduced ? undefined : { y: contentY }}
+          className="relative z-10 flex flex-1 flex-col justify-between mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-14 pt-28 sm:pt-32 pb-0"
+        >
+          {/* ── Top tag ── */}
+          <motion.div
+            className="flex items-center gap-3 mb-10 sm:mb-14"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          >
             <motion.div
-              {...(reduced ? {} : fadeUp(0.2))}
-              className="mt-8 flex flex-col sm:flex-row gap-3 justify-center md:justify-start"
+              style={{ height: 2, width: 20, background: "#2dd4bf", borderRadius: 2, flexShrink: 0 }}
+              initial={{ width: 0 }}
+              animate={{ width: 20 }}
+              transition={{ delay: 0.4, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            />
+            <span
+              className="text-[11px] tracking-[0.22em] uppercase font-medium"
+              style={{ color: TEAL }}
             >
-              <Link
-                href="#types"
-                className={`${btnBase} ${btnSize} border border-white/75 text-white hover:bg-white/10`}
-                aria-label="Перейти к разделу «Типы приложений»"
-              >
-                Типы приложений
-              </Link>
-              <Link
-                href="#calculator"
-                className={`${btnBase} ${btnSize} bg-white text-black hover:shadow-white/20 hover:shadow-lg`}
-                aria-label="Перейти к калькулятору стоимости"
-              >
-                Стоимость приложений
-              </Link>
+              {COPY.tag}
+            </span>
+          </motion.div>
+
+          {/* ── Headline block ── */}
+          <div className="flex-1 flex flex-col justify-center">
+            <h1 id={titleId} className="mb-10 sm:mb-14">
+
+              {/* LINE 0 — OUTLINE / STROKE */}
+              <div className="overflow-hidden pb-[0.1em] -mb-[0.1em]">
+                <motion.span
+                  className={`${serif.className} block font-normal leading-[0.9] tracking-[-0.04em]`}
+                  style={{
+                    fontSize: "clamp(2rem, 8.5vw, 8.5rem)",
+                    WebkitTextStroke: `1.5px ${TEAL}`,
+                    color: "transparent",
+                  }}
+                  initial={reduced ? undefined : { y: "110%" }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+                >
+                  {COPY.word0}
+                </motion.span>
+              </div>
+
+              {/* LINE 1 — full white */}
+              <div className="overflow-hidden pb-[0.1em] -mb-[0.1em]">
+                <motion.span
+                  className={`${serif.className} block font-normal leading-[0.9] tracking-[-0.04em]`}
+                  style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: WHITE }}
+                  initial={reduced ? undefined : { y: "110%" }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.24 }}
+                >
+                  {COPY.word1}
+                </motion.span>
+              </div>
+
+              {/* LINE 2 — dimmer */}
+              <div className="overflow-hidden pb-[0.1em] -mb-[0.1em]">
+                <motion.span
+                  className={`${serif.className} block font-normal leading-[0.9] tracking-[-0.04em]`}
+                  style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: "rgba(244,250,248,0.55)" }}
+                  initial={reduced ? undefined : { y: "110%" }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.33 }}
+                >
+                  {COPY.word2}
+                </motion.span>
+              </div>
+
+              {/* LINE 3 — dimmest */}
+              <div className="overflow-hidden pb-[0.1em] -mb-[0.1em]">
+                <motion.span
+                  className={`${serif.className} block font-normal leading-[0.9] tracking-[-0.04em]`}
+                  style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: "rgba(244,250,248,0.25)" }}
+                  initial={reduced ? undefined : { y: "110%" }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.42 }}
+                >
+                  {COPY.word3}
+                </motion.span>
+              </div>
+            </h1>
+
+            {/* ── Bottom row: description + CTA | sections ── */}
+            <motion.div
+              className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-end pb-10 border-t pt-8"
+              style={{ borderColor: "rgba(255,255,255,0.06)" }}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <div className="flex flex-col gap-6">
+                <p
+                  className="text-sm sm:text-base leading-relaxed max-w-sm"
+                  style={{ color: "rgba(244,250,248,0.45)" }}
+                >
+                  {COPY.sub}
+                </p>
+
+                {/* Stats row */}
+                <div className="flex gap-6">
+                  {COPY.stats.map((s) => (
+                    <div key={s.l} className="flex flex-col">
+                      <span className="text-xl font-bold" style={{ color: TEAL }}>{s.v}</span>
+                      <span className="text-[11px] mt-0.5" style={{ color: "rgba(244,250,248,0.35)" }}>{s.l}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  {/* Primary CTA */}
+                  <Link
+                    href="#contact"
+                    className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full px-7 py-3 text-sm font-semibold transition-transform duration-300 hover:scale-[1.03] focus:outline-none"
+                    style={{ background: TEAL, color: BG }}
+                  >
+                    <motion.span
+                      className="pointer-events-none absolute inset-0"
+                      style={{ background: "linear-gradient(105deg,transparent 38%,rgba(255,255,255,0.28) 50%,transparent 62%)" }}
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: "100%" }}
+                      transition={{ duration: 0.45 }}
+                      aria-hidden="true"
+                    />
+                    <span className="relative z-10">{COPY.cta1}</span>
+                    <motion.svg
+                      width="13" height="13" viewBox="0 0 13 13" fill="none"
+                      className="relative z-10"
+                      animate={{ x: [0, 3, 0] }}
+                      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <path d="M1.5 6.5h10M7.5 2.5l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </motion.svg>
+                  </Link>
+
+                  {/* Secondary CTA */}
+                  <Link
+                    href="#calculator"
+                    className="inline-flex items-center gap-2 rounded-full border px-7 py-3 text-sm font-medium transition-all duration-300 hover:bg-white/5 focus:outline-none"
+                    style={{ borderColor: "rgba(244,250,248,0.14)", color: "rgba(244,250,248,0.6)" }}
+                  >
+                    {COPY.cta2}
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right column — page sections */}
+              <div className="flex flex-col gap-0">
+                <p className="text-[10px] uppercase tracking-[0.2em] mb-4"
+                  style={{ color: "rgba(244,250,248,0.2)" }}>
+                  {COPY.what}
+                </p>
+                {COPY.sections.map((sec, i) => (
+                  <a key={i} href={sec.href}
+                    className="group flex items-center gap-4 py-3 border-b focus:outline-none"
+                    style={{ borderColor: "rgba(255,255,255,0.05)" }}
+                    onMouseEnter={() => setHoverSec(i)}
+                    onMouseLeave={() => setHoverSec(null)}>
+                    <span className="text-[11px] font-mono tabular-nums w-6 shrink-0 transition-colors duration-200"
+                      style={{ color: hoverSec === i ? TEAL : "rgba(255,255,255,0.2)" }}>
+                      {sec.num}
+                    </span>
+                    <span className="flex-1 text-sm transition-colors duration-200"
+                      style={{ color: hoverSec === i ? WHITE : "rgba(244,250,248,0.4)" }}>
+                      {sec.name}
+                    </span>
+                    <motion.span
+                      className="text-sm shrink-0 transition-opacity duration-200"
+                      style={{ color: TEAL, opacity: hoverSec === i ? 1 : 0 }}
+                      animate={hoverSec === i ? { y: [0, 3, 0] } : { y: 0 }}
+                      transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      ↓
+                    </motion.span>
+                  </a>
+                ))}
+              </div>
+
             </motion.div>
           </div>
-        </div>
-      </div>
-    </section>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        {!reduced && (
+          <div className="relative z-10 flex justify-center pb-6">
+            <motion.div
+              className="flex flex-col items-center gap-1.5"
+              animate={{ y: [0, 7, 0] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+              aria-hidden="true"
+            >
+              <span
+                className="text-[9px] tracking-[0.25em] uppercase"
+                style={{ color: "rgba(255,255,255,0.15)" }}
+              >
+                {COPY.scroll}
+              </span>
+              <div
+                className="w-px h-8"
+                style={{ background: `linear-gradient(to bottom, ${TEAL}80, transparent)` }}
+              />
+            </motion.div>
+          </div>
+        )}
+      </section>
+    </>
   );
 }

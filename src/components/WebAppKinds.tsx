@@ -1,575 +1,793 @@
 // src/components/WebAppKinds.tsx
 "use client";
+import { serif } from "@/lib/fonts";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import NextImage from "next/image";
-import { X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { createPortal } from "react-dom";
-import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { X, ArrowRight, CheckCircle } from "lucide-react";
+import NextImage from "next/image";
+import Script from "next/script";
+import { useI18n } from "@/i18n/I18nProvider";
 
-/* ==================== DATA ==================== */
+
+const TEAL  = "#2dd4bf";
+const WHITE = "#f4faf8";
+const BG    = "#07100e";
+
+/* ── SVG Wireframes ─────────────────────────────────────────────────────── */
+
+function CrmVisual() {
+  return (
+    <svg viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
+      <rect x="10" y="10" width="260" height="180" rx="8" stroke={WHITE} strokeOpacity="0.12" strokeWidth="1"/>
+      <rect x="10" y="10" width="260" height="22" rx="8" fill={WHITE} fillOpacity="0.05"/>
+      <circle cx="24" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <circle cx="34" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <circle cx="44" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <rect x="10" y="32" width="50" height="158" fill={WHITE} fillOpacity="0.03" stroke={WHITE} strokeOpacity="0.06" strokeWidth="1"/>
+      <rect x="18" y="40" width="34" height="5" rx="2" fill={TEAL} fillOpacity="0.5"/>
+      {[0,1,2,3,4].map(i => (
+        <rect key={i} x="18" y={52 + i*14} width="28" height="4" rx="2" fill={WHITE} fillOpacity={i === 0 ? 0.2 : 0.08}/>
+      ))}
+      <rect x="66" y="32" width="204" height="18" fill={WHITE} fillOpacity="0.04"/>
+      {[0,1,2,3].map(i => (
+        <rect key={i} x={72 + i*48} y="38" width="36" height="4" rx="2" fill={WHITE} fillOpacity="0.15"/>
+      ))}
+      {[0,1,2,3,4,5,6].map(i => (
+        <g key={i}>
+          <rect x="66" y={52 + i*20} width="204" height="18" fill={WHITE} fillOpacity={i % 2 === 0 ? 0.02 : 0}/>
+          <rect x="72" y={57 + i*20} width="28" height="4" rx="2" fill={i === 0 ? TEAL : WHITE} fillOpacity={i === 0 ? 0.5 : 0.12}/>
+          <rect x="120" y={57 + i*20} width="36" height="4" rx="2" fill={WHITE} fillOpacity="0.08"/>
+          <rect x="168" y={57 + i*20} width="24" height="4" rx="2" fill={WHITE} fillOpacity="0.08"/>
+          <rect x="216" y={55 + i*20} width="36" height="8" rx="4" fill={i === 0 ? TEAL : WHITE} fillOpacity={i === 0 ? 0.3 : 0.05}/>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function PortalVisual() {
+  return (
+    <svg viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
+      <rect x="10" y="10" width="260" height="180" rx="8" stroke={WHITE} strokeOpacity="0.12" strokeWidth="1"/>
+      <rect x="10" y="10" width="260" height="24" rx="8" fill={WHITE} fillOpacity="0.05"/>
+      <rect x="18" y="16" width="40" height="8" rx="2" fill={TEAL} fillOpacity="0.4"/>
+      <rect x="180" y="18" width="24" height="5" rx="2" fill={WHITE} fillOpacity="0.12"/>
+      <rect x="212" y="18" width="24" height="5" rx="2" fill={WHITE} fillOpacity="0.12"/>
+      <circle cx="248" cy="22" r="7" fill={WHITE} fillOpacity="0.1"/>
+      <rect x="10" y="34" width="60" height="156" fill={WHITE} fillOpacity="0.02" stroke={WHITE} strokeOpacity="0.06" strokeWidth="1"/>
+      {[0,1,2,3,4,5].map(i => (
+        <g key={i}>
+          <rect x="18" y={46 + i*22} width="8" height="8" rx="2" fill={i === 0 ? TEAL : WHITE} fillOpacity={i === 0 ? 0.5 : 0.15}/>
+          <rect x="30" y={48 + i*22} width="28" height="4" rx="2" fill={WHITE} fillOpacity={i === 0 ? 0.25 : 0.08}/>
+        </g>
+      ))}
+      <rect x="76" y="34" width="194" height="40" fill={WHITE} fillOpacity="0.03"/>
+      <rect x="84" y="42" width="70" height="8" rx="3" fill={WHITE} fillOpacity="0.2"/>
+      <rect x="84" y="54" width="100" height="4" rx="2" fill={WHITE} fillOpacity="0.08"/>
+      {[0,1].map(col => [0,1].map(row => (
+        <rect key={`${col}-${row}`} x={76 + col*100} y={82 + row*50} width="90" height="42" rx="4"
+          fill={WHITE} fillOpacity="0.03" stroke={WHITE} strokeOpacity="0.07" strokeWidth="1"/>
+      )))}
+      {[0,1].map(col => [0,1].map(row => (
+        <g key={`t-${col}-${row}`}>
+          <rect x={82 + col*100} y={90 + row*50} width="40" height="4" rx="2" fill={WHITE} fillOpacity="0.15"/>
+          <rect x={82 + col*100} y={98 + row*50} width="60" height="3" rx="1.5" fill={WHITE} fillOpacity="0.07"/>
+          <rect x={82 + col*100} y={106 + row*50} width="30" height="6" rx="3" fill={TEAL} fillOpacity="0.3"/>
+        </g>
+      )))}
+    </svg>
+  );
+}
+
+function CabinetVisual() {
+  return (
+    <svg viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
+      <rect x="10" y="10" width="260" height="180" rx="8" stroke={WHITE} strokeOpacity="0.12" strokeWidth="1"/>
+      <rect x="10" y="10" width="260" height="22" rx="8" fill={WHITE} fillOpacity="0.05"/>
+      <circle cx="24" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <circle cx="34" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <circle cx="44" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <rect x="60" y="16" width="120" height="10" rx="3" fill={WHITE} fillOpacity="0.06"/>
+      <rect x="232" y="16" width="30" height="10" rx="4" fill={TEAL} fillOpacity="0.4"/>
+      <rect x="10" y="32" width="260" height="48" fill={WHITE} fillOpacity="0.03"/>
+      <circle cx="42" cy="56" r="16" fill={WHITE} fillOpacity="0.08" stroke={WHITE} strokeOpacity="0.12" strokeWidth="1"/>
+      <rect x="66" y="46" width="60" height="8" rx="3" fill={WHITE} fillOpacity="0.2"/>
+      <rect x="66" y="58" width="90" height="5" rx="2" fill={WHITE} fillOpacity="0.1"/>
+      <rect x="66" y="67" width="40" height="5" rx="2" fill={TEAL} fillOpacity="0.3"/>
+      <rect x="10" y="80" width="260" height="14" fill={WHITE} fillOpacity="0.02"/>
+      {["Заказы","Оплаты","Профиль","Поддержка"].map((_, i) => (
+        <rect key={i} x={18 + i*62} y="84" width="50" height="5" rx="2" fill={i === 0 ? TEAL : WHITE} fillOpacity={i === 0 ? 0.5 : 0.1}/>
+      ))}
+      {[0,1,2,3].map(i => (
+        <g key={i}>
+          <rect x="10" y={98 + i*22} width="260" height="20" fill={WHITE} fillOpacity={i % 2 === 0 ? 0.02 : 0}/>
+          <rect x="18" y={104 + i*22} width="24" height="4" rx="2" fill={TEAL} fillOpacity="0.3"/>
+          <rect x="52" y={104 + i*22} width="70" height="4" rx="2" fill={WHITE} fillOpacity="0.12"/>
+          <rect x="160" y={104 + i*22} width="40" height="4" rx="2" fill={WHITE} fillOpacity="0.08"/>
+          <rect x="224" y={102 + i*22} width="36" height="8" rx="4" fill={i === 0 ? TEAL : WHITE} fillOpacity={i === 0 ? 0.25 : 0.06}/>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function AnalyticsVisual() {
+  return (
+    <svg viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
+      <rect x="10" y="10" width="260" height="180" rx="8" stroke={WHITE} strokeOpacity="0.12" strokeWidth="1"/>
+      <rect x="10" y="10" width="260" height="22" rx="8" fill={WHITE} fillOpacity="0.05"/>
+      <rect x="18" y="16" width="50" height="10" rx="3" fill={WHITE} fillOpacity="0.15"/>
+      <rect x="200" y="16" width="60" height="10" rx="4" fill={WHITE} fillOpacity="0.06" stroke={WHITE} strokeOpacity="0.1" strokeWidth="1"/>
+      {[0,1,2,3].map(i => (
+        <g key={i}>
+          <rect x={18 + i*62} y="40" width="54" height="36" rx="4" fill={WHITE} fillOpacity="0.04" stroke={WHITE} strokeOpacity="0.07" strokeWidth="1"/>
+          <rect x={24 + i*62} y="47" width="30" height="4" rx="2" fill={WHITE} fillOpacity="0.12"/>
+          <rect x={24 + i*62} y="55" width={i === 0 ? 36 : 22} height="8" rx="2" fill={i === 0 ? TEAL : WHITE} fillOpacity={i === 0 ? 0.5 : 0.2}/>
+        </g>
+      ))}
+      <rect x="18" y="86" width="148" height="94" rx="4" fill={WHITE} fillOpacity="0.02" stroke={WHITE} strokeOpacity="0.06" strokeWidth="1"/>
+      <rect x="24" y="92" width="50" height="4" rx="2" fill={WHITE} fillOpacity="0.18"/>
+      {[0,1,2,3,4,5].map(i => {
+        const h = [60,40,70,50,80,35][i];
+        return <rect key={i} x={30 + i*22} y={164-h} width="14" height={h} rx="2" fill={i === 4 ? TEAL : WHITE} fillOpacity={i === 4 ? 0.6 : 0.12}/>;
+      })}
+      <rect x="172" y="86" width="98" height="94" rx="4" fill={WHITE} fillOpacity="0.02" stroke={WHITE} strokeOpacity="0.06" strokeWidth="1"/>
+      <rect x="178" y="92" width="40" height="4" rx="2" fill={WHITE} fillOpacity="0.18"/>
+      <polyline points="178,160 192,148 206,155 220,138 234,145 248,125 262,132" stroke={TEAL} strokeOpacity="0.6" strokeWidth="1.5" fill="none"/>
+      <polyline points="178,160 192,148 206,155 220,138 234,145 248,125 262,132 262,170 178,170" fill={TEAL} fillOpacity="0.06"/>
+    </svg>
+  );
+}
+
+function B2bVisual() {
+  return (
+    <svg viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
+      <rect x="10" y="10" width="260" height="180" rx="8" stroke={WHITE} strokeOpacity="0.12" strokeWidth="1"/>
+      <rect x="10" y="10" width="260" height="22" rx="8" fill={WHITE} fillOpacity="0.05"/>
+      <circle cx="24" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <circle cx="34" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <circle cx="44" cy="21" r="3" fill={WHITE} fillOpacity="0.2"/>
+      <rect x="80" y="15" width="110" height="12" rx="4" fill={WHITE} fillOpacity="0.06" stroke={WHITE} strokeOpacity="0.08" strokeWidth="1"/>
+      <rect x="234" y="15" width="36" height="12" rx="4" fill={TEAL} fillOpacity="0.4"/>
+      <rect x="10" y="32" width="260" height="14" fill={WHITE} fillOpacity="0.03"/>
+      {["Все","Металл","Химия","Авто"].map((_, i) => (
+        <rect key={i} x={18 + i*52} y="36" width="44" height="6" rx="3" fill={i === 0 ? TEAL : WHITE} fillOpacity={i === 0 ? 0.3 : 0.08}/>
+      ))}
+      {[0,1,2,3,4,5].map(i => {
+        const col = i % 3, row = Math.floor(i / 3);
+        const x = 18 + col*82, y = 54 + row*72;
+        return (
+          <g key={i}>
+            <rect x={x} y={y} width="74" height="64" rx="4" fill={WHITE} fillOpacity="0.03" stroke={WHITE} strokeOpacity="0.07" strokeWidth="1"/>
+            <rect x={x+4} y={y+4} width="66" height="32" rx="3" fill={WHITE} fillOpacity="0.04"/>
+            <line x1={x+4} y1={y+4} x2={x+70} y2={y+36} stroke={WHITE} strokeOpacity="0.05" strokeWidth="0.8"/>
+            <line x1={x+70} y1={y+4} x2={x+4} y2={y+36} stroke={WHITE} strokeOpacity="0.05" strokeWidth="0.8"/>
+            <rect x={x+4} y={y+40} width="36" height="4" rx="2" fill={WHITE} fillOpacity="0.15"/>
+            <rect x={x+44} y={y+38} width="26" height="8" rx="4" fill={TEAL} fillOpacity="0.4"/>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function SaasVisual() {
+  return (
+    <svg viewBox="0 0 280 200" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "100%" }}>
+      <rect x="10" y="10" width="260" height="180" rx="8" stroke={WHITE} strokeOpacity="0.12" strokeWidth="1"/>
+      <rect x="10" y="10" width="260" height="22" rx="8" fill={WHITE} fillOpacity="0.05"/>
+      <rect x="18" y="16" width="44" height="10" rx="3" fill={WHITE} fillOpacity="0.15"/>
+      <rect x="200" y="16" width="26" height="10" rx="4" fill={WHITE} fillOpacity="0.08"/>
+      <rect x="234" y="16" width="36" height="10" rx="4" fill={TEAL} fillOpacity="0.5"/>
+      {[0,1,2].map(i => (
+        <g key={i}>
+          <rect x={18 + i*82} y="38" width="74" height="100" rx="6"
+            fill={i === 1 ? TEAL : WHITE} fillOpacity={i === 1 ? 0.08 : 0.03}
+            stroke={i === 1 ? TEAL : WHITE} strokeOpacity={i === 1 ? 0.4 : 0.07} strokeWidth="1"/>
+          {i === 1 && <rect x="36" y="35" width="40" height="8" rx="4" fill={TEAL} fillOpacity="0.7"/>}
+          <rect x={24 + i*82} y="48" width="30" height="5" rx="2" fill={WHITE} fillOpacity={i === 1 ? 0.4 : 0.15}/>
+          <rect x={24 + i*82} y="58" width="44" height="10" rx="3" fill={i === 1 ? TEAL : WHITE} fillOpacity={i === 1 ? 0.6 : 0.2}/>
+          {[0,1,2,3].map(j => (
+            <g key={j}>
+              <circle cx={28 + i*82} cy={76 + j*14} r="2.5" fill={TEAL} fillOpacity={i === 1 ? 0.7 : 0.3}/>
+              <rect x={34 + i*82} y={73 + j*14} width="42" height="4" rx="2" fill={WHITE} fillOpacity={i === 1 ? 0.25 : 0.1}/>
+            </g>
+          ))}
+          <rect x={24 + i*82} y="122" width="58" height="10" rx="5" fill={i === 1 ? TEAL : WHITE} fillOpacity={i === 1 ? 0.6 : 0.08}/>
+        </g>
+      ))}
+      <rect x="18" y="148" width="244" height="32" rx="4" fill={WHITE} fillOpacity="0.02" stroke={WHITE} strokeOpacity="0.06" strokeWidth="1"/>
+      {[0,1,2,3].map(i => (
+        <g key={i}>
+          <rect x={26 + i*60} y="154" width="24" height="4" rx="2" fill={WHITE} fillOpacity="0.1"/>
+          <rect x={26 + i*60} y="162" width="36" height="6" rx="2" fill={i === 0 ? TEAL : WHITE} fillOpacity={i === 0 ? 0.5 : 0.18}/>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+const VISUALS = [CrmVisual, PortalVisual, CabinetVisual, AnalyticsVisual, B2bVisual, SaasVisual];
+
+/* ─── Data ───────────────────────────────────────────────────────────────── */
 type Kind = "crm" | "portal" | "cabinet" | "analytics" | "b2b" | "saas";
 
 type Item = {
+  fig: string;
   title: string;
   desc: string;
-  href: string;    // якорь секции (используем в CTA, не на заголовке)
-  image: string;
-  chips: string[];
-  useFor: string[];
   tech: string[];
+  timeline: string;
+  contactHint: string;
+  useFor: string[];
   steps: string[];
+  price: string;
+  priceEn: string;
+  image: string;
 };
 
-const TYPES: Record<Kind, Item> = {
+const TYPES_RU: Record<Kind, Item> = {
   crm: {
-    title: "CRM / ERP",
-    desc: "Контакты, сделки, финансы, склад, роли и отчёты. Интеграции с 1C/МойСклад, платёжками и почтой.",
-    href: "#crm",
-    image: "/crm.png",
-    chips: ["RBAC", "Integrations", "Reports"],
-    useFor: ["Отдел продаж/закупок", "Операционный учёт", "Автоматизация рутины"],
-    tech: ["Next.js", "Node.js", "PostgreSQL", "Redis/Queues", "GraphQL/REST", "1C/CRM API", "RBAC"],
-    steps: ["Бриф/процессы", "Схема данных/ролей", "Модули: сделки/склад", "Интеграции и отчёты", "Запуск, обучение"],
+    fig: "01 · CRM", title: "CRM системы",
+    desc: "Заменяет таблицы и мессенджеры: воронки, задачи, клиенты и аналитика в одном месте. Команда работает быстрее.",
+    tech: ["Node.js","PostgreSQL","Redis","GraphQL/REST","WebSockets"], timeline: "8–16 нед", contactHint: "Обсудить CRM",
+    useFor: ["Автоматизация отдела продаж", "Управление клиентской базой", "Аналитика воронок и конверсий"],
+    steps: ["Аудит процессов и CJM", "MVP с воронкой и клиентами", "Интеграции с телефонией и почтой", "Аналитика и автоматизация"],
+    price: "от 700 000 ₽", priceEn: "from $7 800", image: "/crm.png",
   },
   portal: {
-    title: "Внутренний портал",
-    desc: "Доступ для сотрудников/партнёров: документы, заявки, процессы, анонсы и обучение.",
-    href: "#portal",
-    image: "/portal.png",
-    chips: ["SSO", "Workflows", "Docs"],
-    useFor: ["HR/IT-заявки", "Онбординг", "Документы/регламенты"],
-    tech: ["SSO (OAuth/SAML)", "Next.js", "Node.js", "PostgreSQL", "Search", "Audit logs"],
-    steps: ["Карта ролей/прав", "Процессы и формы", "База знаний и поиск", "Единый вход", "Запуск и обучение"],
+    fig: "02 · ПОРТАЛ", title: "Корпоративные порталы",
+    desc: "Один инструмент для всей команды: задачи, документы, коммуникации и права доступа. Без переключения между сервисами.",
+    tech: ["SSO (OAuth/SAML)","Elasticsearch","Audit Logs","WebSockets"], timeline: "10–20 нед", contactHint: "Обсудить портал",
+    useFor: ["Корпоративные коммуникации", "Документооборот и заявки", "Управление задачами команды"],
+    steps: ["Ядро: новости и задачи", "SSO и роли доступа", "Интеграции с почтой и HR", "Расширение модулей"],
+    price: "от 900 000 ₽", priceEn: "from $10 000", image: "/portal.png",
   },
   cabinet: {
-    title: "Кабинет клиента",
-    desc: "Профиль, заказы, счета, поддержка, уведомления. Удобная self-service зона для клиентов.",
-    href: "#cabinet",
-    image: "/client.png",
-    chips: ["Self-service", "Support", "Billing"],
-    useFor: ["Сокращение нагрузки саппорта", "Онлайн-оплаты и счета", "Статусы и уведомления"],
-    tech: ["Next.js App Router", "API Gateway", "Payments (Stripe/ЮKassa)", "Webhooks", "Emails/Push", "ACL"],
-    steps: ["Юзкейсы и метрики", "UX-потоки: заказы/счета", "Поддержка/чат", "Платежи/уведомления", "Запуск и SLA"],
+    fig: "03 · КАБИНЕТ", title: "Личные кабинеты",
+    desc: "Клиент видит все свои данные, оплачивает и получает поддержку — без звонков в офис. Снижает нагрузку на команду.",
+    tech: ["Next.js App Router","API Gateway","Email/Push","ACL","Redis"], timeline: "6–12 нед", contactHint: "Обсудить кабинет",
+    useFor: ["B2C сервисы и подписки", "Личный кабинет клиента", "История заказов и оплаты"],
+    steps: ["Авторизация и профиль", "История, оплаты и подписки", "Чат и уведомления", "SEO и производительность"],
+    price: "от 500 000 ₽", priceEn: "from $5 600", image: "/client.png",
   },
   analytics: {
-    title: "Аналитическая панель",
-    desc: "Дашборды, метрики, фильтры и экспорт. Источники данных и расписания отчётов.",
-    href: "#analytics",
-    image: "/analitick.png",
-    chips: ["Dashboards", "ETL", "Exports"],
-    useFor: ["Операционная аналитика", "Отчётность руководству", "Сводки по отделам"],
-    tech: ["ETL/Jobs", "PostgreSQL/OLAP", "ClickHouse (по необходимости)", "Charts", "Caching"],
-    steps: ["Метрики/источники", "Модель данных", "Виджеты и фильтры", "Экспорт/планировщик", "Запуск и обучение"],
+    fig: "04 · АНАЛИТИКА", title: "Аналитические панели",
+    desc: "Цифры вместо ощущений: KPI, воронки, отчёты в реальном времени. Решения принимаются быстрее и точнее.",
+    tech: ["ETL","PostgreSQL/OLAP","ClickHouse","Redis Cache"], timeline: "6–10 нед", contactHint: "Обсудить аналитику",
+    useFor: ["Мониторинг KPI и метрик", "Отчётность для руководства", "Продуктовая аналитика"],
+    steps: ["Модель данных и ETL", "Дашборды и виджеты", "Фильтры и экспорт", "Расписание и рассылка"],
+    price: "от 600 000 ₽", priceEn: "from $6 700", image: "/analitick.png",
   },
   b2b: {
-    title: "B2B-витрина",
-    desc: "Каталоги, персональные цены, корзина и заказы по договорам. Интеграции с ERP.",
-    href: "#b2b",
-    image: "/b2b.png",
-    chips: ["Catalog", "Pricing", "ERP"],
-    useFor: ["Оптовые продажи", "Персональные прайсы", "Согласование заказов"],
-    tech: ["Next.js", "Server Actions", "ERP API", "Caching/CDN", "RBAC", "Payments"],
-    steps: ["Каталог/прайсы", "Карточка/корзина", "Согласование/статусы", "ERP-синхронизация", "Запуск и KPI"],
+    fig: "05 · B2B", title: "B2B платформы",
+    desc: "B2B-продажи онлайн: каталог с прайсами, заказы и интеграция с ERP. Менеджеры тратят время на сделки, не на переписку.",
+    tech: ["Server Actions","CDN","RBAC","Payment Gateway","Caching"], timeline: "10–18 нед", contactHint: "Обсудить B2B",
+    useFor: ["Оптовые продажи", "Партнёрские кабинеты", "Интеграция с ERP и 1С"],
+    steps: ["Каталог и прайсинг", "Корзина и заказ", "Интеграция с ERP", "Кабинет партнёра и аналитика"],
+    price: "от 1 000 000 ₽", priceEn: "from $11 100", image: "/b2b.png",
   },
   saas: {
-    title: "SaaS-сервис",
-    desc: "Подписки, биллинг, пробные периоды, роли и мультитенантность. Облачный деплой.",
-    href: "#saas",
-    image: "/saas.png",
-    chips: ["Billing", "Multi-tenant", "Cloud"],
-    useFor: ["Подписочная модель", "Мульти-аккаунты", "Быстрый глобальный деплой"],
-    tech: ["Next.js", "Prisma + PostgreSQL", "Row-Level Security", "Stripe Billing", "Feature Flags", "CI/CD"],
-    steps: ["MVP и тарифы", "Онбординг/триалы", "Биллинг/инвойсы", "Мультитенантность", "Наблюдаемость и рост"],
+    fig: "06 · SAAS", title: "SaaS сервисы",
+    desc: "Продукт, который растёт с вами: подписки, мультитенантность и архитектура под тысячи пользователей с первого дня.",
+    tech: ["Prisma ORM","Feature Flags","Docker/K8s","CI/CD"], timeline: "12–24 нед", contactHint: "Обсудить SaaS",
+    useFor: ["Мультитенантность", "Биллинг и подписки", "Self-service онбординг"],
+    steps: ["Мультитенант архитектура", "Биллинг и тарифы", "Онбординг и фичефлаги", "Масштабирование и мониторинг"],
+    price: "от 1 500 000 ₽", priceEn: "from $16 700", image: "/saas.png",
   },
 };
 
-/* ==================== MAIN ==================== */
+const TYPES_EN: Record<Kind, Item> = {
+  crm: {
+    fig: "01 · CRM", title: "CRM systems",
+    desc: "Replaces spreadsheets and chats: pipelines, tasks, clients and analytics in one place. Your team moves faster.",
+    tech: ["Node.js","PostgreSQL","Redis","GraphQL/REST","WebSockets"], timeline: "8–16 wks", contactHint: "Discuss CRM",
+    useFor: ["Sales department automation", "Customer base management", "Funnel and conversion analytics"],
+    steps: ["Process audit & CJM", "MVP with funnel and contacts", "Phone and email integrations", "Analytics and automation"],
+    price: "от 700 000 ₽", priceEn: "from $7 800", image: "/crm.png",
+  },
+  portal: {
+    fig: "02 · PORTAL", title: "Corporate portals",
+    desc: "One tool for the whole team: tasks, documents, communication and access rights. No switching between services.",
+    tech: ["SSO (OAuth/SAML)","Elasticsearch","Audit Logs","WebSockets"], timeline: "10–20 wks", contactHint: "Discuss portal",
+    useFor: ["Corporate communications", "Document flow and requests", "Team task management"],
+    steps: ["Core: news and tasks", "SSO and access roles", "Email and HR integrations", "Module expansion"],
+    price: "от 900 000 ₽", priceEn: "from $10 000", image: "/portal.png",
+  },
+  cabinet: {
+    fig: "03 · CABINET", title: "User portals",
+    desc: "Clients see their data, pay and get support — without calling your office. Reduces load on your team.",
+    tech: ["Next.js App Router","API Gateway","Email/Push","ACL","Redis"], timeline: "6–12 wks", contactHint: "Discuss portal",
+    useFor: ["B2C services and subscriptions", "Customer personal account", "Order history and payments"],
+    steps: ["Auth and profile", "History, payments and subscriptions", "Chat and notifications", "SEO and performance"],
+    price: "от 500 000 ₽", priceEn: "from $5 600", image: "/client.png",
+  },
+  analytics: {
+    fig: "04 · ANALYTICS", title: "Analytics dashboards",
+    desc: "Numbers instead of gut feelings: KPIs, funnels, real-time reports. Decisions made faster and with confidence.",
+    tech: ["ETL","PostgreSQL/OLAP","ClickHouse","Redis Cache"], timeline: "6–10 wks", contactHint: "Discuss analytics",
+    useFor: ["KPI and metrics monitoring", "Executive reporting", "Product analytics"],
+    steps: ["Data model and ETL", "Dashboards and widgets", "Filters and export", "Scheduling and delivery"],
+    price: "от 600 000 ₽", priceEn: "from $6 700", image: "/analitick.png",
+  },
+  b2b: {
+    fig: "05 · B2B", title: "B2B platforms",
+    desc: "B2B sales online: catalog with pricing, orders and ERP integration. Sales reps focus on deals, not paperwork.",
+    tech: ["Server Actions","CDN","RBAC","Payment Gateway","Caching"], timeline: "10–18 wks", contactHint: "Discuss B2B",
+    useFor: ["Wholesale sales", "Partner portals", "ERP integration"],
+    steps: ["Catalog and pricing", "Cart and order", "ERP integration", "Partner portal and analytics"],
+    price: "от 1 000 000 ₽", priceEn: "from $11 100", image: "/b2b.png",
+  },
+  saas: {
+    fig: "06 · SAAS", title: "SaaS services",
+    desc: "A product that grows with you: subscriptions, multi-tenancy and architecture for thousands of users from day one.",
+    tech: ["Prisma ORM","Feature Flags","Docker/K8s","CI/CD"], timeline: "12–24 wks", contactHint: "Discuss SaaS",
+    useFor: ["Multi-tenancy", "Billing and subscriptions", "Self-service onboarding"],
+    steps: ["Multi-tenant architecture", "Billing and pricing tiers", "Onboarding and feature flags", "Scaling and monitoring"],
+    price: "от 1 500 000 ₽", priceEn: "from $16 700", image: "/saas.png",
+  },
+};
+
+const KIND_KEYS: Kind[] = ["crm", "portal", "cabinet", "analytics", "b2b", "saas"];
+const ROWS: [Kind, Kind, Kind][] = [
+  ["crm", "portal", "cabinet"],
+  ["analytics", "b2b", "saas"],
+];
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════════════════════════════════════ */
 export default function WebAppKinds() {
-  const [openKey, setOpenKey] = useState<Kind | null>(null);
-  const router = useRouter();
-  const params = useSearchParams();
-  const pathname = usePathname();
+  const { locale } = useI18n();
+  const isEn = locale === "en";
+  const TYPES = isEn ? TYPES_EN : TYPES_RU;
+  const reduced = useReducedMotion();
+  const [hovered,  setHovered]  = useState<string | null>(null);
+  const [openKey,  setOpenKey]  = useState<Kind | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const m = params.get("modal") as Kind | null;
-    if (m && TYPES[m]) setOpenKey(m);
-    else setOpenKey(null);
-  }, [params]);
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
-  const openWithUrl = useCallback(
-    (k: Kind) => {
-      router.replace(`${pathname}?modal=${k}`, { scroll: false });
-      setOpenKey(k);
-    },
-    [router, pathname]
-  );
-
-  const closeAndClean = useCallback(() => {
-    router.replace(pathname, { scroll: false });
-    setOpenKey(null);
-  }, [router, pathname]);
-
-  // respect reduced motion
-  const reduced =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const itemListJsonLd = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Типы веб-приложений для бизнеса",
+    itemListElement: KIND_KEYS.map((k, idx) => ({
+      "@type": "ListItem",
+      position: idx + 1,
+      name: TYPES[k].title,
+      description: TYPES[k].desc,
+    })),
+  }), []);
 
   return (
     <section
       id="kinds"
-      className="relative w-full min-h-screen bg-black text-white flex flex-col justify-center pt-8 md:pt-10 pb-16"
+      style={{ background: BG, padding: isMobile ? "72px 0 60px" : "100px 0 80px", borderTop: "1px solid rgba(255,255,255,0.06)" }}
       aria-labelledby="kinds-title"
+      itemScope
+      itemType="https://schema.org/ItemList"
     >
-      {/* внутренний контейнер — как в HomeServices/SiteTypes */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="grid grid-cols-12 gap-x-6 md:gap-x-8">
-          {/* Заголовок */}
-          <motion.header
-            initial={{ opacity: 0, y: 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-            className="col-span-12 md:col-span-8 mb-6 md:mb-8"
-          >
-            <span className="inline-block text-xs tracking-widest text-white/60 uppercase mb-3">
-              типы решений
-            </span>
-            <h2 id="kinds-title" className="text-3xl sm:text-4xl md:text-5xl font-extrabold">
-              Подбираем формат под цель и рост
-            </h2>
-            <p className="mt-3 text-white/60 max-w-2xl">
-              CRM/ERP, порталы и личные кабинеты, B2B-витрины, аналитика и SaaS — собираем под ваш процесс и масштабы.
-            </p>
-          </motion.header>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 56px" }}>
 
-          {/* Карточки */}
-          <div className="col-span-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-3">
-              {(Object.entries(TYPES) as [Kind, Item][]).map(([key, item], i) => (
-                <KindCard
-                  key={key}
-                  delay={reduced ? 0 : 0.05 * i}
-                  title={item.title}
-                  desc={item.desc}
-                  href={item.href}
-                  image={item.image}
-                  chips={item.chips}
-                  onOpen={() => openWithUrl(key)}
-                />
-              ))}
-            </div>
+        {/* ── Header ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          style={{ marginBottom: 64 }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
+            <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
+              {isEn ? "Development directions" : "Направления разработки"}
+            </span>
           </div>
-        </div>
+          <h2
+            id="kinds-title"
+            className={serif.className}
+            style={{ margin: 0, fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}
+          >
+            <span style={{ display: "block", fontSize: "clamp(2.6rem, 6vw, 6rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }}>
+              {isEn ? "Solution formats" : "Форматы решений"}
+            </span>
+            <span style={{ display: "block", fontSize: "clamp(2.6rem, 6vw, 6rem)", color: WHITE }}>
+              {isEn ? "for your needs" : "под вашу задачу"}
+            </span>
+          </h2>
+        </motion.div>
+
+        {/* ── Two rows of 3 ── */}
+        {ROWS.map((row, rowIdx) => {
+          const isLastRow = rowIdx === ROWS.length - 1;
+          return (
+            <motion.div
+              key={rowIdx}
+              initial={{ opacity: 0, y: 32 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.05 + rowIdx * 0.1 }}
+              style={{
+                display: "grid",
+                gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+                gap: isMobile ? 48 : 0,
+                marginBottom: isLastRow ? 0 : (isMobile ? 48 : 64),
+                paddingBottom: isLastRow ? 0 : (isMobile ? 48 : 64),
+                borderBottom: isLastRow ? "none" : "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              {row.map((key, i) => {
+                const item = TYPES[key];
+                const cardKey = `${rowIdx}-${i}`;
+                const isHovered = hovered === cardKey;
+                const anyHovered = hovered !== null;
+                const isLast = i === row.length - 1;
+                const VisualComp = VISUALS[rowIdx * 3 + i];
+                return (
+                  <div
+                    key={key}
+                    onMouseEnter={() => setHovered(cardKey)}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={() => setOpenKey(key as Kind)}
+                    itemScope
+                    itemType="https://schema.org/Service"
+                    style={{
+                      borderRight: (isMobile || isLast) ? "none" : "1px solid rgba(255,255,255,0.08)",
+                      paddingLeft: (isMobile || i === 0) ? 0 : 44,
+                      paddingRight: (isMobile || isLast) ? 0 : 44,
+                      display: "flex",
+                      flexDirection: "column",
+                      cursor: "pointer",
+                      transition: "opacity 0.3s ease",
+                      opacity: anyHovered ? (isHovered ? 1 : 0.4) : 1,
+                    }}
+                  >
+                    {/* FIG label */}
+                    <div style={{ fontSize: 10, letterSpacing: "0.2em", color: TEAL, fontWeight: 500, marginBottom: 24, fontFamily: "monospace" }}>
+                      {item.fig}
+                    </div>
+
+                    {/* SVG Wireframe */}
+                    <div style={{
+                      marginBottom: 28,
+                      height: 160,
+                      background: "rgba(255,255,255,0.02)",
+                      border: `1px solid ${isHovered ? TEAL + "40" : "rgba(255,255,255,0.07)"}`,
+                      borderRadius: 8,
+                      overflow: "hidden",
+                      padding: 4,
+                      transition: "border-color 0.3s ease",
+                    }}>
+                      <VisualComp />
+                    </div>
+
+                    {/* Title */}
+                    <h3
+                      itemProp="name"
+                      style={{
+                        margin: "0 0 10px",
+                        fontSize: "clamp(1.05rem, 1.6vw, 1.35rem)",
+                        fontWeight: 600,
+                        color: isHovered ? TEAL : WHITE,
+                        letterSpacing: "-0.02em",
+                        transition: "color 0.3s ease",
+                      }}
+                    >
+                      {item.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p
+                      itemProp="description"
+                      style={{ margin: "0 0 18px", fontSize: 14, lineHeight: 1.65, color: "rgba(244,250,248,0.45)", flex: 1 }}
+                    >
+                      {item.desc}
+                    </p>
+
+                    {/* Tech tags */}
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 20 }}>
+                      {item.tech.map(t => (
+                        <span key={t} style={{
+                          fontSize: 10, padding: "3px 10px", borderRadius: 99,
+                          background: "rgba(255,255,255,0.05)",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                          color: "rgba(244,250,248,0.45)",
+                          letterSpacing: "0.05em",
+                        }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+
+                  </div>
+                );
+              })}
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* Бегущая строка — с линиями и регулируемым отступом */}
-      <TechMarquee className="mt-8 md:mt-10" lineOffset={18} />
+      <Script
+        id="ld-webappkinds-list"
+        type="application/ld+json"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
+      />
 
-      {/* Модалка */}
-      <KindModal openKey={openKey} onClose={closeAndClean} payload={openKey ? TYPES[openKey] : null} />
+      <WebAppModal
+        openKey={openKey}
+        onClose={() => setOpenKey(null)}
+        payload={openKey ? TYPES[openKey] : null}
+        isEn={isEn}
+      />
     </section>
   );
 }
 
-/* ==================== CARD (как ServiceCard/SiteCard) ==================== */
-function KindCard({
-  title,
-  desc,
-  href,   // оставляем для aria/подсказок, не используем как ссылку на заголовке
-  image,
-  chips,
-  onOpen,
-  delay = 0,
-}: {
-  title: string;
-  desc: string;
-  href: string;
-  image: string;
-  chips: string[];
-  onOpen: () => void;
-  delay?: number;
-}) {
-  return (
-    <motion.article
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.55, ease: "easeOut", delay }}
-      whileHover={{ scale: 1.02 }}
-      className="group relative overflow-hidden rounded-3xl border border-white/10
-                 bg-gradient-to-br from-white/[0.04] to-white/[0.02]
-                 shadow-md hover:shadow-white/10 transition-all p-7"
-    >
-      {/* мягкая подсветка при ховере */}
-      <div className="pointer-events-none absolute -inset-px -z-10 rounded-3xl bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition" />
-
-      {/* Заголовок — БЕЗ перехода, просто кнопка открытия модалки */}
-      <button
-        type="button"
-        onClick={onOpen}
-        className="inline-flex items-center gap-3 text-left text-xl font-semibold text-white
-                   underline decoration-transparent group-hover:decoration-white/30 decoration-2 underline-offset-4
-                   focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-md"
-        aria-label={`${title} — открыть подробности`}
-        title={title}
-      >
-        {title}
-      </button>
-
-      <p className="mt-3 text-white/70 text-sm leading-relaxed">{desc}</p>
-
-      {/* Chips */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {chips.map((c) => (
-          <span
-            key={c}
-            className="rounded-full border border-white/15 bg-white/[0.05] px-2.5 py-1 text-[12px] text-white/75"
-          >
-            {c}
-          </span>
-        ))}
-      </div>
-
-      {/* Триггер модалки */}
-      <div className="mt-7">
-        <button
-          type="button"
-          onMouseEnter={() => {
-            if (typeof window !== "undefined" && image) {
-              try {
-                const img = new window.Image();
-                img.decoding = "async";
-                img.loading = "eager";
-                img.src = image;
-              } catch {}
-            }
-          }}
-          onClick={onOpen}
-          className="inline-flex items-center gap-2 rounded-full
-                     bg-white/5 border border-white/20
-                     px-5 py-2.5 text-sm font-medium text-white/90
-                     hover:bg-white/10 hover:border-white/40
-                     active:scale-[0.99]
-                     transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-          aria-haspopup="dialog"
-          aria-expanded="false"
-        >
-          Ближе
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden>
-            <path d="M5 12h14m0 0l-5-5m5 5l-5 5" stroke="currentColor" strokeWidth="1.8" />
-          </svg>
-        </button>
-      </div>
-    </motion.article>
-  );
-}
-
-/* ==================== MODAL (закрытие по фону, одинаковые CTA) ==================== */
-function KindModal({
-  openKey,
-  onClose,
-  payload,
+/* ── Modal ────────────────────────────────────────────────────────────────── */
+function WebAppModal({
+  openKey, onClose, payload, isEn,
 }: {
   openKey: Kind | null;
   onClose: () => void;
   payload: Item | null;
+  isEn: boolean;
 }) {
   const panelRef = useRef<HTMLDivElement | null>(null);
-  const lastFocused = useRef<HTMLElement | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
-  // lock body scroll + мобильная прокрутка панели
   useEffect(() => {
     if (!openKey) return;
-    const prev = document.body.style.overflow;
-    const prevOB = (document.body.style as any).overscrollBehaviorY;
-    document.body.style.overflow = "hidden";
-    (document.body.style as any).overscrollBehaviorY = "none";
+    const el = document.documentElement;
+    const prev = el.style.overflow;
+    el.style.overflow = "hidden";
+    setTimeout(() => panelRef.current?.focus({ preventScroll: true }), 0);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
-      (document.body.style as any).overscrollBehaviorY = prevOB || "";
-    };
-  }, [openKey]);
-
-  // Esc + возврат фокуса + focus trap
-  useEffect(() => {
-    if (!openKey) return;
-
-    lastFocused.current = document.activeElement as HTMLElement;
-
-    const getFocusable = () => {
-      if (!panelRef.current) return [] as HTMLElement[];
-      const sel =
-        'a, button, input, textarea, select, [tabindex]:not([tabindex="-1"])';
-      return Array.from(panelRef.current.querySelectorAll<HTMLElement>(sel)).filter(
-        (el) => !el.hasAttribute("disabled")
-      );
-    };
-    setTimeout(() => getFocusable()[0]?.focus(), 0);
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-      if (e.key !== "Tab") return;
-      const items = getFocusable();
-      if (!items.length) return;
-      const first = items[0];
-      const last = items[items.length - 1];
-      const active = document.activeElement as HTMLElement | null;
-      if (e.shiftKey) {
-        if (active === first) { e.preventDefault(); last.focus(); }
-      } else {
-        if (active === last) { e.preventDefault(); first.focus(); }
-      }
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("keydown", onKeyDown);
-      lastFocused.current?.focus();
+      el.style.overflow = prev;
+      document.removeEventListener("keydown", onKey);
     };
   }, [openKey, onClose]);
 
-  if (!mounted || !openKey || !payload) return null;
-
-  const reduced =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-
-  const backdropTr = reduced ? { duration: 0 } : { duration: 0.18, ease: "easeOut" };
-  const panelTr = reduced
-    ? { duration: 0 }
-    : { type: "spring", stiffness: 420, damping: 32, mass: 0.7 };
-
-  const modalBtnBase =
-    "inline-flex items-center justify-center rounded-full font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition text-center whitespace-nowrap";
-  const modalBtnSize = "h-12 w-full sm:w-[260px] px-6 text-base";
-
-  // helper: закрыть и проскроллить к блоку
-  const jumpAfterClose = (hash: string) => {
-    onClose();
-    setTimeout(() => {
-      const el = document.getElementById(hash.replace("#", ""));
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-      else window.location.hash = hash;
-    }, 220);
+  const kindToCalc: Record<Kind, string> = {
+    crm: "crm", portal: "portal", cabinet: "client",
+    analytics: "analytics", b2b: "b2b", saas: "saas",
   };
+  const kindToContact: Record<Kind, string> = {
+    crm: "internal", portal: "portal", cabinet: "portal",
+    analytics: "dashboard", b2b: "marketplace", saas: "saas",
+  };
+
+  const jumpClose = useCallback((hash: string) => {
+    if (openKey) {
+      if (hash === "calculator") {
+        window.dispatchEvent(new CustomEvent("webapp-calc-prefill", { detail: { kind: kindToCalc[openKey] } }));
+      } else if (hash === "contact") {
+        window.dispatchEvent(new CustomEvent("webapp-contact-prefill", { detail: { kind: kindToContact[openKey] } }));
+      }
+    }
+    onClose();
+    setTimeout(() => document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" }), 300);
+  }, [onClose, openKey]);
+
+  if (!mounted) return null;
+
+  const figNum = payload ? payload.fig.split("·")[0].trim().replace(/^0/, "") + ".0" : "";
 
   return createPortal(
     <AnimatePresence>
-      {openKey && (
-        // фон — клик закрывает
-        <motion.div
-          key="backdrop"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={backdropTr}
-          className="fixed inset-0 z-[999] bg-black/75 backdrop-blur-sm"
-          onClick={onClose}
-          aria-hidden
-        >
-          {/* центрирование панели; клики внутри не закрывают */}
-          <div className="fixed inset-0 p-4 md:p-6 flex items-start md:items-center justify-center">
-            <motion.div
-              ref={panelRef}
-              onClick={(e) => e.stopPropagation()}
-              initial={{ opacity: reduced ? 1 : 0, scale: reduced ? 1 : 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: reduced ? 1 : 0, scale: 0.98 }}
-              transition={panelTr}
-              className="mx-auto w-full max-w-7xl rounded-2xl bg-transparent
-                         max-h-[100svh] md:max-h-[92vh]
-                         overflow-y-auto overscroll-contain [touch-action:pan-y]
-                         [--webkit-overflow-scrolling:touch]"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="modal-title"
-              aria-describedby="modal-desc"
-            >
-              <div className="mx-auto w-full max-w-7xl px-5 md:px-10 py-6 md:py-10">
-                {/* top bar */}
-                <div className="flex items-center justify-end">
-                  <button
-                    onClick={onClose}
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-full
-                               bg-white/20 hover:bg-white/35 text-white transition
-                               focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70
-                               shadow-[0_0_0_1px_rgba(255,255,255,0.25)_inset]"
-                    aria-label="Закрыть"
-                    title="Закрыть"
+      {openKey && payload && (
+        <>
+          <motion.div
+            key="bd"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+            style={{ position: "fixed", inset: 0, zIndex: 998, background: "rgba(4,10,9,0.7)", backdropFilter: "blur(6px)" }}
+          />
+          <motion.div
+            key="panel"
+            ref={panelRef}
+            tabIndex={-1}
+            initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            role="dialog" aria-modal="true" aria-labelledby="webapp-modal-title"
+            style={{
+              position: "fixed", top: 0, right: 0, bottom: 0, zIndex: 999,
+              width: "min(560px, 100vw)",
+              background: "#101f1c",
+              borderLeft: "1px solid rgba(255,255,255,0.07)",
+              display: "flex", flexDirection: "column",
+              overflowY: "hidden", outline: "none",
+            }}
+          >
+            {/* Top bar */}
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "0 24px", height: 52,
+              borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0,
+              background: "#101f1c",
+            }}>
+              <span style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(244,250,248,0.35)", fontWeight: 500 }}>
+                {isEn ? "Tech Specs" : "Характеристики"}
+              </span>
+              <button
+                onClick={onClose}
+                style={{
+                  width: 32, height: 32, borderRadius: "50%", border: "none",
+                  background: "rgba(255,255,255,0.08)", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  color: "rgba(244,250,248,0.6)",
+                }}
+              >
+                <X size={15} />
+              </button>
+            </div>
+
+            {/* Scrollable content */}
+            <div style={{ overflowY: "auto", flex: 1 }}>
+              <div style={{ padding: "32px 32px 48px" }}>
+
+                {/* fig + title */}
+                <div style={{ marginBottom: 32 }}>
+                  <div style={{ fontSize: 13, color: "rgba(244,250,248,0.3)", marginBottom: 10 }}>{figNum}</div>
+                  <h2
+                    id="webapp-modal-title"
+                    className={serif.className}
+                    style={{ margin: 0, fontSize: "clamp(2rem, 4vw, 2.8rem)", fontWeight: 400, color: WHITE, letterSpacing: "-0.03em", lineHeight: 1.1 }}
                   >
-                    <X className="h-5 w-5" />
+                    {payload.title}
+                  </h2>
+                </div>
+
+                {/* Overview */}
+                <div style={{ marginBottom: 32 }}>
+                  <h3 style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 600, color: WHITE }}>
+                    {isEn ? "Overview" : "Обзор"}
+                  </h3>
+                  <p style={{ margin: 0, fontSize: 14, lineHeight: 1.8, color: "rgba(244,250,248,0.55)" }}>
+                    {payload.desc}
+                  </p>
+                </div>
+
+                {/* Use cases */}
+                <div style={{ marginBottom: 36 }}>
+                  <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(244,250,248,0.3)", marginBottom: 16, fontWeight: 500 }}>
+                    {isEn ? "Use cases" : "Сценарии применения"}
+                  </div>
+                  <h3 style={{ margin: "0 0 12px", fontSize: 18, fontWeight: 600, color: WHITE }}>
+                    {isEn ? "Suitable for" : "Подходит для"}
+                  </h3>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", fontSize: 12, color: "rgba(244,250,248,0.35)", fontWeight: 500, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                          {isEn ? "Scenario" : "Сценарий"}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payload.useFor.map((u, i) => (
+                        <tr key={i}>
+                          <td style={{ padding: "10px 0", fontSize: 13, color: "rgba(244,250,248,0.7)", borderBottom: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", gap: 8 }}>
+                            <CheckCircle size={13} style={{ color: TEAL, flexShrink: 0, marginTop: 1 }} /> {u}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Work stages */}
+                <div style={{ marginBottom: 36 }}>
+                  <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(244,250,248,0.3)", marginBottom: 16, fontWeight: 500 }}>
+                    {isEn ? "Process" : "Процесс"}
+                  </div>
+                  <h3 style={{ margin: "0 0 16px", fontSize: 18, fontWeight: 600, color: WHITE }}>
+                    {isEn ? "Work stages" : "Этапы работы"}
+                  </h3>
+                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: "left", fontSize: 12, color: "rgba(244,250,248,0.35)", fontWeight: 500, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.06)", width: 40 }}>#</th>
+                        <th style={{ textAlign: "left", fontSize: 12, color: "rgba(244,250,248,0.35)", fontWeight: 500, padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+                          {isEn ? "Stage" : "Этап"}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {payload.steps.map((s, i) => (
+                        <tr key={i}>
+                          <td style={{ padding: "10px 0", fontSize: 11, fontFamily: "monospace", color: TEAL, borderBottom: "1px solid rgba(255,255,255,0.04)", verticalAlign: "top" }}>
+                            {String(i + 1).padStart(2, "0")}
+                          </td>
+                          <td style={{ padding: "10px 0 10px 12px", fontSize: 13, color: "rgba(244,250,248,0.6)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                            {s}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Tech tags */}
+                <div style={{ marginBottom: 36 }}>
+                  <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(244,250,248,0.3)", marginBottom: 16, fontWeight: 500 }}>
+                    {isEn ? "Tech stack" : "Стек технологий"}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {payload.tech.map(t => (
+                      <span key={t} style={{
+                        fontSize: 11, padding: "4px 12px", borderRadius: 99,
+                        background: `${TEAL}10`, border: `1px solid ${TEAL}30`, color: TEAL,
+                      }}>{t}</span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Budget row */}
+                <div style={{
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                  padding: "20px 0", borderTop: "1px solid rgba(255,255,255,0.07)",
+                  borderBottom: "1px solid rgba(255,255,255,0.07)", marginBottom: 32,
+                }}>
+                  <div>
+                    <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(244,250,248,0.3)", marginBottom: 6 }}>
+                      {isEn ? "Budget" : "Бюджет"}
+                    </div>
+                    <div style={{ fontSize: 20, fontWeight: 600, color: WHITE }}>{isEn ? payload.priceEn : payload.price}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(244,250,248,0.3)", marginBottom: 6 }}>
+                      {isEn ? "Timeline" : "Сроки"}
+                    </div>
+                    <div style={{ fontSize: 20, fontWeight: 600, color: WHITE }}>{payload.timeline}</div>
+                  </div>
+                </div>
+
+                {/* CTAs */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <button
+                    onClick={() => jumpClose("contact")}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      borderRadius: 10, padding: "14px 20px", border: "none", cursor: "pointer",
+                      background: TEAL, color: BG, fontSize: 14, fontWeight: 600,
+                    }}
+                  >
+                    {isEn ? "Discuss the project" : "Обсудить проект"}
+                    <ArrowRight size={15} />
+                  </button>
+                  <button
+                    onClick={() => jumpClose("calculator")}
+                    style={{
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      borderRadius: 10, padding: "14px 20px", cursor: "pointer",
+                      background: "rgba(255,255,255,0.04)", fontSize: 14, fontWeight: 500,
+                      border: "1px solid rgba(255,255,255,0.1)", color: "rgba(244,250,248,0.55)",
+                    }}
+                  >
+                    {isEn ? "Calculate cost" : "Рассчитать стоимость"}
                   </button>
                 </div>
 
-                {/* Моб. заголовок */}
-                <h3 className="block sm:hidden text-[clamp(1.6rem,6vw,2rem)] font-extrabold tracking-tight mt-2 mb-3 text-center">
-                  {payload.title}
-                </h3>
-
-                {/* GRID */}
-                <div className="mt-2 grid grid-cols-1 lg:grid-cols-[1.05fr_1.35fr] gap-10 items-start">
-                  {/* Картинка */}
-                  <div className="order-1 lg:order-none relative">
-                    <div className="relative w-full h-[46vh] sm:h-[56vh] lg:h-[68vh]">
-                      <NextImage
-                        src={payload.image}
-                        alt={`${payload.title} — визуальный пример`}
-                        fill
-                        sizes="(max-width: 1024px) 100vw, 52vw"
-                        className="object-contain"
-                        priority={false}
-                      />
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/60 via-black/10 to-transparent" />
-                    </div>
-                  </div>
-
-                  {/* Текст */}
-                  <div className="order-2 lg:order-none">
-                    <h3 id="modal-title" className="hidden sm:block text-[clamp(1.8rem,4.6vw,3rem)] font-extrabold tracking-tight mb-3">
-                      {payload.title}
-                    </h3>
-
-                    <p id="modal-desc" className="text-white/85 text-base md:text-lg leading-relaxed max-w-prose">
-                      {payload.desc}
-                    </p>
-
-                    {/* Лучше для */}
-                    {payload.useFor?.length ? (
-                      <div className="mt-8">
-                        <div className="text-sm font-semibold text-white/90 mb-3 text-center sm:text-left">
-                          Лучше для
-                        </div>
-
-                        {/* мобайл — чипы */}
-                        <div className="grid grid-cols-2 gap-2 sm:hidden">
-                          {payload.useFor.map((u) => (
-                            <span
-                              key={u}
-                              className="rounded-xl border border-white/15 bg-white/[0.06] px-3 py-2 text-[12px] text-white/85"
-                            >
-                              {u}
-                            </span>
-                          ))}
-                        </div>
-
-                        {/* десктоп — список */}
-                        <ul className="hidden sm:block space-y-1.5 text-white/80">
-                          {payload.useFor.map((u, i) => (
-                            <li key={i} className="flex gap-2">
-                              <span className="mt-2 h-[5px] w-[5px] rounded-full bg-white/60" />
-                              <span>{u}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : null}
-
-                    {/* Технологии */}
-                    {payload.tech?.length ? (
-                      <div className="mt-8 hidden sm:block">
-                        <div className="text-sm font-semibold text-white/90 mb-3">Технологии</div>
-                        <div className="flex flex-wrap gap-2">
-                          {payload.tech.map((t) => (
-                            <span key={t} className="rounded-full border border-white/15 bg-white/[0.04] px-3 py-1 text-sm">
-                              {t}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-
-                    {/* Этапы */}
-                    {payload.steps?.length ? (
-                      <div className="mt-8 hidden sm:block">
-                        <div className="text-sm font-semibold text-white/90 mb-3">Этапы работ</div>
-                        <ol className="grid grid-cols-1 gap-2 list-decimal pl-6 text-white/85">
-                          {payload.steps.map((s, i) => (
-                            <li key={s + i}>{s}</li>
-                          ))}
-                        </ol>
-                      </div>
-                    ) : null}
-
-                    {/* CTA — одинаковые размеры */}
-                    <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-2 justify-center sm:justify-start">
-                      <button
-                        type="button"
-                        onClick={() => jumpAfterClose("#contact")}
-                        className={`${modalBtnBase} ${modalBtnSize} bg-white text-black hover:shadow-white/20 hover:shadow-lg active:scale-[0.99]`}
-                      >
-                        <span className="mx-auto">Оставить заявку</span>
-                        <svg className="ml-2 h-5 w-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" aria-hidden>
-                          <path d="M5 12h14m0 0l-5-5m5 5l-5 5" stroke="currentColor" strokeWidth="1.8" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
               </div>
-            </motion.div>
-          </div>
-        </motion.div>
+            </div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>,
     document.body
-  );
-}
-
-/* ==================== MARQUEE (с тонкими линиями) ==================== */
-function TechMarquee({
-  className = "",
-  lineOffset = 22,
-}: {
-  className?: string;
-  lineOffset?: number;
-}) {
-  const tech =
-    "Next.js · React · TypeScript · Node.js · GraphQL · REST API · PostgreSQL · Redis · Kafka · Elasticsearch · WebSockets · RBAC · OAuth/SSO · Stripe/ЮKassa · 1C/CRM · Docker · CI/CD · Prometheus/Grafana · Sentry";
-
-  const reduced =
-    typeof window !== "undefined" &&
-    window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
-
-  return (
-    <div
-      className={`relative overflow-hidden ${className}
-                  mx-[calc(50%-50vw)] px-[calc(50vw-50%)]`}
-      style={{ paddingTop: lineOffset, paddingBottom: lineOffset }}
-      aria-hidden
-    >
-      {/* тонкие линии */}
-      <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-px z-10 w-[min(1120px,92vw)] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-      <div className="pointer-events-none absolute left-1/2 bottom-0 -translate-x-1/2 h-px z-10 w-[min(1120px,92vw)] bg-gradient-to-r from-transparent via-white/60 to-transparent" />
-
-      <div className="mask-fade pointer-events-none absolute inset-0 z-0" />
-      <div
-        className="marquee relative z-0 flex gap-12 whitespace-nowrap will-change-transform text-white/80"
-        style={reduced ? { animation: "none" } : undefined}
-      >
-        <span>{tech}</span>
-        <span aria-hidden>{tech}</span>
-        <span aria-hidden>{tech}</span>
-      </div>
-
-      <style jsx>{`
-        .marquee { animation: marquee 22s linear infinite; }
-        @media (max-width: 768px) { .marquee { animation-duration: 28s; } }
-        .marquee:hover, .marquee:focus-within { animation-play-state: paused; }
-        @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-33.333%); } }
-        .mask-fade {
-          background: linear-gradient(
-            90deg,
-            rgba(0,0,0,1) 0%,
-            rgba(0,0,0,0) 12%,
-            rgba(0,0,0,0) 88%,
-            rgba(0,0,0,1) 100%
-          );
-        }
-      `}</style>
-    </div>
   );
 }

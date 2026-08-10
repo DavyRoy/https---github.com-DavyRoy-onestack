@@ -1,16 +1,35 @@
 import type { MetadataRoute } from "next";
+import { canonical, siteUrl } from "@/app/seo.config";
 
 export default function robots(): MetadataRoute.Robots {
-  const host = process.env.NEXT_PUBLIC_SITE_URL || "https://onestack24.ru";
+  const host = siteUrl;
 
   return {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        // Разрешаем только SEO-страницы
+        allow: [
+          "/",
+          "/home",
+          "/sites",
+          "/webapp",
+          "/mobile",
+          "/privacy",
+          "/terms",
+        ],
+        // Полностью запрещаем всё служебное
+        disallow: [
+          "/demo/",
+          "/api/",
+          "/metrics/",
+          "/healthz",
+          "/modal/",
+          "/tg",
+        ],
       },
     ],
-    sitemap: `${host}/sitemap.xml`,
+    sitemap: canonical("/sitemap.xml"),
     host,
   };
 }

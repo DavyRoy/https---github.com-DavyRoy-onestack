@@ -43,7 +43,8 @@ export async function GET(req: NextRequest) {
     if (!TYPES.has(type)) return fail(400, "Unknown type");
 
     // range (для совместимости с демо API; не применяем фильтрацию по времени)
-    const _range = url.searchParams.get("range") || null;
+    const range = url.searchParams.get("range") || null;
+    void range; // range пока не используется, оставляем для совместимости
 
     // pagination (optional)
     const limitParam = url.searchParams.get("limit");

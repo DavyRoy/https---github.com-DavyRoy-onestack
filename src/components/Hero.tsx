@@ -1,510 +1,601 @@
-// src/app/components/Hero.tsx
 "use client";
+import { serif } from "@/lib/fonts";
 
 import Link from "next/link";
 import Script from "next/script";
-import dynamic from "next/dynamic";
 import React, {
-  useState,
-  useCallback,
-  useMemo,
-  useEffect,
-  useRef,
-  FormEvent,
-  forwardRef,
-  useId,
+  useState, useCallback, useEffect, useRef, FormEvent, forwardRef, useId,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Mail, Phone, Building2, Paperclip, CheckCircle2 } from "lucide-react";
+import {
+  motion, AnimatePresence, useReducedMotion,
+  useMotionValue, useSpring,
+} from "framer-motion";
+import { Mail, Paperclip, CheckCircle2, ArrowUpRight } from "lucide-react";
+import { siteName, siteUrl } from "@/app/seo.config";
+import { useI18n } from "@/i18n/I18nProvider";
+import LanguageSwitcher from "./LanguageSwitcher";
 
-const ThreadsBg = dynamic(() => import("./Threads"), { ssr: false });
 
-/* ================================= SEO JSON-LD ================================= */
+/* ─── Palette ─────────────────────────────────────────────────────────────── */
+const BG     = "#07100e";
+const TEAL   = "#2dd4bf";
+const WHITE  = "#f4faf8";
 
-const jsonLdOrg = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "OneStack",
-  url: "https://onestack24.ru",
-  logo: "https://onestack24.ru/vercal.png",
-  sameAs: ["https://onestack24.ru"],
-  contactPoint: [
-    {
-      "@type": "ContactPoint",
-      email: "info@onestack24.ru",
-      telephone: "+7-910-948-61-06",
-      contactType: "sales",
-      areaServed: "RU",
-      availableLanguage: ["ru"],
-    },
-  ],
-};
+/* ─── Constants ──────────────────────────────────────────────────────────── */
+const EMAIL_RE  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const SITE_NAME = siteName;
+const SITE_URL  = siteUrl;
+type Lang = "ru" | "en";
+type ServiceId = "sites" | "webapp" | "mobile";
+type ContactForm = { name: string; email: string; message: string; agree: boolean; file: File | null };
 
-const jsonLdWebSite = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "OneStack",
-  url: "https://onestack24.ru",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: "https://onestack24.ru/search?q={query}",
-    "query-input": "required name=query",
+/* ─── Service data ────────────────────────────────────────────────────────── */
+const SVC = {
+  sites: {
+    ru: "Сайты", en: "Websites",
+    num: 87,
+    statRu: "сайтов\nзапущено", statEn: "websites\nlaunched",
+    copyRu: "Лендинги, корпоративные порталы и интернет-магазины — под задачи бизнеса любого масштаба",
+    copyEn: "Landing pages, corporate portals and e-commerce — built for businesses of any size",
+    href: "/sites",
   },
-};
+  webapp: {
+    ru: "Веб-приложения", en: "Web apps",
+    num: 41,
+    statRu: "сервисов\nв продакшне", statEn: "services\nin production",
+    copyRu: "CRM, личные кабинеты, SaaS-платформы и ERP — масштабируются вместе с вашим бизнесом",
+    copyEn: "CRM, client portals, SaaS platforms and ERP — built to scale with your business",
+    href: "/webapp",
+  },
+  mobile: {
+    ru: "Мобильные", en: "Mobile",
+    num: 26,
+    statRu: "приложений\nв App Store и Google Play", statEn: "apps in\nApp Store & Google Play",
+    copyRu: "iOS & Android из единого кодбейса — быстрее и выгоднее двух отдельных команд",
+    copyEn: "iOS & Android from one codebase — faster and more cost-effective than two separate teams",
+    href: "/mobile",
+  },
+} as const;
 
-const jsonLdWebPage = {
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  name: "Разработка сайтов и приложений под ключ — OneStack",
-  url: "https://onestack24.ru",
-  inLanguage: "ru-RU",
-  description:
-    "Создаём сайты, веб- и мобильные приложения: дизайн, разработка, интеграции и поддержка. Понятные сроки и бюджет.",
-  isPartOf: { "@type": "WebSite", url: "https://onestack24.ru", name: "OneStack" },
-};
+const SVC_IDS: ServiceId[] = ["sites", "webapp", "mobile"];
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/* ─── Tech ticker items ──────────────────────────────────────────────────── */
+const TICKER = [
+  "React", "Next.js", "TypeScript", "Node.js", "PostgreSQL",
+  "Tailwind CSS", "Framer Motion", "React Native", "Docker", "Redis",
+  "Prisma", "ClickHouse", "Figma", "Яндекс.Облако", "CI/CD",
+];
 
-const NAV_LINKS = [
-  { href: "/home", label: "Домашняя" },
-  { href: "/sites", label: "Сайты" },
-  { href: "/webapp", label: "Веб-приложение" },
-  { href: "/mobile", label: "Мобильное приложение" },
-] as const;
-
-/* ================================= Types ================================= */
-
-type ContactForm = {
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  message: string;
-  agree: boolean;
-  file: File | null;
-};
-
-/* ================================= Analytics helper ================================= */
-
-function track(event: string, params: Record<string, unknown> = {}) {
-  try {
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    (window as any).dataLayer.push({ event, ...params });
-    (window as any).ym?.(103909522, "reachGoal", event, params);
-  } catch {}
+/* ─── Count-up hook ──────────────────────────────────────────────────────── */
+function useCountUp(target: number) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    setVal(0);
+    const dur = 900;
+    const start = performance.now();
+    let raf: number;
+    const tick = (now: number) => {
+      const t = Math.min((now - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - t, 3); // ease-out-cubic
+      setVal(Math.round(ease * target));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target]);
+  return val;
 }
 
-/* ================================= Component ================================= */
+/* ─── Cursor glow ────────────────────────────────────────────────────────── */
+function CursorGlow() {
+  const x = useMotionValue(-400);
+  const y = useMotionValue(-400);
+  const sx = useSpring(x, { stiffness: 80, damping: 20, mass: 0.5 });
+  const sy = useSpring(y, { stiffness: 80, damping: 20, mass: 0.5 });
 
-export default function Hero() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  useEffect(() => {
+    const fn = (e: MouseEvent) => { x.set(e.clientX); y.set(e.clientY); };
+    window.addEventListener("mousemove", fn);
+    return () => window.removeEventListener("mousemove", fn);
+  }, [x, y]);
+
+  return (
+    <motion.div
+      className="fixed pointer-events-none z-[1] hidden lg:block"
+      style={{
+        left: 0, top: 0, width: 520, height: 520,
+        x: sx, y: sy,
+        marginLeft: -260, marginTop: -260,
+        borderRadius: "50%",
+        background: `radial-gradient(circle, ${TEAL}14 0%, ${TEAL}06 40%, transparent 70%)`,
+      }}
+      aria-hidden="true"
+    />
+  );
+}
+
+/* ─── Grain overlay ──────────────────────────────────────────────────────── */
+function Grain() {
+  return (
+    <div
+      className="pointer-events-none fixed inset-0 z-[2] opacity-[0.028]"
+      style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
+        backgroundSize: "180px 180px",
+      }}
+      aria-hidden="true"
+    />
+  );
+}
+
+/* ─── Marquee ticker ─────────────────────────────────────────────────────── */
+function Ticker() {
+  const items = [...TICKER, ...TICKER, ...TICKER];
+  return (
+    <div className="relative w-full overflow-hidden border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+      {/* Fade edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
+        style={{ background: `linear-gradient(to right, ${BG}, transparent)` }} />
+      <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
+        style={{ background: `linear-gradient(to left, ${BG}, transparent)` }} />
+
+      <div className="flex">
+        <motion.div
+          className="flex items-center gap-0 shrink-0 py-4"
+          animate={{ x: ["0%", "-33.333%"] }}
+          transition={{ duration: 28, ease: "linear", repeat: Infinity }}
+        >
+          {items.map((item, i) => (
+            <React.Fragment key={i}>
+              <span className="text-xs tracking-[0.12em] uppercase font-medium whitespace-nowrap px-6"
+                style={{ color: "rgba(255,255,255,0.2)" }}>
+                {item}
+              </span>
+              <span className="shrink-0 w-1 h-1 rounded-full" style={{ background: TEAL + "50" }} />
+            </React.Fragment>
+          ))}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Headline with stagger ──────────────────────────────────────────────── */
+function Headline({ lines, reduced }: { lines: string[]; reduced: boolean | null }) {
+  return (
+    <h1
+      className={`${serif.className} font-normal leading-[0.9] tracking-[-0.03em]`}
+      style={{ color: WHITE, fontSize: "clamp(3.8rem, 9vw, 9.5rem)" }}
+    >
+      {lines.map((line, li) => (
+        <span key={li} className="block overflow-hidden pb-[0.18em] -mb-[0.18em]">
+          <motion.span
+            className="block"
+            initial={reduced ? undefined : { y: "108%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 + li * 0.1, duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {line}
+          </motion.span>
+        </span>
+      ))}
+    </h1>
+  );
+}
+
+/* ─── Service selector ───────────────────────────────────────────────────── */
+function ServiceSelector({
+  active, onSelect, lang,
+}: {
+  active: ServiceId; onSelect: (id: ServiceId) => void; lang: Lang;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      {SVC_IDS.map((id, i) => {
+        const isActive = id === active;
+        const num = String(i + 1).padStart(2, "0");
+        return (
+          <button
+            key={id}
+            onClick={() => onSelect(id)}
+            className="group flex items-center gap-4 text-left py-2.5 relative"
+          >
+            {/* Active bar */}
+            {isActive && (
+              <motion.div
+                layoutId="svc-bar"
+                className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full"
+                style={{ background: TEAL }}
+                transition={{ type: "spring", stiffness: 600, damping: 40 }}
+              />
+            )}
+
+            {/* Index number */}
+            <span
+              className="text-[11px] font-mono tabular-nums w-6 shrink-0 transition-colors duration-200 pl-4"
+              style={{ color: isActive ? TEAL : "rgba(255,255,255,0.18)" }}
+            >
+              {num}
+            </span>
+
+            {/* Label */}
+            <motion.span
+              className="font-medium leading-none"
+              animate={{
+                color: isActive ? WHITE : "rgba(255,255,255,0.3)",
+                x: isActive ? 2 : 0,
+              }}
+              transition={{ duration: 0.22 }}
+              style={{ fontSize: isActive ? "1.05rem" : "0.9rem" }}
+            >
+              {SVC[id][lang]}
+            </motion.span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── Stat panel ─────────────────────────────────────────────────────────── */
+function StatPanel({ active, lang, onContact, localizePath }: {
+  active: ServiceId; lang: Lang; onContact: () => void; localizePath: (p: string) => string;
+}) {
+  const svc = SVC[active];
+  const num = useCountUp(svc.num);
+  const stat = lang === "ru" ? svc.statRu : svc.statEn;
+  const copy = lang === "ru" ? svc.copyRu : svc.copyEn;
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={active}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="flex flex-col gap-5"
+      >
+        {/* Big number */}
+        <div>
+          <div
+            className={`${serif.className} leading-none font-normal`}
+            style={{ fontSize: "clamp(5rem, 10vw, 8rem)", color: TEAL }}
+          >
+            {num}
+          </div>
+          <p className="text-sm font-medium mt-1 whitespace-pre-line leading-snug"
+            style={{ color: "rgba(255,255,255,0.38)" }}>
+            {stat}
+          </p>
+        </div>
+
+        {/* Copy */}
+        <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>
+          {copy}
+        </p>
+
+        {/* CTA */}
+        <Link
+          href={localizePath(svc.href)}
+          className="group inline-flex items-center gap-2 text-sm font-semibold transition-colors w-fit"
+          style={{ color: TEAL }}
+        >
+          <span className="border-b border-current border-opacity-0 group-hover:border-opacity-100 transition-all pb-px">
+            {lang === "ru" ? "Подробнее" : "Learn more"}
+          </span>
+          <motion.span
+            className="inline-block"
+            whileHover={{ x: 2, y: -2 }}
+            transition={{ duration: 0.15 }}
+          >
+            <ArrowUpRight className="w-4 h-4" />
+          </motion.span>
+        </Link>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════════════════════════════════════ */
+export default function HeroNew() {
+  const { messages: m, localizePath } = useI18n();
+  const h = m.hero;
+  const n = m.nav;
+  const lang: Lang = m.nav.home === "Домашняя" ? "ru" : "en";
+  const reduced = useReducedMotion();
+
+  const [active,      setActive]      = useState<ServiceId>("sites");
   const [contactOpen, setContactOpen] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [sending,     setSending]     = useState(false);
+  const [sent,        setSent]        = useState(false);
+  const [errors,      setErrors]      = useState<Record<string, string>>({});
+  const modalRef = useRef<HTMLDivElement>(null);
+  const nameRef  = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<ContactForm>({
-    name: "",
-    email: "",
-    phone: "",
-    company: "",
-    message: "",
-    agree: false,
-    file: null,
+    name: "", email: "", message: "", agree: false, file: null,
   });
 
-  const nameRef = useRef<HTMLInputElement>(null);
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const desktopNav = useMemo(() => NAV_LINKS, []);
   const setField = useCallback(
     <K extends keyof ContactForm>(k: K, v: ContactForm[K]) =>
-      setForm((s) => ({ ...s, [k]: v })),
-    []
-  );
+      setForm(s => ({ ...s, [k]: v })), []);
 
   const validate = useCallback(() => {
     const e: Record<string, string> = {};
-    if (!form.name.trim()) e.name = "Как к вам обращаться?";
-    if (!EMAIL_RE.test(form.email)) e.email = "Введите корректный email";
-    if (!form.agree) e.agree = "Подтвердите согласие на обработку";
-    if (form.file && form.file.size > 10 * 1024 * 1024) {
-      e.file = "Файл больше 10 МБ";
-    }
+    if (!form.name.trim())           e.name  = h.errors.nameRequired;
+    if (!EMAIL_RE.test(form.email))  e.email = h.errors.emailInvalid;
+    if (!form.agree)                 e.agree = h.errors.agreeRequired;
+    if (form.file && form.file.size > 10 * 1024 * 1024) e.file = h.errors.fileTooLarge;
     setErrors(e);
     return Object.keys(e).length === 0;
-  }, [form.name, form.email, form.agree, form.file]);
+  }, [form, h.errors]);
 
-  const submitContact = useCallback(
-    async (e: FormEvent) => {
-      e.preventDefault();
-      if (!validate()) return;
-      setSending(true);
-      // имитация отправки
-      await new Promise((r) => setTimeout(r, 700));
-      setSending(false);
+  const submitContact = useCallback(async (ev: FormEvent) => {
+    ev.preventDefault();
+    if (!validate()) return;
+    setSending(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name:    form.name,
+          email:   form.email,
+          message: form.message,
+          source:  "hero",
+        }),
+      });
+      if (!res.ok) throw new Error("server error");
       setSent(true);
-      track("lead_submit", { place: "hero_modal", hasFile: Boolean(form.file) });
-    },
-    [validate, form.file]
-  );
+    } catch {
+      setErrors(e => ({ ...e, submit: lang === "ru" ? "Ошибка отправки. Попробуйте позже." : "Send error. Try again later." }));
+    } finally {
+      setSending(false);
+    }
+  }, [validate, form, lang]);
 
-  const openContact = useCallback(() => {
-    setContactOpen(true);
-    setMenuOpen(false);
-    track("open_contact", { place: "hero" });
-  }, []);
+  const openContact  = useCallback(() => setContactOpen(true),  []);
+  const closeContact = useCallback(() => { setContactOpen(false); setSent(false); setErrors({}); }, []);
 
-  const closeContact = useCallback(() => {
-    setContactOpen(false);
-    setSent(false);
-    setErrors({});
-  }, []);
-
-  /* ===== a11y & UX ===== */
-  useEffect(() => {
-    const q = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(q.matches);
-    const fn = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    q.addEventListener?.("change", fn);
-    return () => q.removeEventListener?.("change", fn);
-  }, []);
-
+  useEffect(() => { if (contactOpen) setTimeout(() => nameRef.current?.focus(), 120); }, [contactOpen]);
   useEffect(() => {
     if (!contactOpen) return;
-    const t = setTimeout(() => nameRef.current?.focus(), 120);
-    return () => clearTimeout(t);
-  }, [contactOpen]);
-
-  // Esc to close
+    const fn = (e: KeyboardEvent) => { if (e.key === "Escape") closeContact(); };
+    window.addEventListener("keydown", fn);
+    return () => window.removeEventListener("keydown", fn);
+  }, [contactOpen, closeContact]);
   useEffect(() => {
     if (!contactOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setContactOpen(false);
-        setSent(false);
-        setErrors({});
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [contactOpen]);
-
-  // lock body scroll while overlays are opened
-  useEffect(() => {
-    const shouldLock = contactOpen || menuOpen;
     const prev = document.body.style.overflow;
-    if (shouldLock) document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [contactOpen, menuOpen]);
-
-  // focus trap inside modal
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [contactOpen]);
   useEffect(() => {
     if (!contactOpen) return;
-    const root = modalRef.current;
-    if (!root) return;
-
-    const selector =
-      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
-    const getFocusables = () =>
-      Array.from(root.querySelectorAll<HTMLElement>(selector)).filter(
-        (el) => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden")
-      );
-
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const root = modalRef.current; if (!root) return;
+    const sel = 'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])';
+    const focusables = () =>
+      Array.from(root.querySelectorAll<HTMLElement>(sel))
+        .filter(el => !el.hasAttribute("disabled") && !el.getAttribute("aria-hidden"));
+    const trap = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
-      const list = getFocusables();
-      if (!list.length) return;
-
-      const first = list[0];
-      const last = list[list.length - 1];
+      const list = focusables(); if (!list.length) return;
+      const [first, last] = [list[0], list[list.length - 1]];
       const active = document.activeElement as HTMLElement | null;
-
-      if (e.shiftKey) {
-        if (active === first || !root.contains(active)) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else {
-        if (active === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
+      if (e.shiftKey) { if (active === first || !root.contains(active)) { e.preventDefault(); last.focus(); } }
+      else            { if (active === last)  { e.preventDefault(); first.focus(); } }
     };
-
-    root.addEventListener("keydown", handleKeyDown);
-    return () => root.removeEventListener("keydown", handleKeyDown);
+    root.addEventListener("keydown", trap);
+    return () => root.removeEventListener("keydown", trap);
   }, [contactOpen]);
 
-  /* ===== UI tokens ===== */
-  const btnBase =
-    "inline-flex items-center justify-center rounded-full font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition text-center will-change-transform";
-  const btnSize = "h-12 sm:h-14 min-w-[200px] sm:min-w-[240px] px-6 sm:px-7";
+  const headlineRu = ["Цифровые", "продукты", "по смете"];
+  const headlineEn = ["Digital", "products", "on budget"];
+  const headline   = lang === "ru" ? headlineRu : headlineEn;
 
   return (
     <section
-      className="relative w-full min-h-[100dvh] text-white overflow-hidden bg-gradient-to-br from-[#151515] via-[#0f0f0f] to-black"
-      aria-label="Приветственный экран OneStack"
+      className="relative w-full min-h-[100dvh] flex flex-col"
+      style={{ background: BG }}
     >
-      {/* SEO JSON-LD */}
-      <Script id="jsonld-org" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }} strategy="afterInteractive" />
-      <Script id="jsonld-website" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebSite) }} strategy="afterInteractive" />
-      <Script id="jsonld-webpage" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebPage) }} strategy="afterInteractive" />
-      <Script id="favicon" strategy="afterInteractive">
-        {`
-          const link = document.createElement('link');
-          link.rel = 'icon';
-          link.type = 'image/png';
-          link.sizes = '32x32';
-          link.href = '/vercal.png';
-          document.head.appendChild(link);
-        `}
-      </Script>
+      <Script id="schema-hero-new" type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context":"https://schema.org","@type":"Organization",name:SITE_NAME,url:SITE_URL }) }}
+        strategy="afterInteractive" />
 
-      {/* Фон — оставляем как есть */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 opacity-50 sm:opacity-60 [mask-image:linear-gradient(90deg,transparent_0%,black_12%,black_50%)]">
-          <ThreadsBg className="w-full h-full" color={[0.92, 0.94, 0.98]} amplitude={0.65} distance={0.18} enableMouseInteraction={false} />
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-black/15 to-black/10" />
-      </div>
+      <CursorGlow />
+      <Grain />
 
-      {/* === Шапка: FIXED === */}
-      <header
-        className="
-          fixed top-4 left-1/2 -translate-x-1/2 z-50
-          w-[min(100%-1rem,theme(maxWidth.7xl))]
-          flex items-center justify-between
-          rounded-full border border-white/10 bg-white/5 px-4 sm:px-6 py-2.5 sm:py-3
-          backdrop-blur-lg shadow-md
-        "
+      {/* ── Header ──────────────────────────────────────────────────── */}
+      <motion.header
+        initial={reduced ? undefined : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-50 flex items-center justify-between px-6 sm:px-10 py-5"
       >
-        <Link href="/" className="flex items-center gap-2 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-md" aria-label="На главную OneStack">
-          <CrownIcon className="h-6 w-6" />
-          <span className="text-lg font-semibold">OneStack</span>
+        <Link href={localizePath("/")} aria-label={n.brandAria}
+          className="flex items-center gap-2.5 focus:outline-none focus-visible:ring-2 rounded">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+            <rect width="28" height="28" rx="7" fill={TEAL} fillOpacity="0.08"/>
+            <rect x=".5" y=".5" width="27" height="27" rx="6.5" stroke={TEAL} strokeOpacity="0.25"/>
+            {/* Crown triangle */}
+            <path d="M14 4.5 L19 11.5 L14 10.5 L9 11.5 Z" fill={TEAL}/>
+            {/* OS monogram */}
+            <text x="14" y="22" textAnchor="middle" fontFamily="Georgia, serif"
+              fontSize="10" fontWeight="700" letterSpacing="-0.5" fill={TEAL}>OS</text>
+            {/* Base */}
+            <rect x="7" y="23.5" width="14" height="1.5" rx="0.75" fill={TEAL} fillOpacity="0.35"/>
+          </svg>
+          <span className="text-[15px] font-semibold tracking-tight" style={{ color: WHITE }}>OneStack</span>
         </Link>
 
-        <nav className="hidden lg:flex gap-8 text-white/80 text-[16px] font-medium" aria-label="Основное меню">
-          {desktopNav.map((i) => (
-            <Link key={i.href} href={i.href} className="hover:text-white transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 rounded-md">
-              {i.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="hidden lg:flex gap-2">
-          <Link href="/demo" className={`${btnBase} ${btnSize} border border-white/60 text-white hover:border-white active:scale-[0.99]`} onClick={() => track("click_demo_admin", { place: "hero" })}>
-            Демо версия
-          </Link>
+        <div className="flex items-center gap-3">
+          <LanguageSwitcher compact />
+          <a
+            href="https://t.me/onestack_assistant_bot"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition hover:border-white/30"
+            style={{ borderColor: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.4)" }}
+            aria-label="Telegram"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-2.04 9.613c-.153.68-.554.847-1.124.527l-3.1-2.285-1.496 1.44c-.165.165-.304.304-.624.304l.223-3.164 5.76-5.203c.25-.223-.054-.346-.389-.123l-7.117 4.48-3.066-.957c-.666-.208-.68-.666.14-.985l11.975-4.617c.554-.2 1.038.135.858.97z"/>
+            </svg>
+            TG
+          </a>
         </div>
+      </motion.header>
 
-        <button
-          onClick={() => setMenuOpen((v) => !v)}
-          className="lg:hidden p-2 rounded-md text-white hover:bg-white/10 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 min-h-[44px] min-w-[44px]"
-          aria-expanded={menuOpen}
-          aria-controls="mobile-menu"
-          aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
-        >
-          {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+      {/* ── Main two-column ───────────────────────────────────────── */}
+      <div className="relative z-10 flex-1 flex flex-col lg:flex-row items-stretch px-6 sm:px-10 pb-0 gap-0">
 
-        {/* моб. меню */}
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.div
-              id="mobile-menu"
-              role="menu"
-              className="absolute top-full left-0 w-full bg-black/92 border-t border-white/10 px-6 py-4 text-white lg:hidden shadow-xl z-50"
-              initial={reducedMotion ? false : { opacity: 0, y: -6 }}
-              animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-              exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
-            >
-              <div className="flex flex-col gap-4">
-                {desktopNav.map((i) => (
-                  <Link key={i.href} role="menuitem" onClick={() => setMenuOpen(false)} href={i.href} className="hover:text-white/80 rounded-md px-1 py-2">
-                    {i.label}
-                  </Link>
-                ))}
-                <div className="border-t border-white/10 pt-3 mt-2" />
-                <Link onClick={() => setMenuOpen(false)} href="/demo" className="hover:text-white/80 rounded-md px-1 py-2">
-                  Демо версия
-                </Link>
-                <button onClick={openContact} className={`${btnBase} ${btnSize} border border-white/20 text-white hover:bg-white/10`}>
-                  Связаться с нами
-                </button>
+        {/* LEFT ── Headline + meta */}
+        <div className="flex flex-col justify-center flex-1 py-8 lg:py-0 lg:pr-16 xl:pr-20">
+
+          {/* Year tag */}
+          <motion.div
+            initial={reduced ? undefined : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.05, duration: 0.5 }}
+            className="flex items-center gap-3 mb-8"
+          >
+            <div className="h-px w-8" style={{ background: TEAL + "80" }} />
+            <span className="text-[11px] tracking-[0.18em] uppercase font-medium"
+              style={{ color: TEAL + "cc" }}>
+              {lang === "ru" ? "Технологический партнёр · с 2021" : "Technology partner · since 2021"}
+            </span>
+          </motion.div>
+
+          {/* Big headline */}
+          <div className="mb-10">
+            <Headline lines={headline} reduced={reduced} />
+          </div>
+
+          {/* Stats strip */}
+          <motion.div
+            initial={reduced ? undefined : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="flex items-center flex-nowrap mb-10"
+          >
+            {[
+              { val: "150+", label: lang === "ru" ? "проектов сдано"  : "projects delivered" },
+              { val: "98%",  label: lang === "ru" ? "сдаём в срок"    : "on time"           },
+              { val: "5",    label: lang === "ru" ? "лет на рынке"    : "years in market"   },
+            ].map(({ val, label }, i) => (
+              <div key={label} className="flex items-center">
+                {i > 0 && (
+                  <div className="h-3 w-px shrink-0 mx-2" style={{ background: "rgba(255,255,255,0.1)" }} />
+                )}
+                <div className="flex items-baseline gap-1">
+                  <span className="text-base font-semibold" style={{ color: WHITE }}>{val}</span>
+                  <span className="text-[10px] whitespace-nowrap" style={{ color: "rgba(255,255,255,0.28)" }}>{label}</span>
+                </div>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+            ))}
+          </motion.div>
 
-      {/* === Контент === */}
-      <motion.div
-        initial={reducedMotion ? false : { opacity: 0, y: 40 }}
-        animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="
-          relative z-10
-          flex flex-col items-center justify-center
-          w-full min-h-[100dvh]
-          px-4 sm:px-6 md:px-12 lg:px-20
-          text-center
-        "
-      >
-        <div className="mx-auto w-full max-w-7xl">
-          <div className="mb-5 flex items-center justify-center gap-2 text-xs sm:text-sm text-white/80">
-            <CrownIcon className="h-4 w-4 sm:h-5 sm:w-5" /> <span>OneStack</span>
-          </div>
-
-          <h1 className="mb-2 text-[clamp(3rem,7.6vw,6.6rem)] font-black leading-[0.94] tracking-tight text-white">
-            OneStack
-          </h1>
-
-          {/* Подзаголовок — вариант B */}
-          <p className="mb-8 mx-auto max-w-[46rem] text-[clamp(1.08rem,2.2vw,1.85rem)] font-semibold leading-[1.15] text-white/85">
-            Проектируем, делаем и улучшаем: сайт, веб- и мобильное приложение. 
-          </p>
-
-          <div className="mx-auto flex w-full max-w-3xl flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-            <Link
-              href="/home#details"
-              className={`${btnBase} ${btnSize} border border-white/70 text-white hover:border-white hover:bg-white/10 active:scale-[0.99]`}
-              onClick={() => track("click_more_details", { place: "hero" })}
-              aria-label="Перейти к подробностям на главной"
-            >
-              Больше деталей <ArrowRight className="ml-3 h-5 w-5" />
-            </Link>
-            <button
+          {/* CTA row */}
+          <motion.div
+            initial={reduced ? undefined : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.65, duration: 0.5 }}
+            className="flex flex-wrap items-center gap-3"
+          >
+            <motion.button
               onClick={openContact}
-              className={`${btnBase} ${btnSize} bg-white text-black hover:shadow-white/25 active:scale-[0.99] motion-safe:hover:scale-[1.02]`}
-              aria-label="Открыть форму обратной связи"
+              whileHover={{ scale: 1.02, boxShadow: `0 0 32px ${TEAL}40` }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex items-center gap-2 rounded-full px-6 h-11 text-sm font-semibold"
+              style={{ background: TEAL, color: BG }}
             >
-              Связаться с нами
-            </button>
-          </div>
-
-          {/* Микроподпись под CTA */}
-          <div className="mt-3 text-sm text-white/70">
-            Ответим в течение 1&nbsp;рабочего дня
-          </div>
+              {lang === "ru" ? "Обсудить проект" : "Start a project"}
+              <ArrowUpRight className="w-4 h-4" />
+            </motion.button>
+            <Link href={localizePath("/home#services")}
+              className="inline-flex items-center gap-2 rounded-full border px-6 h-11 text-sm font-medium transition-colors hover:border-white/25 hover:text-white/70"
+              style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)" }}>
+              {h.detailsCta}
+            </Link>
+          </motion.div>
         </div>
+
+        {/* Vertical divider — desktop only */}
+        <motion.div
+          className="hidden lg:block w-px self-stretch my-10"
+          style={{ background: "rgba(255,255,255,0.06)" }}
+          initial={reduced ? undefined : { scaleY: 0, originY: "center" }}
+          animate={{ scaleY: 1 }}
+          transition={{ delay: 0.3, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        />
+
+        {/* RIGHT ── Service selector + stat */}
+        <motion.div
+          className="flex flex-col justify-center lg:pl-12 pb-10 lg:pb-0 lg:w-[340px] xl:w-[380px] gap-8"
+          initial={reduced ? undefined : { opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.35, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {/* Service selector */}
+          <ServiceSelector active={active} onSelect={setActive} lang={lang} />
+
+          {/* Thin separator */}
+          <div className="h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+
+          {/* Stat panel */}
+          <StatPanel
+            active={active}
+            lang={lang}
+            onContact={openContact}
+            localizePath={localizePath}
+          />
+        </motion.div>
+      </div>
+
+      {/* ── Ticker ────────────────────────────────────────────────── */}
+      <motion.div
+        initial={reduced ? undefined : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8, duration: 0.6 }}
+        className="relative z-10"
+      >
+        <Ticker />
       </motion.div>
 
-      {/* ===== МОДАЛКА ===== */}
+      {/* ── Contact drawer ────────────────────────────────────────── */}
       <AnimatePresence>
         {contactOpen && (
           <>
-            <motion.div className="fixed inset-0 z-[60] bg-black/80" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeContact} aria-hidden="true" />
+            {/* Backdrop */}
             <motion.div
-              ref={modalRef}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="contact-title"
-              aria-describedby="contact-subtitle"
-              className="fixed z-[70] inset-0 sm:inset-x-auto sm:right-8 sm:top-24 sm:bottom-auto sm:w-[760px] sm:rounded-2xl border border-white/10 bg-[#0b0b0b]/90 backdrop-blur-md shadow-[0_30px_120px_rgba(0,0,0,0.6)] focus:outline-none pt-[max(env(safe-area-inset-top),0.75rem)] isolate"
-              tabIndex={-1}
-              initial={reducedMotion ? false : { opacity: 0, y: 16, scale: 0.98 }}
-              animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0, scale: 1 }}
-              exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 10, scale: 0.98 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
-            >
-              <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/5">
-                <div id="contact-title" className="text-2xl md:text-[28px] font-extrabold text-white">
-                  Связаться с нами
-                </div>
-                <button onClick={closeContact} className="inline-flex h-10 px-4 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60">
-                  Закрыть
-                </button>
-              </div>
+              className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-[2px]"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={closeContact}
+              aria-hidden="true"
+            />
 
-              <form onSubmit={submitContact} className="p-6 pb-[max(env(safe-area-inset-bottom),1rem)] overflow-y-auto max-h-[calc(100vh-4rem)] sm:max-h-none">
-                <p id="contact-subtitle" className="sr-only">Форма обратной связи OneStack</p>
+            {/* Drawer — slides from bottom on mobile, from right on sm+ */}
+            <DrawerShell modalRef={modalRef} reduced={reduced}>
+              <DrawerContent
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <Field ref={nameRef} label="Как вас зовут" placeholder="Иван Петров" value={form.name} onChange={(v) => setField("name", v)} error={errors.name} />
-                  <Field label="Email" type="email" placeholder="you@company.com" value={form.email} onChange={(v) => setField("email", v)} error={errors.email} />
-                  <Field label="Телефон (необязательно)" placeholder="+7 (___) ___-__-__" value={form.phone} onChange={(v) => setField("phone", v)} />
-                  <Field label="Компания (необязательно)" placeholder="ООО «Пример»" value={form.company} onChange={(v) => setField("company", v)} />
-                </div>
-
-                <div className="mt-5">
-                  <FormLabel>Кратко опишите задачу</FormLabel>
-                  <textarea
-                    value={form.message}
-                    onChange={(e) => setField("message", e.target.value)}
-                    rows={4}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 outline-none placeholder:text-white/40"
-                    placeholder="Цель проекта, сроки, ссылки на референсы…"
-                  />
-                </div>
-
-                <div className="mt-5">
-                  <FormLabel>Бриф / презентация (необязательно)</FormLabel>
-                  <label className="mt-2 flex items-center gap-3 cursor-pointer rounded-xl border border-white/10 bg-black/40 px-4 py-3">
-                    <Paperclip className="h-4 w-4" />
-                    <span className="text-sm">
-                      {form.file ? form.file.name : "Прикрепить файл (до 10 МБ)"}
-                    </span>
-                    <input
-                      type="file"
-                      accept=".pdf,.ppt,.pptx,.doc,.docx,.txt,.zip,.rar,.7z,.jpg,.jpeg,.png"
-                      className="hidden"
-                      onChange={(e) => {
-                        const f = e.target.files?.[0] || null;
-                        setField("file", f);
-                        // обновим ошибки, если уже есть oversize
-                        setErrors((prev) => {
-                          const next = { ...prev };
-                          if (f && f.size > 10 * 1024 * 1024) next.file = "Файл больше 10 МБ";
-                          else delete next.file;
-                          return next;
-                        });
-                      }}
-                      aria-describedby={errors.file ? "file-error" : undefined}
-                    />
-                  </label>
-                  {errors.file && (
-                    <ErrText>
-                      <span id="file-error">{errors.file}</span>
-                    </ErrText>
-                  )}
-                </div>
-
-                <div className="mt-5 flex items-start gap-3">
-                  <input id="agree" type="checkbox" checked={form.agree} onChange={(e) => setField("agree", e.target.checked)} className="mt-1 h-5 w-5 rounded border-white/20 bg-black/40" />
-                  <label htmlFor="agree" className="text-[15px] text-white/85">
-                    Согласен(на) на обработку персональных данных и получение ответа
-                  </label>
-                </div>
-                {errors.agree && <ErrText>{errors.agree}</ErrText>}
-
-                <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <Badge icon={<Mail className="h-4 w-4" />} text="info@onestack24.ru" href="mailto:info@onestack24.ru" />
-                  <Badge icon={<Phone className="h-4 w-4" />} text="+7 (910) 948-61-06" href="tel:+79109486106" />
-                  <Badge icon={<Building2 className="h-4 w-4" />} text="Встречи оффлайн" />
-                </div>
-
-                <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                  <button type="submit" disabled={sending} className={`${btnBase} ${btnSize} bg-white text-black hover:shadow-white/25 active:scale-[0.99] disabled:opacity-60`}>
-                    {sending ? "Отправляем…" : "Отправить заявку"}
-                  </button>
-                  <button type="button" onClick={closeContact} className={`${btnBase} ${btnSize} border border-white/20 text-white hover:bg-white/10 active:scale-[0.99]`}>
-                    Отмена
-                  </button>
-                </div>
-
-                {sent && (
-                  <div className="mt-6 rounded-2xl border border-white/10 bg-emerald-500/10 text-emerald-200 px-5 py-4 flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5" />
-                    <div className="text-sm">Спасибо! Мы получили вашу заявку и свяжемся с вами в ближайшее время.</div>
-                  </div>
-                )}
-              </form>
-            </motion.div>
+                reduced={reduced}
+                lang={lang}
+                h={h}
+                form={form}
+                errors={errors}
+                sending={sending}
+                sent={sent}
+                nameRef={nameRef}
+                onClose={closeContact}
+                onSubmit={submitContact}
+                setField={setField}
+                setErrors={setErrors}
+                serif={serif.className}
+              />
+            </DrawerShell>
           </>
         )}
       </AnimatePresence>
@@ -512,82 +603,420 @@ export default function Hero() {
   );
 }
 
-/* ================================= UI helpers ================================= */
-
-const FormLabel = ({ children }: { children: React.ReactNode }) => (
-  <div className="text-[13px] sm:text-[14px] uppercase tracking-[0.14em] text-white/75">{children}</div>
-);
-
-const Field = forwardRef<HTMLInputElement, {
-  label: string;
-  placeholder?: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-  error?: string;
-}>(({ label, placeholder, value, onChange, type = "text", error }, ref) => {
+/* ─── Floating label input ───────────────────────────────────────────────── */
+const FloatField = forwardRef<
+  HTMLInputElement,
+  { label: string; value: string; onChange: (v: string) => void; type?: string; error?: string }
+>(({ label, value, onChange, type = "text", error }, ref) => {
+  const [focused, setFocused] = useState(false);
   const id = useId();
-  const errId = `${id}-error`;
+  const elevated = focused || value.length > 0;
+  const lineColor = error ? "#f87171" : focused ? TEAL : "rgba(255,255,255,0.1)";
+
   return (
-    <div>
-      <FormLabel>{label}</FormLabel>
+    <div className="relative pt-5">
+      <motion.label
+        htmlFor={id}
+        className="absolute left-0 pointer-events-none font-medium"
+        animate={{
+          top: elevated ? 0 : "1.25rem",
+          fontSize: elevated ? "10px" : "14px",
+          letterSpacing: elevated ? "0.12em" : "0",
+          color: elevated ? (error ? "#f87171" : TEAL) : "rgba(255,255,255,0.28)",
+        }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        style={{ textTransform: elevated ? "uppercase" : "none" }}
+      >
+        {label}
+      </motion.label>
       <input
-        ref={ref}
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className={`mt-2 w-full rounded-xl border px-4 py-3 outline-none placeholder:text-white/40 ${
-          error ? "border-red-500/70 bg-red-500/5" : "border-white/10 bg-black/40"
-        }`}
+        ref={ref} id={id} type={type} value={value}
+        onChange={e => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         aria-invalid={Boolean(error)}
-        aria-describedby={error ? errId : undefined}
-        autoComplete={type === "email" ? "email" : "on"}
-        inputMode={type === "email" ? "email" : undefined}
+        className="w-full bg-transparent border-0 border-b pb-2.5 pt-1 text-sm outline-none"
+        style={{ borderBottomColor: lineColor, color: WHITE, transition: "border-color 0.2s" }}
       />
-      {error && (
-        <ErrText>
-          <span id={errId}>{error}</span>
-        </ErrText>
-      )}
+      {/* Animated teal underline */}
+      <motion.div
+        className="absolute bottom-0 left-0 h-[1.5px]"
+        style={{ background: TEAL, originX: 0 }}
+        animate={{ scaleX: focused ? 1 : 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+      />
+      {error && <p className="mt-1 text-[11px] text-red-400/80">{error}</p>}
     </div>
   );
 });
-Field.displayName = "Field";
+FloatField.displayName = "FloatField";
 
-const ErrText = ({ children }: { children: React.ReactNode }) => (
-  <div className="mt-1 text-xs text-red-400">{children}</div>
-);
+/* ─── Floating label textarea ────────────────────────────────────────────── */
+function FloatTextarea({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const [focused, setFocused] = useState(false);
+  const id = useId();
+  const elevated = focused || value.length > 0;
 
-function Badge({ icon, text, href }: { icon: React.ReactNode; text: string; href?: string }) {
-  const content = (
-    <div className="rounded-xl border border-white/10 bg-white/[0.08] px-4 py-3 flex items-center gap-3 text-[15px]">
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.12]">{icon}</span>
-      <span className="truncate">{text}</span>
+  return (
+    <div className="relative pt-5">
+      <motion.label
+        htmlFor={id}
+        className="absolute left-0 pointer-events-none font-medium"
+        animate={{
+          top: elevated ? 0 : "1.25rem",
+          fontSize: elevated ? "10px" : "14px",
+          letterSpacing: elevated ? "0.12em" : "0",
+          color: elevated ? TEAL : "rgba(255,255,255,0.28)",
+        }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+        style={{ textTransform: elevated ? "uppercase" : "none" }}
+      >
+        {label}
+      </motion.label>
+      <textarea
+        id={id} value={value}
+        onChange={e => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        rows={3}
+        className="w-full bg-transparent border-0 border-b pb-2.5 pt-1 text-sm outline-none resize-none"
+        style={{
+          borderBottomColor: focused ? TEAL : "rgba(255,255,255,0.1)",
+          color: WHITE,
+          transition: "border-color 0.2s",
+        }}
+      />
+      <motion.div
+        className="absolute bottom-0 left-0 h-[1.5px]"
+        style={{ background: TEAL, originX: 0 }}
+        animate={{ scaleX: focused ? 1 : 0 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+      />
     </div>
   );
-  return href ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className="block hover:bg-white/[0.02] rounded-xl">
-      {content}
-    </a>
-  ) : (
-    content
+}
+
+/* ─── Project type chip ──────────────────────────────────────────────────── */
+function ProjectChip({
+  label, active, onClick,
+}: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileTap={{ scale: 0.95 }}
+      className="px-4 py-1.5 rounded-full text-xs font-medium border transition-colors"
+      style={{
+        borderColor: active ? TEAL : "rgba(255,255,255,0.12)",
+        background: active ? TEAL + "18" : "transparent",
+        color: active ? TEAL : "rgba(255,255,255,0.35)",
+      }}
+    >
+      {label}
+    </motion.button>
   );
 }
 
-function CrownIcon({ className = "h-5 w-5" }: { className?: string }) {
+/* ─── Drawer shell — handles responsive slide direction ─────────────────── */
+function DrawerShell({
+  modalRef, reduced, children,
+}: {
+  modalRef: React.RefObject<HTMLDivElement | null>;
+  reduced: boolean | null;
+  children: React.ReactNode;
+}) {
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth < 640 : false
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    setIsMobile(mq.matches);
+    const fn = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", fn);
+    return () => mq.removeEventListener("change", fn);
+  }, []);
+
   return (
-    <svg viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} aria-hidden="true">
-      <path d="M1 8L11 20L24 4L37 20L47 8L43 30H5L1 8Z" stroke="currentColor" strokeWidth="3" />
-    </svg>
+    <motion.div
+      ref={modalRef}
+      role="dialog" aria-modal="true"
+      aria-labelledby="ct-title"
+      tabIndex={-1}
+      className="fixed z-[70] focus:outline-none
+        bottom-0 left-0 right-0 max-h-[92dvh] rounded-t-2xl
+        sm:bottom-auto sm:top-0 sm:right-0 sm:left-auto sm:max-h-none sm:rounded-none sm:rounded-l-3xl
+        sm:w-[460px] sm:h-full
+        flex flex-col overflow-hidden"
+      style={{ background: "#050e0c", borderLeft: "1px solid rgba(255,255,255,0.05)" }}
+      initial={reduced ? undefined : (isMobile ? { y: "100%" } : { x: "100%" })}
+      animate={isMobile ? { y: 0 } : { x: 0 }}
+      exit={isMobile ? { y: "100%" } : { x: "100%" }}
+      transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+    >
+      {children}
+    </motion.div>
   );
 }
 
-function ArrowRight({ className = "h-5 w-5" }: { className?: string }) {
+/* ─── Drawer content ─────────────────────────────────────────────────────── */
+function DrawerContent({
+  reduced, lang, h, form, errors, sending, sent,
+  nameRef, onClose, onSubmit, setField, setErrors, serif: serifClass,
+}: {
+  reduced: boolean | null;
+  lang: Lang;
+  h: any;
+  form: ContactForm;
+  errors: Record<string, string>;
+  sending: boolean;
+  sent: boolean;
+  nameRef: React.RefObject<HTMLInputElement | null>;
+  onClose: () => void;
+  onSubmit: (e: FormEvent) => void;
+  setField: <K extends keyof ContactForm>(k: K, v: ContactForm[K]) => void;
+  setErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  serif: string;
+}) {
+  const PROJECT_TYPES = lang === "ru"
+    ? ["Сайт", "Веб-приложение", "Мобильное", "Другое"]
+    : ["Website", "Web app", "Mobile", "Other"];
+
+  const [projectTypes, setProjectTypes] = useState<string[]>([]);
+  const toggleType = (type: string) =>
+    setProjectTypes(prev =>
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+    );
+
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path d="M5 12h14m0 0l-5-5m5 5l-5 5" stroke="currentColor" strokeWidth="1.8" />
-    </svg>
+    <>
+      {/* Header */}
+      <div className="flex items-start justify-between px-8 pt-8 pb-6 shrink-0">
+        <div>
+          <motion.h2
+            id="ct-title"
+            className={`${serifClass} font-normal leading-[0.92] tracking-[-0.02em]`}
+            style={{ fontSize: "clamp(2.4rem,6vw,3.2rem)", color: WHITE }}
+            initial={reduced ? undefined : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {lang === "ru" ? "Обсудим\nпроект" : "Start a\nproject"}
+          </motion.h2>
+          <motion.p
+            className="mt-3 text-xs"
+            style={{ color: "rgba(255,255,255,0.28)" }}
+            initial={reduced ? undefined : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.22, duration: 0.4 }}
+          >
+            {lang === "ru" ? "Ответим в течение рабочего дня" : "We'll reply within one business day"}
+          </motion.p>
+        </div>
+
+        <button
+          onClick={onClose}
+          className="shrink-0 mt-1 w-8 h-8 flex items-center justify-center rounded-full transition"
+          style={{ background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.35)" }}
+          aria-label={h.close}
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M1 1l8 8M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      {/* Divider */}
+      <div className="h-px mx-8 shrink-0" style={{ background: "rgba(255,255,255,0.06)" }} />
+
+      {/* Form — scrollable */}
+      <form
+        onSubmit={onSubmit}
+        className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-7"
+      >
+        {/* Project type chips */}
+        <motion.div
+          initial={reduced ? undefined : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18, duration: 0.4 }}
+        >
+          <p className="text-[10px] uppercase tracking-[0.14em] font-medium mb-3"
+            style={{ color: "rgba(255,255,255,0.25)" }}>
+            {lang === "ru" ? "Тип проекта" : "Project type"}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {PROJECT_TYPES.map(type => (
+              <ProjectChip
+                key={type}
+                label={type}
+                active={projectTypes.includes(type)}
+                onClick={() => toggleType(type)}
+              />
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Fields */}
+        <motion.div
+          className="flex flex-col gap-6"
+          initial={reduced ? undefined : { opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.4 }}
+        >
+          <FloatField
+            ref={nameRef}
+            label={h.nameLabel}
+            value={form.name}
+            onChange={v => setField("name", v)}
+            error={errors.name}
+          />
+          <FloatField
+            label={h.emailLabel}
+            type="email"
+            value={form.email}
+            onChange={v => setField("email", v)}
+            error={errors.email}
+          />
+          <FloatTextarea
+            label={h.messageLabel}
+            value={form.message}
+            onChange={v => setField("message", v)}
+          />
+        </motion.div>
+
+        {/* File attach — minimal */}
+        <motion.div
+          initial={reduced ? undefined : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.32, duration: 0.4 }}
+        >
+          <label className="flex items-center gap-3 cursor-pointer group">
+            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition"
+              style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}>
+              <Paperclip className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.3)" }} />
+            </div>
+            <span className="text-xs transition"
+              style={{ color: form.file ? TEAL : "rgba(255,255,255,0.25)" }}>
+              {form.file ? form.file.name : (lang === "ru" ? "Прикрепить файл · до 10 МБ" : "Attach file · up to 10 MB")}
+            </span>
+            <input type="file"
+              accept=".pdf,.ppt,.pptx,.doc,.docx,.txt,.zip,.rar,.jpg,.jpeg,.png"
+              className="hidden"
+              onChange={e => {
+                const f = e.target.files?.[0] || null; setField("file", f);
+                setErrors(prev => {
+                  const n = { ...prev };
+                  if (f && f.size > 10 * 1024 * 1024) n.file = h.errors.fileTooLarge;
+                  else delete n.file;
+                  return n;
+                });
+              }} />
+          </label>
+          {errors.file && <p className="mt-1.5 text-[11px] text-red-400/80">{errors.file}</p>}
+        </motion.div>
+
+        {/* Agree */}
+        <motion.div
+          className="flex items-start gap-3"
+          initial={reduced ? undefined : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.36, duration: 0.4 }}
+        >
+          <div
+            onClick={() => setField("agree", !form.agree)}
+            className="mt-0.5 w-4 h-4 shrink-0 rounded flex items-center justify-center cursor-pointer transition-colors"
+            style={{
+              background: form.agree ? TEAL : "transparent",
+              border: `1.5px solid ${form.agree ? TEAL : "rgba(255,255,255,0.2)"}`,
+            }}
+          >
+            {form.agree && (
+              <svg width="8" height="6" viewBox="0 0 8 6" fill="none">
+                <path d="M1 3l2 2 4-4" stroke={BG} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </div>
+          <label
+            onClick={() => setField("agree", !form.agree)}
+            className="text-[11px] leading-relaxed cursor-pointer"
+            style={{ color: "rgba(255,255,255,0.28)" }}
+          >
+            {h.agreeLabel}
+          </label>
+        </motion.div>
+        {errors.agree && <p className="text-[11px] text-red-400/80 -mt-4">{errors.agree}</p>}
+        {(errors as any).submit && <p className="text-[11px] text-red-400/80">{(errors as any).submit}</p>}
+
+        {/* Submit */}
+        <motion.div
+          className="flex flex-col gap-3 pt-2"
+          initial={reduced ? undefined : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.4 }}
+        >
+          {sent ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center gap-3 py-6 text-center"
+            >
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 20, delay: 0.1 }}
+                className="w-12 h-12 rounded-full flex items-center justify-center"
+                style={{ background: TEAL + "20" }}
+              >
+                <CheckCircle2 className="w-6 h-6" style={{ color: TEAL }} />
+              </motion.div>
+              <p className="text-sm font-medium" style={{ color: WHITE }}>{h.success}</p>
+              <p className="text-xs" style={{ color: "rgba(255,255,255,0.3)" }}>
+                {lang === "ru" ? "Свяжемся в ближайшее время" : "We'll be in touch soon"}
+              </p>
+            </motion.div>
+          ) : (
+            <motion.button
+              type="submit"
+              disabled={sending}
+              whileHover={{ scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full h-12 rounded-2xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity relative overflow-hidden"
+              style={{ background: TEAL, color: BG }}
+            >
+              {sending ? (
+                <motion.div
+                  className="w-4 h-4 rounded-full border-2"
+                  style={{ borderColor: `${BG}40`, borderTopColor: BG }}
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 0.7, repeat: Infinity, ease: "linear" }}
+                />
+              ) : (
+                <>
+                  <span>{h.submit}</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </>
+              )}
+            </motion.button>
+          )}
+        </motion.div>
+      </form>
+
+      {/* Footer */}
+      <div className="shrink-0 px-8 py-5 border-t" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+        <a
+          href="mailto:info@onestack24.ru"
+          className="flex items-center gap-3 group"
+        >
+          <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: TEAL + "15" }}>
+            <Mail className="w-3.5 h-3.5" style={{ color: TEAL }} />
+          </div>
+          <span className="text-xs transition-colors group-hover:text-white/60"
+            style={{ color: "rgba(255,255,255,0.28)" }}>
+            info@onestack24.ru
+          </span>
+        </a>
+      </div>
+    </>
   );
 }

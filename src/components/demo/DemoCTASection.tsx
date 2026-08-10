@@ -23,15 +23,16 @@ const item = {
 export default function DemoCTASection() {
   return (
     <section
-      className="relative py-20 sm:py-24 bg-black text-white overflow-hidden border-t border-white/10"
+      className="relative py-20 sm:py-24 text-white overflow-hidden border-t border-white/10"
+      style={{ background: "#07100e" }}
       aria-labelledby="cta-heading"
     >
       {/* Background */}
       <div className="absolute inset-0 -z-10">
         {/* Soft gradients */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] via-transparent to-white/[0.02]" />
-        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-blue-500/10 blur-3xl rounded-full" />
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-500/10 blur-3xl rounded-full" />
+        <div className="absolute top-1/3 left-1/4 w-72 h-72 blur-3xl rounded-full" style={{ background: "rgba(45,212,191,0.07)" }} />
+        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 blur-3xl rounded-full" style={{ background: "rgba(45,212,191,0.05)" }} />
         {/* Grid overlay */}
         <div
           className="absolute inset-0 opacity-10"

@@ -127,13 +127,14 @@ export default function DemoIndustriesShowcase() {
   return (
     <section
       id="industries"
-      className="relative py-20 sm:py-24 bg-black text-white"
+      className="relative py-20 sm:py-24 text-white"
+      style={{ background: "#07100e" }}
       aria-labelledby="industries-heading"
     >
       {/* Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 right-1/4 w-72 h-72 rounded-full blur-3xl" style={{ background: "rgba(45,212,191,0.07)" }} />
+        <div className="absolute bottom-1/3 left-1/4 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(45,212,191,0.05)" }} />
         <div
           className="absolute inset-0 opacity-[0.08]"
           style={{

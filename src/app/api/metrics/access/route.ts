@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
+  void searchParams;
   // const period = searchParams.get("period");
   // const channel = searchParams.get("channel");
   // const location = searchParams.get("location");

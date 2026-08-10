@@ -17,9 +17,10 @@ type TocItem = { href: string; label: string };
 export default function PolicyLayout({
   title,
   subtitle,
-  updatedAt,          // "2025-08-25" или готовый текст
+  updatedAt,
   backHref = "/",
   toc,
+  langToggle,
   children,
 }: {
   title: string;
@@ -27,6 +28,7 @@ export default function PolicyLayout({
   updatedAt?: string;
   backHref?: string;
   toc?: TocItem[];
+  langToggle?: React.ReactNode;
   children: React.ReactNode;
 }) {
   const [mounted, setMounted] = useState(false);
@@ -78,22 +80,25 @@ export default function PolicyLayout({
   }, [mounted, reduce, headerOffset]);
 
   return (
-    <div className="relative min-h-screen bg-black text-white">
+    <div className="relative min-h-screen text-white" style={{ background: "#07100e" }}>
       {/* top bar */}
-      <div className="sticky top-0 z-50 border-b border-white/10 bg-black/70 backdrop-blur px-6 md:px-10">
-        <div className="mx-auto max-w-7xl h-14 flex items-center justify-between">
-          <div className="flex flex-col leading-tight">
-            <div className="text-base md:text-lg font-semibold">{title}</div>
-            {subtitle ? <div className="text-xs text-white/50">{subtitle}</div> : null}
+      <div className="sticky top-0 z-50 border-b border-white/10 backdrop-blur px-6 md:px-10" style={{ background: "rgba(7,16,14,0.85)" }}>
+        <div className="mx-auto max-w-7xl h-14 flex items-center justify-between gap-3">
+          <div className="flex flex-col leading-tight min-w-0">
+            <div className="text-base md:text-lg font-semibold truncate">{title}</div>
+            {subtitle ? <div className="text-xs text-white/50 truncate">{subtitle}</div> : null}
           </div>
 
-          <Link
-            href={backHref}
-            aria-label="Закрыть"
-            className="rounded-full p-2 border border-white/15 bg-white/[0.06] hover:bg-white/10 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
-          >
-            <X className="h-5 w-5" />
-          </Link>
+          <div className="flex items-center gap-2 shrink-0">
+            {langToggle}
+            <Link
+              href={backHref}
+              aria-label="Закрыть"
+              className="rounded-full p-2 border border-white/15 bg-white/[0.06] hover:bg-white/10 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            >
+              <X className="h-5 w-5" />
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -102,6 +107,28 @@ export default function PolicyLayout({
           mounted ? "opacity-100" : "opacity-0"
         }`}
       >
+        {/* Mobile TOC */}
+        {autoToc.length > 0 && (
+          <details className="lg:hidden mb-6 rounded-xl border border-white/10 overflow-hidden">
+            <summary className="flex items-center justify-between px-4 py-3 cursor-pointer text-sm font-medium text-white/70 select-none list-none [&::-webkit-details-marker]:hidden">
+              <span>Оглавление</span>
+              <span className="text-white/40 text-xs">▼</span>
+            </summary>
+            <nav className="px-4 pb-4 border-t border-white/10 pt-3" style={{ background: "rgba(255,255,255,0.02)" }}>
+              <ul className="space-y-2">
+                {autoToc.map((i) => (
+                  <li key={i.href}>
+                    <a href={i.href} onClick={(e) => { onTocClick(e, i.href); (e.currentTarget.closest("details") as HTMLDetailsElement).removeAttribute("open"); }}
+                      className="block text-sm text-white/60 hover:text-white transition py-0.5">
+                      {i.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </details>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-8">
           {/* TOC */}
           <aside className="hidden lg:block">

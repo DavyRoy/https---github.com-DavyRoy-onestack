@@ -1,44 +1,98 @@
 import type { Metadata } from "next";
+import Script from "next/script";
+
 import Hero from "@/components/Hero";
+import { canonical, siteName } from "@/app/seo.config";
+import {
+  buildLanguageAlternates,
+  buildOpenGraphLocale,
+  getMessages,
+  getRequestLocale,
+} from "@/i18n/server";
 
-/* ==================== SEO ==================== */
+/* =====================================================================================
+   SEO METADATA
+===================================================================================== */
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://onestack24.ru";
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale();
+  const dict = getMessages(locale);
 
-export const metadata: Metadata = {
-  title: "OneStack — один стек, бесконечные возможности",
-  description:
-    "Демо-платформа OneStack: сайты, веб-приложение, мобильные клиенты.",
-  alternates: { canonical: SITE_URL + "/" },
-  openGraph: {
-    title: "OneStack — один стек, бесконечные возможности",
-    description:
-      "Демо-платформа OneStack: сайты, веб-приложение, мобильные клиенты.",
-    url: SITE_URL + "/",
-    siteName: "OneStack",
-    images: [
+  const title = dict.seo.homeTitle;
+  const description = dict.seo.homeDescription;
+
+  const url = canonical("/", locale);
+
+  return {
+    title,
+    description,
+
+    alternates: {
+      canonical: url,
+      languages: buildLanguageAlternates("/"),
+    },
+
+    openGraph: {
+      type: "website",
+      url,
+      siteName,
+      title,
+      description,
+      locale: buildOpenGraphLocale(locale),
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
+
+/* =====================================================================================
+   STRUCTURED DATA
+===================================================================================== */
+
+function BreadcrumbsJsonLd() {
+  const breadcrumbs = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
       {
-        url: "/opengraph-image.png",
-        width: 1200,
-        height: 630,
-        alt: "OneStack — демо",
+        "@type": "ListItem",
+        position: 1,
+        name: "Главная",
+        item: canonical("/"),
       },
     ],
-    locale: "ru_RU",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "OneStack — один стек, бесконечные возможности",
-    description:
-      "Демо-платформа OneStack: сайты, веб-приложение, мобильные клиенты.",
-    images: ["/opengraph-image.png"],
-  },
-  robots: { index: true, follow: true },
-};
+  };
 
-/* ==================== PAGE ==================== */
+  return (
+    <Script
+      id="ld-breadcrumbs-home"
+      type="application/ld+json"
+      strategy="afterInteractive"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(breadcrumbs),
+      }}
+    />
+  );
+}
+
+/* =====================================================================================
+   PAGE
+===================================================================================== */
 
 export default function Page() {
-  return <Hero />;
+  return (
+    <>
+      <BreadcrumbsJsonLd />
+      <Hero />
+    </>
+  );
 }

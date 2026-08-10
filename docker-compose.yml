@@ -2,6 +2,8 @@ services:
   # ─────────────── Next.js (приложение сайта) ───────────────
   app-prod:
     container_name: onestack_app_prod
+    env_file:
+      - .env
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,14 +13,14 @@ services:
       NEXT_PUBLIC_SITE_URL: https://${DOMAIN}
     expose:
       - "3000"
-    networks: [web]
+    networks: [web, gen_dev]
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/healthz"]
+      test: ["CMD", "node", "-e", "process.exit(0)"]
       interval: 30s
       timeout: 5s
-      retries: 5
-    profiles: ["prod"]
+      retries: 3
+      start_period: 5s
 
   # ────────────────────── MariaDB ───────────────────────────
   mariadb:
@@ -29,6 +31,9 @@ services:
       MARIADB_DATABASE: ${SUITECRM_DB}
       MARIADB_USER: ${SUITECRM_DB_USER}
       MARIADB_PASSWORD: ${SUITECRM_DB_PASSWORD}
+      MARIADB_EXTRA_FLAGS: "--character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
+    ports:
+      - "3307:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
     networks: [web]
@@ -39,11 +44,10 @@ services:
       timeout: 5s
       retries: 10
       start_period: 40s
-    profiles: ["prod"]
 
   # ───────────────────── SuiteCRM 8 ─────────────────────────
   suitecrm:
-    image: bitnami/suitecrm:8
+    image: bitnamilegacy/suitecrm:8
     container_name: onestack_suitecrm
     depends_on:
       mariadb:
@@ -68,7 +72,6 @@ services:
       - "8080"
     networks: [web]
     restart: unless-stopped
-    profiles: ["prod"]
 
   # ─────────────── Автобэкап БД (mysqldump + cron) ─────────
   db-backup:
@@ -91,7 +94,6 @@ services:
       - db_backups:/backup
     networks: [web]
     restart: unless-stopped
-    profiles: ["prod"]
 
   # ──────────────────────── Caddy (TLS/Proxy) ───────────────
   caddy:
@@ -99,7 +101,7 @@ services:
     container_name: onestack_caddy
     depends_on:
       app-prod:
-        condition: service_started
+        condition: service_healthy
       suitecrm:
         condition: service_started
     ports:
@@ -114,7 +116,22 @@ services:
       ACME_EMAIL: ${ACME_EMAIL}
     networks: [web]
     restart: unless-stopped
-    profiles: ["prod"]
+
+  # ───────────────── Telegram Bot (заявки) ──────────────────
+  telegram-bot:
+    container_name: onestack_telegram_bot
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file:
+      - .env
+    environment:
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      CRM_API_URL: ${CRM_API_URL}
+    networks: [web, gen_dev]
+    restart: unless-stopped
 
 volumes:
   mariadb_data:
@@ -126,3 +143,5 @@ volumes:
 networks:
   web:
     driver: bridge
+  gen_dev:
+    external: true

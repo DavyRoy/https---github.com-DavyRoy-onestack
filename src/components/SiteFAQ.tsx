@@ -1,308 +1,391 @@
 // src/components/SiteFAQ.tsx
 "use client";
+import { serif } from "@/lib/fonts";
 
-import { useMemo, useState, useCallback } from "react";
-import Script from "next/script";
+import { useCallback, useEffect, useId, useMemo, useState, memo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import Link from "next/link";
+import { Plus, Minus, Mail, Phone } from "lucide-react";
+import Script from "next/script";
+import { siteUrl } from "@/app/seo.config";
+import { useI18n } from "@/i18n/I18nProvider";
 
-type QA = { q: string; a: string };
-type Topic = { title: string; items: QA[] };
 
-const TOPICS: Topic[] = [
+const BG   = "#07100e";
+const TEAL = "#2dd4bf";
+const WHITE = "#f4faf8";
+
+type QA    = { q: string; a: string; tag: string };
+type Group = { title: string; items: QA[] };
+
+const GROUPS_RU: Group[] = [
   {
-    title: "Стоимость",
+    title: "Стоимость и оплата",
     items: [
-      {
-        q: "Сколько стоит разработка сайта?",
-        a: "Лендинг — от 120–180 тыс ₽, визитка — от 160 тыс ₽, корпоративный — от 280–600 тыс ₽, e-commerce — от 600 тыс ₽. Итог зависит от объёма страниц, уровня дизайна, интеграций (CRM, оплаты, 1C), наличия личного кабинета и сроков.",
-      },
-      {
-        q: "Можно ли уложиться в минимальный бюджет?",
-        a: "Да. Предложим MVP на готовых модулях и дизайне-системе: запустимся быстро, протестируем гипотезу, а затем аккуратно расширим без переписывания.",
-      },
+      { q: "Сколько стоит разработка сайта?", tag: "Цена",
+        a: "Стоимость зависит от типа, объёма и функциональности: визитка — от 80 000 ₽, лендинг — от 150 000 ₽, портфолио — от 120 000 ₽, информационный — от 280 000 ₽, корпоративный — от 420 000 ₽, интернет-магазин — от 720 000 ₽. Точный расчёт — после брифа." },
+      { q: "Есть ли фиксированная смета?", tag: "Оплата",
+        a: "Да, работаем по фиксированной смете. Оплата делится на этапы: аванс, сдача дизайна, релиз. Все изменения вне ТЗ согласуются отдельно." },
     ],
   },
   {
-    title: "Сроки",
+    title: "Сроки и процесс",
     items: [
-      {
-        q: "Какие сроки разработки?",
-        a: "Лендинг — 1–3 недели, визитка — 1–2 недели, корпоративный — 4–8 недель, интернет-магазин — 6–12 недель. На разную сложность закладываем буфер под контент и интеграции.",
-      },
-      {
-        q: "Реально ли ускорить запуск?",
-        a: "Да. Используем параллельные потоки (дизайн/верстка/интеграции), готовые блоки и CI/CD. Часто удаётся выпустить MVP раньше медианы.",
-      },
+      { q: "Какие сроки разработки?", tag: "Время",
+        a: "Лендинг — 1–2 недели, сайт-визитка — 1–3 недели, корпоративный — 3–6 недель, интернет-магазин — 4–8 недель. Работаем итерациями с демо каждые 1–2 недели." },
+      { q: "Как ускорить запуск без потери качества?", tag: "MVP",
+        a: "Используем готовые паттерны, дизайн-систему и CI/CD-пайплайн с первого дня. Фокусируемся на ключевых сценариях — остальное доделываем в следующих итерациях." },
     ],
   },
   {
-    title: "Дизайн",
+    title: "Технологии и архитектура",
     items: [
-      {
-        q: "Вы делаете дизайн с нуля?",
-        a: "Да. Подготовим дизайн-систему и макеты в Figma (состояния, адаптив, сетки), либо аккуратно адаптируем ваш макет под продакшн.",
-      },
-      {
-        q: "Можно работать по нашему макету?",
-        a: "Конечно. Переносим дизайн 1:1 с учётом доступности (a11y), типографики, анимаций и производительности.",
-      },
+      { q: "На каком стеке разрабатываете?", tag: "Стек",
+        a: "Next.js (React), TypeScript, Tailwind CSS, PostgreSQL или любая headless CMS. Выбираем инструменты под задачу, не навязываем тяжёлое решение там, где оно не нужно." },
+      { q: "Будет ли сайт быстро работать?", tag: "Performance",
+        a: "SSR/SSG, агрессивный кеш, CDN, оптимизация изображений. Core Web Vitals стабильно в зелёной зоне — это напрямую влияет на позиции в Google." },
     ],
   },
   {
-    title: "Технологии",
+    title: "SEO и продвижение",
     items: [
-      {
-        q: "С какими технологиями вы работаете?",
-        a: "Next.js/React, TypeScript, Tailwind, Node.js, PostgreSQL/Redis, Headless CMS (Sanity/Strapi/Contentful), интеграции с ЮKassa/Stripe, CRM и складом.",
-      },
-      {
-        q: "Используете ли современные практики?",
-        a: "Да: CI/CD, Docker, облака (Vercel/Render/YC), мониторинг, автотесты. Core Web Vitals держим в зелёной зоне.",
-      },
+      { q: "Оптимизируете сайт под поисковики?", tag: "SEO",
+        a: "Да: семантическая разметка, мета-теги, Schema.org, sitemap, robots.txt, Core Web Vitals. Опционально — расширенный SEO-аудит и контентные рекомендации." },
+      { q: "Подходит ли сайт для продвижения в Яндекс и Google?", tag: "Поиск",
+        a: "Технически — да. Быстрая загрузка, правильная структура URL, микроразметка и доступность — всё это учитываем на этапе разработки." },
     ],
   },
   {
-    title: "Архитектура",
+    title: "Интеграции и безопасность",
     items: [
-      {
-        q: "Можно начать с MVP и масштабировать без переписывания?",
-        a: "Да. Проекты строим модульно: добавление новых страниц и фич не требует ломать основу. Миграции БД, версии API и документация — в комплекте.",
-      },
-      {
-        q: "Будет ли документация по проекту?",
-        a: "Да. Описываем архитектуру, дизайн-систему, запуск, деплой и инструкции для контент-команды/разработчиков.",
-      },
+      { q: "Можно подключить CRM, оплату, доставку?", tag: "Интеграции",
+        a: "Да. Интегрируем с любыми внешними API: ЮKassa, Stripe, СДЭК, 1С, Bitrix24, amoCRM, почтовыми сервисами. Используем очереди и изоляцию сбоев для надёжности." },
+      { q: "Как обеспечивается безопасность?", tag: "Защита",
+        a: "RBAC, защита API, валидация на сервере, регулярные обновления зависимостей, статический анализ кода. При необходимости — аудит безопасности." },
     ],
   },
   {
-    title: "Поддержка",
+    title: "Поддержка и права",
     items: [
-      {
-        q: "Оказываете поддержку после релиза?",
-        a: "Есть SLA-пакеты: мелкие правки по спринтам, обновления зависимостей и безопасности, мониторинг, развитие по roadmap.",
-      },
-      {
-        q: "Как быстро реагируете на инциденты?",
-        a: "В рамках SLA: критика — от 4 часов, стандарт — 8–24 часа. Отчитываемся по задачам и метрикам.",
-      },
-    ],
-  },
-  {
-    title: "SEO",
-    items: [
-      {
-        q: "Делаете ли SEO-оптимизацию?",
-        a: "Базовое SEO на старте: метаданные, карта сайта, Schema.org, OG-превью, чистые URL и технический чек-лист.",
-      },
-      {
-        q: "Что с производительностью и доступностью?",
-        a: "Оптимизация изображений (CDN), lazy-loading, SSR/SSG, кеширование, семантическая разметка и клавиатурная доступность.",
-      },
-    ],
-  },
-  {
-    title: "Миграция",
-    items: [
-      {
-        q: "Переносите контент/товары с текущего сайта?",
-        a: "Да. Экспорт/парсинг, трансформации, маппинг полей в CMS, импорт SKU/остатков/медиа, проверка ссылок.",
-      },
-      {
-        q: "Сохранится ли SEO при переезде?",
-        a: "Да. Настраиваем 301-редиректы, проверяем индексацию и линки, чтобы не терять позиции.",
-      },
+      { q: "Что происходит после запуска?", tag: "Поддержка",
+        a: "Предлагаем пакеты поддержки: от базового мониторинга до полного технического сопровождения с SLA. Мониторинг 24/7, алерты, патчи и план развития." },
+      { q: "Кому принадлежит код и можно ли подписать NDA?", tag: "Права",
+        a: "Права на код и все артефакты передаются вам после завершения проекта. NDA подписываем до начала обсуждения." },
     ],
   },
 ];
 
-// Единый fade helper
-const fade = (d = 0) => ({
-  initial: { opacity: 0, y: 14 },
-  whileInView: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, ease: "easeOut", delay: d },
-  viewport: { once: true, amount: 0.25 },
-});
+const GROUPS_EN: Group[] = [
+  {
+    title: "Cost and payment",
+    items: [
+      { q: "How much does website development cost?", tag: "Price",
+        a: "The cost depends on type, scope and functionality: business card — from ₽80k, landing — from ₽150k, portfolio — from ₽120k, informational — from ₽280k, corporate — from ₽420k, e-commerce — from ₽720k. Exact estimate after the brief." },
+      { q: "Is there a fixed estimate?", tag: "Payment",
+        a: "Yes, we work with a fixed estimate. Payment is split into stages: advance, design delivery, release. All changes outside the spec are agreed separately." },
+    ],
+  },
+  {
+    title: "Timeline and process",
+    items: [
+      { q: "What are the development timelines?", tag: "Time",
+        a: "Landing — 1–2 weeks, business card — 1–3 weeks, corporate — 3–6 weeks, e-commerce — 4–8 weeks. We work in iterations with demos every 1–2 weeks." },
+      { q: "How to speed up launch without sacrificing quality?", tag: "MVP",
+        a: "We use ready patterns, a design system and a CI/CD pipeline from day one. We focus on core scenarios — the rest is refined in subsequent iterations." },
+    ],
+  },
+  {
+    title: "Technologies and architecture",
+    items: [
+      { q: "What tech stack do you use?", tag: "Stack",
+        a: "Next.js (React), TypeScript, Tailwind CSS, PostgreSQL or any headless CMS. We choose tools for the task, we don't impose heavy solutions where they're not needed." },
+      { q: "Will the site be fast?", tag: "Performance",
+        a: "SSR/SSG, aggressive cache, CDN, image optimisation. Core Web Vitals stably in the green zone — this directly affects Google rankings." },
+    ],
+  },
+  {
+    title: "SEO and promotion",
+    items: [
+      { q: "Do you optimise for search engines?", tag: "SEO",
+        a: "Yes: semantic markup, meta tags, Schema.org, sitemap, robots.txt, Core Web Vitals. Optionally — extended SEO audit and content recommendations." },
+      { q: "Is the site suitable for Yandex and Google promotion?", tag: "Search",
+        a: "Technically — yes. Fast loading, correct URL structure, microdata and accessibility — all taken into account during development." },
+    ],
+  },
+  {
+    title: "Integrations and security",
+    items: [
+      { q: "Can you connect CRM, payments, delivery?", tag: "Integrations",
+        a: "Yes. We integrate with any external APIs: Stripe, YooKassa, delivery services, ERP, amoCRM, email services. We use queues and fault isolation for reliability." },
+      { q: "How is security ensured?", tag: "Security",
+        a: "RBAC, API protection, server-side validation, regular dependency updates, static code analysis. Security audit on request." },
+    ],
+  },
+  {
+    title: "Support and rights",
+    items: [
+      { q: "What happens after launch?", tag: "Support",
+        a: "We offer support packages: from basic monitoring to full technical support with SLA. 24/7 monitoring, alerts, patches and a development roadmap." },
+      { q: "Who owns the code and can we sign an NDA?", tag: "Rights",
+        a: "Rights to the code and all artefacts are transferred to you after project completion. We sign an NDA before any discussion begins." },
+    ],
+  },
+];
 
-// Актуальные контакты (используются в JSON-LD)
 const ORG = {
-  name: "OneStack",
-  url: "https://onestack24.ru",
   email: "info@onestack24.ru",
-  telephone: "+7-910-948-61-06",
+  phone: "+7 (910) 948 61 06",
+  phoneHref: "tel:+79109486106",
 };
 
-const YM_ID = 103909522; // Яндекс.Метрика
-
+/* ═══════════════════════════════════════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════════════════════════════════════ */
 export default function SiteFAQ() {
-  const [openId, setOpenId] = useState<string | null>(null);
+  const { locale } = useI18n();
+  const isEn = locale === "en";
+  const GROUPS = isEn ? GROUPS_EN : GROUPS_RU;
+  const [open,     setOpen]     = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const baseId  = useId();
+  const titleId = useId();
   const reduced = useReducedMotion();
 
-  const track = useCallback((q: string, action: "open" | "close") => {
-    try {
-      // GA4
-      // @ts-ignore
-      if (typeof window !== "undefined" && typeof window.gtag === "function") {
-        // @ts-ignore
-        window.gtag("event", "faq_toggle", {
-          event_category: "engagement",
-          event_label: q,
-          action,
-        });
-      }
-      // Yandex.Metrika
-      // @ts-ignore
-      if (typeof window !== "undefined" && typeof window.ym === "function") {
-        // @ts-ignore
-        window.ym(YM_ID, "reachGoal", `faq_${action}`);
-      }
-    } catch {}
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
-  const toggle = (id: string, q: string) => {
-    setOpenId((s) => {
-      const next = s === id ? null : id;
-      track(q, next ? "open" : "close");
-      return next;
-    });
+  const allQAs = useMemo(() => GROUPS.flatMap(g => g.items), [GROUPS]);
+
+  const jsonLd = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    url: `${siteUrl}/sites#faq`,
+    mainEntity: allQAs.map(item => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+    publisher: { "@type": "Organization", name: "OneStack", url: siteUrl },
+  }), [allQAs]);
+
+  const toggle = useCallback((key: string) => {
+    setOpen(s => s === key ? null : key);
+  }, []);
+
+  const fadeUp = (d = 0) => reduced ? {} : {
+    initial: { opacity: 0, y: 24 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1], delay: d },
   };
 
-  // slug для возможных deeplink’ов (оставляем для id/aria, но ссылки не выводим)
-  const slug = (s: string) =>
-    s
-      .toLowerCase()
-      .replace(/[()-]/g, " ")
-      .replace(/[^a-zа-яё0-9\s]/gi, "")
-      .trim()
-      .replace(/\s+/g, "-");
-
-  // FAQPage JSON-LD
-  const jsonLd = useMemo(() => {
-    const mainEntity = TOPICS.flatMap((t) =>
-      t.items.map((i) => ({
-        "@type": "Question",
-        name: i.q,
-        acceptedAnswer: { "@type": "Answer", text: i.a },
-      }))
-    );
-    return {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity,
-      publisher: {
-        "@type": "Organization",
-        name: ORG.name,
-        url: ORG.url,
-        email: ORG.email,
-        telephone: ORG.telephone,
-      },
-    };
-  }, []);
-
-  const a = (d = 0) => (reduced ? {} : fade(d));
-
   return (
-    <section
-      id="faq"
-      className="relative w-full overflow-hidden bg-gradient-to-b from-black via-[#0a0a0a] to-black text-white py-24"
-      aria-labelledby="faq-title"
-      role="region"
-    >
-      {/* мягкие свечения */}
-      <div className="pointer-events-none absolute -top-40 -left-40 h-[420px] w-[420px] rounded-full bg-white/[0.035] blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 h-[420px] w-[420px] rounded-full bg-white/[0.035] blur-3xl" />
+    <>
+      <Script id="ld-sites-faq" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6 md:px-12 lg:px-20">
-        <motion.p {...a(0)} className="text-sm uppercase tracking-[0.25em] text-white/50 mb-3">
-          FAQ
-        </motion.p>
-        <motion.h2 id="faq-title" {...a(0.05)} className="text-[clamp(1.9rem,4vw,3.2rem)] font-extrabold leading-tight tracking-tight">
-          Частые вопросы
-        </motion.h2>
-        <motion.p {...a(0.1)} className="mt-4 max-w-3xl text-white/70">
-          Собрали короткие ответы на ключевые вопросы. Если чего-то не хватает —{" "}
-          <Link href="#contact" className="underline underline-offset-4 hover:no-underline">
-            напишите нам
-          </Link>
-          .
-        </motion.p>
+      <section
+        id="faq"
+        aria-labelledby={titleId}
+        style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
+      >
+        {/* Ambient glow */}
+        <div aria-hidden style={{
+          pointerEvents: "none", position: "absolute", bottom: -160, left: -160,
+          width: 480, height: 480, borderRadius: "50%",
+          background: TEAL, opacity: 0.06, filter: "blur(160px)",
+        }} />
 
-        {/* Темы */}
-        <div className="mt-10 space-y-8">
-          {TOPICS.map((topic, i) => (
-            <motion.section key={topic.title} {...a(0.12 + i * 0.05)} aria-labelledby={`faq-topic-${i}`}>
-              <h3 id={`faq-topic-${i}`} className="text-xl font-semibold mb-4">
-                {topic.title}
-              </h3>
-              <div className="divide-y divide-white/10 rounded-2xl border border-white/10 bg-white/[0.03]">
-                {topic.items.map((item, j) => {
-                  const id = `${i}-${j}`;
-                  const panelId = `faq-panel-${id}`;
-                  const isOpen = openId === id;
-                  const hash = slug(item.q);
-                  return (
-                    <div key={panelId} className="px-4 sm:px-6">
-                      <button
-                        onClick={() => toggle(id, item.q)}
-                        className="flex w-full items-center justify-between gap-4 py-4 text-left"
-                        aria-expanded={isOpen}
-                        aria-controls={panelId}
-                        id={`q-${hash}`}
-                      >
-                        <span className="text-base font-medium">{item.q}</span>
-                        <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.06] p-1">
-                          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                        </span>
-                      </button>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px", position: "relative", zIndex: 1 }}>
 
-                      <AnimatePresence initial={false}>
-                        {isOpen && (
-                          <motion.div
-                            id={panelId}
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: reduced ? 0 : 0.25, ease: "easeOut" }}
-                            className="overflow-hidden"
-                            aria-labelledby={`q-${hash}`}
-                            role="region"
-                          >
-                            <div className="pb-5 text-white/80">
-                              <p className="leading-relaxed">{item.a}</p>
-                              {/* Убрали ссылку на конкретный вопрос по требованию */}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                  );
-                })}
+          {/* ── Header ── */}
+          <motion.div {...(fadeUp(0) as object)} style={{ padding: isMobile ? "80px 0 60px" : "110px 0 72px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+              <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
+                {isEn ? "FAQ" : "Вопросы и ответы"}
+              </span>
+            </div>
+
+            <div style={{
+              display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              alignItems: isMobile ? "flex-start" : "flex-end",
+              justifyContent: "space-between",
+              gap: 24,
+            }}>
+              <h2
+                id={titleId}
+                className={serif.className}
+                style={{ margin: 0, fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}
+              >
+                <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: "transparent", WebkitTextStroke: `1.5px ${TEAL}` }}>
+                  {isEn ? "Frequently" : "Частые"}
+                </span>
+                <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
+                  {isEn ? "asked questions" : "вопросы"}
+                </span>
+              </h2>
+
+              <div style={{ display: "flex", flexDirection: "column", alignItems: isMobile ? "flex-start" : "flex-end", gap: 12 }}>
+                <p style={{ margin: 0, fontSize: 13, color: "rgba(244,250,248,0.4)" }}>
+                  {isEn ? "Didn't find an answer? Ask directly:" : "Не нашли ответ? Спросите напрямую:"}
+                </p>
+                <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", gap: 12 }}>
+                  <ContactLink icon={<Mail size={13} />} value={ORG.email} href={`mailto:${ORG.email}`} />
+                  <ContactLink icon={<Phone size={13} />} value={ORG.phone} href={ORG.phoneHref} />
+                </div>
               </div>
-            </motion.section>
-          ))}
+            </div>
+          </motion.div>
+
+          {/* ── Accordion groups ── */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+            {GROUPS.map((group, gi) => (
+              <motion.div
+                key={group.title}
+                {...(fadeUp(0.04 * gi) as object)}
+                style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                {/* Group label row */}
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 10,
+                  padding: isMobile ? "20px 0 14px" : "24px 0 16px",
+                }}>
+                  <span style={{ fontFamily: "monospace", fontSize: 10, color: TEAL, opacity: 0.6 }}>
+                    {String(gi + 1).padStart(2, "0")}
+                  </span>
+                  <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", color: "rgba(244,250,248,0.3)", fontWeight: 500 }}>
+                    {group.title}
+                  </span>
+                </div>
+
+                {/* Items */}
+                <div>
+                  {group.items.map((item, ii) => {
+                    const key = `${gi}-${ii}`;
+                    const isOpen = open === key;
+                    const btnId  = `${baseId}-q-${key}`;
+                    const panelId = `${baseId}-panel-${key}`;
+
+                    return (
+                      <article
+                        key={key}
+                        style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+                        itemScope itemProp="mainEntity" itemType="https://schema.org/Question"
+                      >
+                        <button
+                          id={btnId}
+                          onClick={() => toggle(key)}
+                          aria-expanded={isOpen}
+                          aria-controls={panelId}
+                          style={{
+                            display: "flex", width: "100%", alignItems: "center",
+                            justifyContent: "space-between", gap: 16,
+                            padding: isMobile ? "16px 0" : "20px 0",
+                            background: "none", border: "none", cursor: "pointer", textAlign: "left",
+                          }}
+                        >
+                          <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1, minWidth: 0 }}>
+                            {/* Tag chip */}
+                            <span style={{
+                              fontSize: 9, fontWeight: 600, letterSpacing: "0.14em",
+                              textTransform: "uppercase", padding: "3px 9px", borderRadius: 99,
+                              flexShrink: 0, transition: "all 0.2s",
+                              background: isOpen ? `${TEAL}18` : "rgba(255,255,255,0.03)",
+                              border: `1px solid ${isOpen ? TEAL + "40" : "rgba(255,255,255,0.08)"}`,
+                              color: isOpen ? TEAL : "rgba(244,250,248,0.3)",
+                            }}>
+                              {item.tag}
+                            </span>
+                            {/* Question */}
+                            <span
+                              style={{
+                                fontSize: isMobile ? 13 : 14, fontWeight: 500, transition: "color 0.2s",
+                                color: isOpen ? WHITE : "rgba(244,250,248,0.7)",
+                              }}
+                              itemProp="name"
+                            >
+                              {item.q}
+                            </span>
+                          </div>
+
+                          {/* Plus/Minus icon */}
+                          <span
+                            aria-hidden
+                            style={{
+                              display: "flex", alignItems: "center", justifyContent: "center",
+                              width: 28, height: 28, borderRadius: "50%", flexShrink: 0,
+                              transition: "all 0.2s",
+                              background: isOpen ? `${TEAL}18` : "rgba(255,255,255,0.04)",
+                              border: `1px solid ${isOpen ? TEAL + "40" : "rgba(255,255,255,0.1)"}`,
+                              color: isOpen ? TEAL : "rgba(244,250,248,0.4)",
+                            }}
+                          >
+                            {isOpen ? <Minus size={13} /> : <Plus size={13} />}
+                          </span>
+                        </button>
+
+                        {/* Answer */}
+                        <AnimatePresence initial={false}>
+                          {isOpen && (
+                            <motion.div
+                              id={panelId}
+                              role="region"
+                              aria-labelledby={btnId}
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: reduced ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}
+                              style={{ overflow: "hidden" }}
+                              itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer"
+                            >
+                              <p
+                                style={{
+                                  margin: 0, paddingBottom: 20,
+                                  paddingLeft: isMobile ? 0 : 88,
+                                  paddingRight: isMobile ? 0 : 48,
+                                  fontSize: isMobile ? 13 : 14, lineHeight: 1.75,
+                                  color: "rgba(244,250,248,0.45)",
+                                }}
+                                itemProp="text"
+                              >
+                                {item.a}
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </article>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          <div style={{ height: isMobile ? 80 : 110 }} />
         </div>
-
-        {/* Мини-CTA */}
-        <motion.div {...a(0.2)} className="mt-10 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-white/80">
-          Не нашли ответ? Напишите на{" "}
-          <a href="mailto:info@onestack24.ru" className="underline underline-offset-4 hover:no-underline">
-            info@onestack24.ru
-          </a>{" "}
-          или позвоните{" "}
-          <a href="tel:+79109486106" className="underline underline-offset-4 hover:no-underline">
-            +7 (910) 948 61 06
-          </a>
-          . Быстрее всего ответим через форму{" "}
-          <Link href="#contact" className="underline underline-offset-4 hover:no-underline">
-            «Оставить заявку»
-          </Link>
-          .
-        </motion.div>
-      </div>
-
-      {/* JSON-LD для SEO */}
-      <Script id="ld-faq" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-    </section>
+      </section>
+    </>
   );
 }
+
+/* ── ContactLink ──────────────────────────────────────────────────────────── */
+const ContactLink = memo(function ContactLink({ icon, value, href }: {
+  icon: React.ReactNode; value: string; href: string;
+}) {
+  return (
+    <a
+      href={href}
+      style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(244,250,248,0.45)", textDecoration: "none", transition: "color 0.2s" }}
+      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = TEAL}
+      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = "rgba(244,250,248,0.45)"}
+    >
+      <span style={{ color: "rgba(244,250,248,0.25)" }}>{icon}</span>
+      {value}
+    </a>
+  );
+});

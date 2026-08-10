@@ -2,7 +2,7 @@
 set -e
 
 # === НАСТРОЙ ===
-REMOTE="root@109.196.103.168"
+REMOTE="root@5.129.249.234"
 REMOTE_DIR="/srv/onestack"
 
 RSYNC_EXCLUDES=(

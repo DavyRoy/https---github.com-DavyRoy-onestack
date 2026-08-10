@@ -80,8 +80,8 @@ export default function DemoFeatures() {
     >
       {/* Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-1/3 left-1/4 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 left-1/4 w-72 h-72 rounded-full blur-3xl" style={{ background: "rgba(45,212,191,0.07)" }} />
+        <div className="absolute bottom-1/3 right-1/4 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(45,212,191,0.05)" }} />
         <div
           className="absolute inset-0 opacity-[0.12]"
           style={{
@@ -125,7 +125,7 @@ export default function DemoFeatures() {
             >
               {/* Glow border */}
               <div
-                className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/0 via-blue-500/10 to-purple-500/0 opacity-0 group-hover:opacity-100 blur-xl transition duration-500"
+                className="absolute inset-0 rounded-2xl bg-gradient-to-br from-teal-400/0 via-teal-400/8 to-teal-300/0 opacity-0 group-hover:opacity-100 blur-xl transition duration-500"
                 aria-hidden="true"
               />
 
@@ -174,8 +174,9 @@ export default function DemoFeatures() {
         >
           <Link
             href="/features"
-            className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-blue-500 via-cyan-500 to-purple-500 text-white font-semibold text-sm sm:text-base
-                       hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(56,189,248,0.3)] transition-all duration-300"
+            className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-semibold text-sm sm:text-base
+                       hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(45,212,191,0.25)] transition-all duration-300"
+            style={{ background: "#2dd4bf", color: "#07100e" }}
           >
             <span>Изучить все возможности</span>
             <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:translate-x-1" />

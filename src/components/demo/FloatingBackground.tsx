@@ -12,7 +12,7 @@ export default function FloatingBackground() {
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       {/* ======= Градиентные шары ======= */}
       <motion.div
-        className="absolute top-1/4 -left-20 w-96 h-96 rounded-full bg-blue-500/15 blur-3xl"
+        className="absolute top-1/4 -left-20 w-96 h-96 rounded-full blur-3xl" style={{ background: "rgba(45,212,191,0.1)" }}
         animate={{ 
           y: [0, 40, 0], 
           opacity: [0.3, 0.5, 0.3],
@@ -22,7 +22,7 @@ export default function FloatingBackground() {
       />
       
       <motion.div
-        className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full bg-purple-500/15 blur-3xl"
+        className="absolute bottom-1/4 -right-20 w-80 h-80 rounded-full blur-3xl" style={{ background: "rgba(45,212,191,0.07)" }}
         animate={{ 
           y: [0, -30, 0], 
           opacity: [0.2, 0.4, 0.2],
@@ -42,7 +42,7 @@ export default function FloatingBackground() {
       />
 
       {/* ======= Мягкий центральный свет ======= */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#07100e]/90 via-[#07100e]/50 to-transparent" />
       <div className="absolute inset-0 bg-gradient-radial from-white/5 via-transparent to-transparent opacity-50" />
 
       {/* ======= Сканирующие линии ======= */}

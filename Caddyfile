@@ -1,10 +1,18 @@
 {
-    email info@onestack24.ru
-    # optional: debug
+    email {$ACME_EMAIL}
+    auto_https off
+}
+
+# localhost (для локальной разработки)
+:80 {
+    encode zstd gzip
+    handle {
+        reverse_proxy onestack_app_prod:3000
+    }
 }
 
 # apex-домен (основной сайт)
-onestack24.ru {
+{$DOMAIN}, onestack24.online {
     encode zstd gzip
 
     header {
@@ -33,7 +41,7 @@ onestack24.ru {
 }
 
 # CRM на поддомене
-crm.onestack24.ru {
+crm.{$DOMAIN}, crm.onestack24.online {
     encode zstd gzip
     header {
         Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
@@ -45,6 +53,11 @@ crm.onestack24.ru {
 }
 
 # www → apex (301 редирект)
-www.onestack24.ru {
-    redir https://onestack24.ru{uri} 301
+www.{$DOMAIN} {
+    redir https://{$DOMAIN}{uri} 301
+}
+
+# www для onestack24.online → apex .online
+www.onestack24.online {
+    redir https://onestack24.online{uri} 301
 }

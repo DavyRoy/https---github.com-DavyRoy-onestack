@@ -1,10 +1,12 @@
 .
+├── AGENTS.md
 ├── Caddyfile
 ├── Dockerfile
-├── README.md
+├── Dockerfile.bot
 ├── components.json
 ├── docker-compose.yml
 ├── eslint.config.mjs
+├── middleware.ts
 ├── next-env.d.ts
 ├── next.config.mjs
 ├── onestack.txt
@@ -16,6 +18,8 @@
 │   ├── b2b.png
 │   ├── client.png
 │   ├── crm.png
+│   ├── demo
+│   ├── favicon.svg
 │   ├── file.svg
 │   ├── globe.svg
 │   ├── hello_mobile.png
@@ -42,152 +46,49 @@
 │   ├── site_shop.png
 │   ├── site_visio.png
 │   ├── sitehello1.png
+│   ├── sitemap.xml
 │   ├── vercal.png
 │   ├── web_app.png
 │   ├── web_app2.png
 │   ├── window.svg
 │   └── снимок
 ├── scripts
+│   ├── telegram-bot.js
 │   └── watch-sync.sh
 ├── src
 │   ├── app
-│   │   ├── api
-│   │   │   ├── catalog
-│   │   │   │   ├── categories
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── products
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── stats
-│   │   │   │       └── route.ts
-│   │   │   ├── contact
-│   │   │   │   └── route.ts
-│   │   │   ├── metrics
-│   │   │   │   ├── access
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── alerts
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── audit
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── channel-mix
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── compliance
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── location-breakdown
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── ops-health
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── org-kpi
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── revenue-trend
-│   │   │   │   │   └── route.ts
-│   │   │   │   ├── service-categories
-│   │   │   │   │   └── route.ts
-│   │   │   │   └── systems-status
-│   │   │   │       └── route.ts
-│   │   │   └── quote
-│   │   │       └── route.ts
-│   │   ├── context
-│   │   │   └── QuoteContext.tsx
-│   │   ├── favicon.ico
-│   │   ├── globals.css
-│   │   ├── healthz
-│   │   │   └── route.ts
-│   │   ├── home
-│   │   │   └── page.tsx
-│   │   ├── layout.tsx
-│   │   ├── lib
-│   │   │   ├── catalog
-│   │   │   │   ├── db.memory.ts
-│   │   │   │   ├── filters.ts
-│   │   │   │   ├── iconRegistry.tsx
-│   │   │   │   └── types.ts
-│   │   │   └── metrics
-│   │   │       ├── client.ts
-│   │   │       └── types.ts
-│   │   ├── mobile
-│   │   │   └── page.tsx
-│   │   ├── modal
-│   │   │   ├── PolicyModalShell.tsx
-│   │   │   ├── privacy
-│   │   │   │   └── page.tsx
-│   │   │   └── terms
-│   │   │       └── page.tsx
-│   │   ├── page.tsx
-│   │   ├── privacy
-│   │   │   └── page.tsx
-│   │   ├── robots.ts
-│   │   ├── sitemap.ts
-│   │   ├── sites
-│   │   │   └── page.tsx
-│   │   ├── terms
-│   │   │   └── page.tsx
-│   │   └── webapp
-│   │       └── page.tsx
 │   ├── components
-│   │   ├── CookieBanner.tsx
-│   │   ├── Hero.tsx
-│   │   ├── HomeAbout.tsx
-│   │   ├── HomeBenefits.tsx
-│   │   ├── HomeCalculator.tsx
-│   │   ├── HomeContact.tsx
-│   │   ├── HomeFooter.tsx
-│   │   ├── HomeIntro.tsx
-│   │   ├── HomeMobile.tsx
-│   │   ├── HomeServices.tsx
-│   │   ├── HomeSites.tsx
-│   │   ├── HomeWebApp.tsx
-│   │   ├── MobileBenefits.tsx
-│   │   ├── MobileCalculator.tsx
-│   │   ├── MobileContact.tsx
-│   │   ├── MobileFAQ.tsx
-│   │   ├── MobileFeatures.tsx
-│   │   ├── MobileIntro.tsx
-│   │   ├── MobilePerfSecurity.tsx
-│   │   ├── MobileTypes.tsx
-│   │   ├── NavBar.tsx
-│   │   ├── PolicyLayout.tsx
-│   │   ├── README.md
-│   │   ├── SectionTitle.tsx
-│   │   ├── SiteBenefits.tsx
-│   │   ├── SiteBusinessCard.tsx
-│   │   ├── SiteCalculator.tsx
-│   │   ├── SiteConfigurator.tsx
-│   │   ├── SiteContact.tsx
-│   │   ├── SiteCorporate.tsx
-│   │   ├── SiteEcommerce.tsx
-│   │   ├── SiteFAQ.tsx
-│   │   ├── SiteInfo.tsx
-│   │   ├── SiteIntro.tsx
-│   │   ├── SiteLanding.tsx
-│   │   ├── SitePortfolio.tsx
-│   │   ├── SiteShowcase.tsx
-│   │   ├── SiteTypes.tsx
-│   │   ├── TechMarquee.tsx
-│   │   ├── Threads.tsx
-│   │   ├── WebAppBenefits.tsx
-│   │   ├── WebAppCalculator.tsx
-│   │   ├── WebAppContact.tsx
-│   │   ├── WebAppFAQ.tsx
-│   │   ├── WebAppIntro.tsx
-│   │   ├── WebAppKinds.tsx
-│   │   ├── WebAppModules.tsx
-│   │   ├── WebAppPerfSecurity.tsx
-│   │   ├── app-shell.tsx
-│   │   └── ui
-│   │       ├── badge.tsx
-│   │       ├── button.tsx
-│   │       ├── card.tsx
-│   │       ├── input.tsx
-│   │       ├── tabs.tsx
-│   │       ├── textarea.tsx
-│   │       └── toggle.tsx
-│   └── lib
-│       ├── mock-data.ts
-│       ├── types.ts
-│       └── utils.ts
+│   ├── i18n
+│   ├── lib
+│   └── modules
 ├── tailwind.config.ts
 ├── tsconfig.json
 ├── tsconfig.tsbuildinfo
 └── vite.config.ts
 
-42 directories, 149 files
+11 directories, 56 files
+.
+├── AGENTS.md
+├── Caddyfile
+├── Dockerfile
+├── Dockerfile.bot
+├── components.json
+├── docker-compose.yml
+├── eslint.config.mjs
+├── middleware.ts
+├── next-env.d.ts
+├── next.config.mjs
+├── node_modules
+├── onestack.txt
+├── package-lock.json
+├── package.json
+├── postcss.config.mjs
+├── public
+├── scripts
+├── src
+├── tailwind.config.ts
+├── tsconfig.json
+├── tsconfig.tsbuildinfo
+└── vite.config.ts
+
+5 directories, 18 files

@@ -8,7 +8,7 @@ import Script from "next/script";
 import { CheckCircle } from "lucide-react";
 import { useMemo } from "react";
 
-const YM_ID = 103909522;
+const YM_ID = 105578590;
 
 const fadeUp = (d = 0) => ({
   initial: { opacity: 0, y: 12 },

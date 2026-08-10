@@ -1,300 +1,362 @@
-// src/components/HomeIntro.tsx
 "use client";
+import { serif } from "@/lib/fonts";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
+import {
+  motion,
+  useReducedMotion, useScroll, useTransform,
+  useMotionValue, useSpring,
+} from "framer-motion";
 import Link from "next/link";
 import Script from "next/script";
-import { useEffect, useId, useState, useMemo } from "react";
-import { CheckCircle } from "lucide-react";
+import { useRef, useMemo, useId, useEffect, useState, useCallback } from "react";
+import { siteName, siteUrl } from "@/app/seo.config";
+import { useI18n } from "@/i18n/I18nProvider";
 
-/* ===== Motion helpers ===== */
-const fadeUp = (d = 0) => ({
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.55, ease: "easeOut", delay: d },
-});
-const line = (d = 0) => ({
-  initial: { opacity: 0, y: 14 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: { delay: d, duration: 0.5, ease: "easeOut" },
+/* ─── Font ──────────────────────────────────────────────────────────────── */
+
+/* ─── Palette ────────────────────────────────────────────────────────────── */
+const BG    = "#07100e";
+const TEAL  = "#2dd4bf";
+const WHITE = "#f4faf8";
+
+/* ─── Copy ───────────────────────────────────────────────────────────────── */
+const COPY = {
+  ru: {
+    tag:   "Технологический партнёр · с 2021",
+    /* outline word — BIG, stroke only */
+    word0: "Цифровые",
+    /* filled lines */
+    word1: "продукты",
+    word2: "по смете",
+    word3: "",
+    sub:   "Сайты, веб- и мобильные приложения с фиксированной ценой, спринтами 1–2 недели и поддержкой после запуска.",
+    cta1:  "Обсудить проект",
+    cta2:  "Наши работы",
+    more:  "Подробнее",
+    stats: [
+      { v: "150+", l: "проектов сдано" },
+      { v: "98%",  l: "сдаём в срок" },
+      { v: "5",    l: "лет на рынке" },
+    ],
+    scroll: "ПРОКРУТИТЕ",
+    what: "Что мы делаем",
+    services: [
+      { name: "Сайты",          href: "#sites",    num: "01" },
+      { name: "Веб-приложения", href: "#webapp",   num: "02" },
+      { name: "Мобильные",      href: "#mobile",   num: "03" },
+      { name: "Оставить заявку", href: "#contact", num: "04" },
+    ],
   },
+  en: {
+    tag:   "Technology partner · since 2021",
+    word0: "Digital",
+    word1: "products",
+    word2: "on budget",
+    word3: "",
+    sub:   "Websites, web & mobile apps with fixed price, 1–2 week sprints and post-launch support.",
+    cta1:  "Discuss project",
+    cta2:  "Our works",
+    more:  "Learn more",
+    scroll: "SCROLL",
+    what: "What we do",
+    services: [
+      { name: "Websites",     href: "#sites",    num: "01" },
+      { name: "Web apps",     href: "#webapp",   num: "02" },
+      { name: "Mobile",       href: "#mobile",   num: "03" },
+      { name: "Get in touch", href: "#contact",  num: "04" },
+    ],
+  },
+} as const;
+
+/* ─── Pre-computed ring dot positions (avoids SSR/client float mismatch) ── */
+const RING_DOTS = [0, 60, 120, 180, 240, 300].map((deg) => {
+  const r = (deg * Math.PI) / 180;
+  return { cx: +(450 + 430 * Math.cos(r)).toFixed(2), cy: +(450 + 430 * Math.sin(r)).toFixed(2) };
 });
 
+const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOME INTRO
+═══════════════════════════════════════════════════════════════════════════ */
 export default function HomeIntro() {
-  const [reduced, setReduced] = useState(false);
-  const titleId = useId();
-  const subtitleId = useId();
+  const { locale, localizePath } = useI18n();
+  const lang = locale === "ru" ? "ru" : "en";
+  const c    = COPY[lang];
+  const reduced    = useReducedMotion();
+  const titleId    = useId();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [hoverSvc, setHoverSvc] = useState<number | null>(null);
 
+  /* parallax */
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const contentY = useTransform(scrollYProgress, [0, 1], ["0%", "10%"]);
+
+  /* cursor glow */
+  const mx = useMotionValue(-600);
+  const my = useMotionValue(-600);
+  const gx = useSpring(mx, { stiffness: 70, damping: 20, mass: 0.6 });
+  const gy = useSpring(my, { stiffness: 70, damping: 20, mass: 0.6 });
+  const onMove = useCallback((e: MouseEvent) => {
+    const r = sectionRef.current?.getBoundingClientRect();
+    if (r) { mx.set(e.clientX - r.left); my.set(e.clientY - r.top); }
+  }, [mx, my]);
   useEffect(() => {
-    const q = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(q.matches);
-    const on = (e: MediaQueryListEvent) => setReduced(e.matches);
-    q.addEventListener?.("change", on);
-    return () => q.removeEventListener?.("change", on);
-  }, []);
+    const el = sectionRef.current;
+    if (!el || reduced) return;
+    el.addEventListener("mousemove", onMove);
+    return () => el.removeEventListener("mousemove", onMove);
+  }, [onMove, reduced]);
 
-  /* ===== SEO JSON-LD ===== */
-  const SITE_URL =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://onestack24.ru";
-
-  const jsonLdOrg = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      name: "OneStack",
-      url: SITE_URL,
-      logo: `${SITE_URL}/fav/apple-touch-icon.png`,
-      contactPoint: [
-        {
-          "@type": "ContactPoint",
-          email: "info@onestack24.ru",
-          telephone: "+7-910-948-61-06",
-          contactType: "sales",
-          areaServed: "RU",
-          availableLanguage: ["ru"],
-        },
-      ],
-    }),
-    [SITE_URL]
-  );
-
-  const jsonLdWebsite = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      name: "OneStack",
-      url: SITE_URL,
-      potentialAction: {
-        "@type": "SearchAction",
-        target: `${SITE_URL}/search?q={query}`,
-        "query-input": "required name=query",
-      },
-    }),
-    [SITE_URL]
-  );
-
-  const jsonLdService = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "Service",
-      name: "Разработка сайтов и приложений",
-      serviceType: "Software development",
-      provider: { "@type": "Organization", name: "OneStack", url: SITE_URL },
-      areaServed: ["RU", "KZ", "BY", "AM"],
-      url: SITE_URL,
-      description:
-        "Создаём сайты, веб- и мобильные приложения под ключ: дизайн, разработка, интеграции и поддержка.",
-    }),
-    [SITE_URL]
-  );
-
-  const jsonLdBreadcrumbs = useMemo(
-    () => ({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Главная", item: SITE_URL },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Домашняя",
-          item: `${SITE_URL}/home`,
-        },
-      ],
-    }),
-    [SITE_URL]
-  );
-
-  /* ===== UI consts ===== */
-  const btnBase =
-    "inline-flex items-center justify-center rounded-full font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 transition text-center";
-  const btnSize = "h-12 min-w-[200px] px-6";
+  /* JSON-LD */
+  const jsonLdOrg = useMemo(() => ({
+    "@context": "https://schema.org", "@type": "Organization",
+    "@id": `${siteUrl}/#organization`, name: siteName, url: siteUrl,
+    logo: { "@type": "ImageObject", url: `${siteUrl}/logo.png`, width: 512, height: 512 },
+    contactPoint: [{ "@type": "ContactPoint", telephone: "+7-910-948-61-06",
+      contactType: "customer service", email: "info@onestack24.ru" }],
+  }), []);
+  const jsonLdSvc = useMemo(() => ({
+    "@context": "https://schema.org", "@type": "Service",
+    name: `Разработка сайтов и приложений | ${siteName}`,
+    provider: { "@type": "Organization", "@id": `${siteUrl}/#organization` },
+    offers: { "@type": "AggregateOffer", priceCurrency: "RUB", lowPrice: 20000, highPrice: 5000000 },
+  }), []);
 
   return (
-    <section
-      id="intro"
-      aria-labelledby={titleId}
-      aria-describedby={subtitleId}
-      className="relative flex items-center overflow-hidden bg-black text-white min-h-[100dvh] pt-[64px] md:pt-[72px]"
-    >
-      {/* JSON-LD */}
-      <Script
-        id="ld-org-home"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
-      />
-      <Script
-        id="ld-website-home"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdWebsite) }}
-      />
-      <Script
-        id="ld-service-home"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdService) }}
-      />
-      <Script
-        id="ld-breadcrumbs-home"
-        type="application/ld+json"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumbs) }}
-      />
-      <Script id="favicon" strategy="afterInteractive">
-        {`
-          const link = document.createElement('link');
-          link.rel = 'icon';
-          link.type = 'image/png';
-          link.sizes = '32x32';
-          link.href = '/vercal.png';
-          document.head.appendChild(link);
-        `}
-      </Script>
+    <>
+      <Script id="ld-hi-org" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }} />
+      <Script id="ld-hi-svc" type="application/ld+json" strategy="afterInteractive"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSvc) }} />
 
-      {/* BG desktop */}
-      <div className="absolute inset-0 hidden md:block z-0">
-        <Image
-          src="/hello_web1.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-contain object-right scale-90"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(0,0,0,0.95) 20%, rgba(0,0,0,0.75) 48%, rgba(0,0,0,0.45) 70%, rgba(0,0,0,1) 95%)",
-          }}
-        />
+      <section
+        ref={sectionRef}
+        id="intro"
+        aria-labelledby={titleId}
+        className="relative flex min-h-[100svh] flex-col overflow-hidden"
+        style={{ background: BG }}
+      >
+        {/* ── Decorative rotating ring ── */}
+        <motion.div
+          className="pointer-events-none absolute top-[5%] right-[-15%] w-[700px] h-[700px] xl:w-[900px] xl:h-[900px]"
+          style={reduced ? undefined : { y: bgY }}
+          animate={reduced ? undefined : { rotate: 360 }}
+          transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 900 900" fill="none" className="w-full h-full">
+            {/* Outer ring */}
+            <circle cx="450" cy="450" r="430" stroke={TEAL} strokeWidth="0.5" opacity="0.12" strokeDasharray="6 14"/>
+            {/* Middle ring */}
+            <circle cx="450" cy="450" r="300" stroke={TEAL} strokeWidth="0.5" opacity="0.07"/>
+            {/* Inner ring */}
+            <circle cx="450" cy="450" r="160" stroke={TEAL} strokeWidth="0.5" opacity="0.05" strokeDasharray="3 8"/>
+            {/* Cross hairs */}
+            <line x1="450" y1="20" x2="450" y2="880" stroke={TEAL} strokeWidth="0.3" opacity="0.04"/>
+            <line x1="20"  y1="450" x2="880" y2="450" stroke={TEAL} strokeWidth="0.3" opacity="0.04"/>
+            {/* Dots on outer ring — pre-computed to avoid hydration mismatch */}
+            {RING_DOTS.map((d, i) => (
+              <circle key={i} cx={d.cx} cy={d.cy} r="3" fill={TEAL} opacity="0.25"/>
+            ))}
+          </svg>
+        </motion.div>
+
+        {/* Grain */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.028]"
+          style={{ backgroundImage: GRAIN, backgroundSize: "180px 180px" }} aria-hidden="true" />
+
+        {/* Cursor glow */}
         {!reduced && (
           <motion.div
-            aria-hidden="true"
-            className="absolute inset-0"
-            initial={{ opacity: 0.04 }}
-            animate={{ opacity: [0.04, 0.08, 0.04] }}
-            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            className="pointer-events-none absolute rounded-full hidden lg:block"
             style={{
-              background:
-                "radial-gradient(60% 40% at 60% 50%, rgba(255,255,255,0.08), transparent 70%)",
+              left: gx, top: gy, translateX: "-50%", translateY: "-50%",
+              width: 600, height: 600,
+              background: `radial-gradient(circle, ${TEAL}16 0%, transparent 65%)`,
             }}
+            aria-hidden="true"
           />
         )}
-      </div>
 
-      {/* BG mobile */}
-      <div className="absolute inset-0 md:hidden z-0">
-        <Image
-          src="/hello_web1.png"
-          alt=""
-          fill
-          priority
-          sizes="150vw"
-          className="object-cover"
+        {/* Ambient glow top-right */}
+        <motion.div
+          className="pointer-events-none absolute -top-32 -right-32 rounded-full blur-[180px]"
+          style={{ width: 600, height: 600, background: TEAL, opacity: 0.09 }}
+          animate={reduced ? undefined : { scale: [1, 1.12, 1], opacity: [0.09, 0.13, 0.09] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          aria-hidden="true"
         />
-        <div className="absolute inset-0 bg-black/65" />
-      </div>
+        {/* Ambient glow bottom-left */}
+        <div className="pointer-events-none absolute -bottom-20 -left-20 rounded-full blur-[160px]"
+          style={{ width: 500, height: 500, background: TEAL, opacity: 0.05 }} aria-hidden="true" />
 
-      {/* TEXT */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 md:px-12 lg:px-20">
-        <p className="sr-only">
-          Мы создаём сайты и приложения под ключ: дизайн, разработка, интеграции
-          и поддержка. Быстро и надёжно.
-        </p>
+        {/* ── Content ── */}
+        <motion.div
+          style={reduced ? undefined : { y: contentY }}
+          className="relative z-10 flex flex-1 flex-col justify-between mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-14 pt-24 sm:pt-28 lg:pt-16 pb-0"
+        >
+          {/* ── Top tag ── */}
+          <motion.div
+            className="flex items-center gap-3 mb-10 sm:mb-14"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.55, ease: [0.22,1,0.36,1] }}
+          >
+            <motion.div style={{ height: 2, width: 20, background: "#2dd4bf", borderRadius: 2, flexShrink: 0 }}
+              initial={{ width: 0 }} animate={{ width: 20 }}
+              transition={{ delay: 0.4, duration: 0.4, ease: [0.22,1,0.36,1] }} />
+            <span className="text-[11px] tracking-[0.22em] uppercase font-medium" style={{ color: TEAL }}>
+              {c.tag}
+            </span>
+          </motion.div>
 
-        <div className="grid grid-cols-12 gap-x-6">
-          <div className="col-span-12 md:col-span-7 text-center md:text-left">
-            <motion.p
-              {...(reduced ? {} : fadeUp(0))}
-              className="uppercase text-[12px] tracking-[0.25em] text-white/45 mb-2"
-            >
-              onestack
-            </motion.p>
+          {/* ── Headline block ── */}
+          <div className="flex-1 flex flex-col justify-center">
+            <h1 id={titleId} className="mb-10 sm:mb-14">
 
-            <motion.h1
-              id={titleId}
-              aria-label="Мы строим платформы, которые работают за вас"
-              className="max-w-[64rem] font-extrabold tracking-tight leading-[0.9]"
-            >
+              {/* LINE 0 — OUTLINE / STROKE word */}
               <motion.span
-                {...(reduced ? {} : line(0.0))}
-                className="block text-[clamp(2.6rem,5vw,5rem)] text-white"
+                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em]`}
+                style={{
+                  fontSize: "clamp(2rem, 8.5vw, 8.5rem)",
+                  WebkitTextStroke: `1.5px ${TEAL}`,
+                  color: "transparent",
+                }}
+                initial={reduced ? undefined : { opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.22,1,0.36,1], delay: 0.15 }}
               >
-                Мы строим платформы,
+                {c.word0}
               </motion.span>
+
+              {/* LINE 1 — filled, full white */}
               <motion.span
-                {...(reduced ? {} : line(0.05))}
-                className="block text-[clamp(2.6rem,4.6vw,4.5rem)] text-white/80"
+                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em]`}
+                style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: WHITE }}
+                initial={reduced ? undefined : { opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.22,1,0.36,1], delay: 0.24 }}
               >
-                которые работают
+                {c.word1}
               </motion.span>
+
+              {/* LINE 2 — dimmer */}
               <motion.span
-                {...(reduced ? {} : line(0.1))}
-                className="block text-[clamp(2.6rem,4.6vw,4.5rem)] text-white/80"
+                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em]`}
+                style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: "rgba(244,250,248,0.55)" }}
+                initial={reduced ? undefined : { opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: [0.22,1,0.36,1], delay: 0.33 }}
               >
-                за вас
+                {c.word2}
               </motion.span>
-            </motion.h1>
 
-            <motion.p
-              id={subtitleId}
-              {...(reduced ? {} : fadeUp(0.12))}
-              className="mt-5 max-w-[34rem] mx-auto md:mx-0 text-[17px] text-white/75 leading-[1.25]"
-            >
-              Делаем сайты, веб- и мобильные приложения, которые растут вместе с вашим бизнесом. Дизайн, разработка, интеграции и поддержка — всё в одном месте. Быстрый старт, плавное развитие, без остановок.
-            </motion.p>
+              {/* LINE 3 — dimmest */}
+              {c.word3 && (
+                <motion.span
+                  className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em]`}
+                  style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: "rgba(244,250,248,0.25)" }}
+                  initial={reduced ? undefined : { opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.7, ease: [0.22,1,0.36,1], delay: 0.42 }}
+                >
+                  {c.word3}
+                </motion.span>
+              )}
+            </h1>
 
-            {/* bullets */}
-            <motion.ul
-              {...(reduced ? {} : fadeUp(0.18))}
-              className="mt-5 space-y-3 text-white/60 text-[15px]"
-              aria-label="Ключевые преимущества"
-            >
-              {[
-                "Запускаем первые версии проектов всего за 1–2 недели",
-                "Всё под ключ: приём платежей, каталог товаров, рассылки, статистика",
-                "Следим за скоростью и стабильностью, чтобы всё работало без сбоев",
-                "Мы всегда рядом: обновляем, следим и решаем любые проблемы",
-              ].map((f, i) => (
-                <li key={i} className="flex items-center gap-3">
-                  <CheckCircle
-                    className="h-5 w-5 text-emerald-400 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <span>{f}</span>
-                </li>
-              ))}
-            </motion.ul>
-
-            {/* CTAs */}
+            {/* ── Bottom row: description + CTA | services ── */}
             <motion.div
-              {...(reduced ? {} : fadeUp(0.24))}
-              className="mt-6 flex flex-col sm:flex-row gap-3 justify-center md:justify-start"
+              className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-20 items-end pb-10 border-t pt-8"
+              style={{ borderColor: "rgba(255,255,255,0.06)" }}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65, duration: 0.7, ease: [0.22,1,0.36,1] }}
             >
-              <Link
-                href="#services"
-                className={`${btnBase} ${btnSize} border border-white/70 text-white hover:bg-white/10`}
-                aria-label="Перейти к разделу сервисов"
-              >
-                Больше деталей
-              </Link>
-              <Link
-                href="#contact"
-                className={`${btnBase} ${btnSize} bg-white text-black hover:shadow-white/20`}
-                aria-label="Перейти к форме обратной связи"
-              >
-                Связаться с нами
-              </Link>
+              {/* Description + CTAs */}
+              <div className="flex flex-col gap-6">
+                <p className="text-sm sm:text-base leading-relaxed max-w-sm"
+                  style={{ color: "rgba(244,250,248,0.45)" }}>
+                  {c.sub}
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Link href={localizePath("/home#contact")}
+                    className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full px-7 py-3 text-sm font-semibold transition-transform duration-300 hover:scale-[1.03] focus:outline-none"
+                    style={{ background: TEAL, color: BG }}>
+                    <motion.span
+                      className="pointer-events-none absolute inset-0"
+                      style={{ background: "linear-gradient(105deg,transparent 38%,rgba(255,255,255,0.28) 50%,transparent 62%)" }}
+                      initial={{ x: "-100%" }} whileHover={{ x: "100%" }}
+                      transition={{ duration: 0.45 }} aria-hidden="true" />
+                    <span className="relative z-10">{c.cta1}</span>
+                    <motion.svg width="13" height="13" viewBox="0 0 13 13" fill="none"
+                      className="relative z-10"
+                      animate={{ x: [0,3,0] }}
+                      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}>
+                      <path d="M1.5 6.5h10M7.5 2.5l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </motion.svg>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Services — scroll to section on home page */}
+              <div className="flex flex-col gap-0">
+                <p className="text-[10px] uppercase tracking-[0.2em] mb-4"
+                  style={{ color: "rgba(244,250,248,0.2)" }}>
+                  {c.what}
+                </p>
+                {c.services.map((svc, i) => (
+                  <a key={i} href={svc.href}
+                    className="group flex items-center gap-4 py-3 border-b focus:outline-none"
+                    style={{ borderColor: "rgba(255,255,255,0.05)" }}
+                    onMouseEnter={() => setHoverSvc(i)}
+                    onMouseLeave={() => setHoverSvc(null)}>
+                    {/* number */}
+                    <span className="text-[11px] font-mono tabular-nums w-6 shrink-0 transition-colors duration-200"
+                      style={{ color: hoverSvc === i ? TEAL : "rgba(255,255,255,0.2)" }}>
+                      {svc.num}
+                    </span>
+                    {/* name */}
+                    <span className="flex-1 text-sm transition-colors duration-200"
+                      style={{ color: hoverSvc === i ? WHITE : "rgba(244,250,248,0.4)" }}>
+                      {svc.name}
+                    </span>
+                    {/* arrow — scroll down */}
+                    <motion.span
+                      className="text-sm shrink-0 transition-opacity duration-200"
+                      style={{ color: TEAL, opacity: hoverSvc === i ? 1 : 0 }}
+                      animate={hoverSvc === i ? { y: [0, 3, 0] } : { y: 0 }}
+                      transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      ↓
+                    </motion.span>
+                  </a>
+                ))}
+              </div>
             </motion.div>
           </div>
-        </div>
-      </div>
-    </section>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        {!reduced && (
+          <div className="relative z-10 flex justify-center pb-6">
+            <motion.div
+              className="flex flex-col items-center gap-1.5"
+              animate={{ y: [0, 7, 0] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+              aria-hidden="true"
+            >
+              <span className="text-[9px] tracking-[0.25em] uppercase" style={{ color: "rgba(255,255,255,0.15)" }}>
+                {c.scroll}
+              </span>
+              <div className="w-px h-8" style={{ background: `linear-gradient(to bottom, ${TEAL}80, transparent)` }} />
+            </motion.div>
+          </div>
+        )}
+
+      </section>
+    </>
   );
 }
