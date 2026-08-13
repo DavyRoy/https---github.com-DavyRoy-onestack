@@ -1,6 +1,5 @@
 {
     email {$ACME_EMAIL}
-    auto_https off
 }
 
 # localhost (для локальной разработки)
