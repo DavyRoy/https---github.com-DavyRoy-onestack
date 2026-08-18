@@ -4,11 +4,126 @@ import { serif } from "@/lib/fonts";
 import React, { useRef, useState, useMemo, useId, useCallback, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useQuote } from "@/app/context/QuoteContext";
+import { useI18n } from "@/i18n/I18nProvider";
 import {
   Globe, Layers, Smartphone, Lock, CreditCard, BarChart3,
   Bell, Search, MessageSquare, Files, Settings2, PanelsTopLeft,
   Languages, Database, Undo2, Shield, Zap, ArrowRight,
 } from "lucide-react";
+
+/* ─── Copy ───────────────────────────────────────────────────────────────── */
+const COPY = {
+  ru: {
+    eyebrow: "Калькулятор стоимости",
+    titleLine1: "Рассчитай",
+    titleLine2: "стоимость проекта",
+    description: "Оцените бюджет за 2 минуты. Выберите тип проекта, настройте параметры — получите ориентировочную смету.",
+    types: { site: "Сайт", webapp: "Веб-приложение", mobile: "Мобильное" },
+    typesShort: { site: "Сайт", webapp: "Веб", mobile: "Моб" },
+    step1: "Тип проекта",
+    step2: "Количество страниц / экранов",
+    step3: "Сложность проекта",
+    step4: "Дополнительные модули",
+    pagesLabel: "Страницы",
+    screensLabel: "Экраны",
+    unitPcs: "шт",
+    integrationsLabel: "Интеграции с API",
+    complexity: { 1: "Базовая", 2: "Стандарт", 3: "Сложная" },
+    modules: {
+      auth: "Авторизация / RBAC", payments: "Платежи", analytics: "Аналитика",
+      notifications: "Пуш-уведомления", search: "Поиск", chat: "Чат / Коммуникации",
+      files: "Файлы / Медиа", admin: "Админ-панель", i18n: "Мультиязык",
+      cms: "CMS / Контент", db: "Миграции БД",
+    },
+    budgetLabel: "Ориентировочный бюджет",
+    hours: "трудозатраты",
+    weeksNormal: "сроки",
+    weeksRush: "сроки (срочно)",
+    hUnit: "ч",
+    wUnit: "нед",
+    estLabel: "Сроки реализации",
+    timelineNormal: "Стандартные",
+    timelineRush: "Срочно",
+    devLabel: "Развёртывание",
+    deploy: { cloud: "Облачный хостинг", onprem: "On-premise", none: "Только разработка" },
+    slaLabel: "Техническая поддержка",
+    slaPlans: { lite: "Lite", pro: "Pro", enterprise: "Enterprise" },
+    supportCaption: "стоимость поддержки",
+    perMonth: "мес",
+    ctaDiscuss: "Обсудить проект",
+    msg: {
+      title: "📋 Результаты калькулятора OneStack",
+      type: "Тип проекта",
+      complexity: "Сложность",
+      pages: "Страниц/экранов",
+      integrations: "Интеграции с API",
+      modules: "Модули",
+      deploy: "Развёртывание",
+      timeline: "Сроки",
+      budget: "💰 Ориентировочный бюджет",
+      hours: "⏱ Трудозатраты",
+      support: "🔧 Поддержка",
+      pcs: "шт",
+      weeks: "нед",
+      noSupport: "Без поддержки",
+    },
+  },
+  en: {
+    eyebrow: "Cost calculator",
+    titleLine1: "Calculate",
+    titleLine2: "your project cost",
+    description: "Estimate your budget in 2 minutes. Pick a project type, tune the parameters — get a ballpark quote.",
+    types: { site: "Website", webapp: "Web app", mobile: "Mobile" },
+    typesShort: { site: "Site", webapp: "Web", mobile: "Mob" },
+    step1: "Project type",
+    step2: "Number of pages / screens",
+    step3: "Project complexity",
+    step4: "Additional modules",
+    pagesLabel: "Pages",
+    screensLabel: "Screens",
+    unitPcs: "",
+    integrationsLabel: "API integrations",
+    complexity: { 1: "Basic", 2: "Standard", 3: "Complex" },
+    modules: {
+      auth: "Auth / RBAC", payments: "Payments", analytics: "Analytics",
+      notifications: "Push notifications", search: "Search", chat: "Chat / Messaging",
+      files: "Files / Media", admin: "Admin panel", i18n: "Multi-language",
+      cms: "CMS / Content", db: "DB migrations",
+    },
+    budgetLabel: "Estimated budget",
+    hours: "effort",
+    weeksNormal: "timeline",
+    weeksRush: "timeline (rush)",
+    hUnit: "h",
+    wUnit: "wk",
+    estLabel: "Delivery timeline",
+    timelineNormal: "Standard",
+    timelineRush: "Rush",
+    devLabel: "Deployment",
+    deploy: { cloud: "Cloud hosting", onprem: "On-premise", none: "Development only" },
+    slaLabel: "Technical support",
+    slaPlans: { lite: "Lite", pro: "Pro", enterprise: "Enterprise" },
+    supportCaption: "support cost",
+    perMonth: "mo",
+    ctaDiscuss: "Discuss project",
+    msg: {
+      title: "📋 OneStack calculator results",
+      type: "Project type",
+      complexity: "Complexity",
+      pages: "Pages/screens",
+      integrations: "API integrations",
+      modules: "Modules",
+      deploy: "Deployment",
+      timeline: "Timeline",
+      budget: "💰 Estimated budget",
+      hours: "⏱ Effort",
+      support: "🔧 Support",
+      pcs: "",
+      weeks: "wk",
+      noSupport: "No support",
+    },
+  },
+} as const;
 
 
 const BG    = "#07100e";
@@ -32,17 +147,17 @@ const CONTINGENCY = 0.12;
 const DEPLOY_HOURS: Record<Deploy, number> = { none: 0, cloud: 24, onprem: 48 };
 
 const MODULES = [
-  { key: "auth",          label: "Авторизация / RBAC",   hours: 24, icon: Lock          },
-  { key: "payments",      label: "Платежи",               hours: 28, icon: CreditCard     },
-  { key: "analytics",     label: "Аналитика",             hours: 12, icon: BarChart3      },
-  { key: "notifications", label: "Пуш-уведомления",       hours: 14, icon: Bell           },
-  { key: "search",        label: "Поиск",                 hours: 16, icon: Search         },
-  { key: "chat",          label: "Чат / Коммуникации",    hours: 20, icon: MessageSquare  },
-  { key: "files",         label: "Файлы / Медиа",         hours: 18, icon: Files          },
-  { key: "admin",         label: "Админ-панель",          hours: 26, icon: PanelsTopLeft  },
-  { key: "i18n",          label: "Мультиязык",            hours: 12, icon: Languages      },
-  { key: "cms",           label: "CMS / Контент",         hours: 22, icon: Settings2      },
-  { key: "db",            label: "Миграции БД",           hours: 12, icon: Database       },
+  { key: "auth",          hours: 24, icon: Lock          },
+  { key: "payments",      hours: 28, icon: CreditCard     },
+  { key: "analytics",     hours: 12, icon: BarChart3      },
+  { key: "notifications", hours: 14, icon: Bell           },
+  { key: "search",        hours: 16, icon: Search         },
+  { key: "chat",          hours: 20, icon: MessageSquare  },
+  { key: "files",         hours: 18, icon: Files          },
+  { key: "admin",         hours: 26, icon: PanelsTopLeft  },
+  { key: "i18n",          hours: 12, icon: Languages      },
+  { key: "cms",           hours: 22, icon: Settings2      },
+  { key: "db",            hours: 12, icon: Database       },
 ] as const;
 
 type ModuleKey = (typeof MODULES)[number]["key"];
@@ -56,14 +171,13 @@ const card = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255
 const cardActive = { background: "rgba(45,212,191,0.08)", border: `1px solid ${TEAL}` };
 const btnTeal = { background: TEAL, color: BG };
 
-function getTypeLabel(type: ProjectType) {
-  return type === "site" ? "Сайт" : type === "webapp" ? "Веб-приложение" : "Мобильное";
-}
-
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN COMPONENT
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function HomeCalculator() {
+  const { locale } = useI18n();
+  const lang = locale === "ru" ? "ru" : "en";
+  const c = COPY[lang];
   const reduced  = useReducedMotion();
   const titleId  = useId();
   const _ref     = useRef<HTMLElement | null>(null);
@@ -122,30 +236,30 @@ export default function HomeCalculator() {
 
   const handleCTA = useCallback(() => {
     const activeTypes = (Object.keys(selected) as ProjectType[]).filter(t => selected[t]);
-    const deployLabel = deploy === "cloud" ? "Облачный хостинг" : deploy === "onprem" ? "On-premise" : "Только разработка";
-    const timelineLabel = timeline === "rush" ? "Срочно (×1.35)" : "Стандартные сроки";
+    const deployLabel = c.deploy[deploy];
+    const timelineLabel = timeline === "rush" ? `${c.timelineRush} (×${RUSH_MULTIPLIER})` : `${c.timelineNormal}`;
     const weeks = Math.ceil(estimate.hours / 40 / (timeline === "rush" ? RUSH_MULTIPLIER : 1));
-    const activeModuleLabels = MODULES.filter(m => mods[m.key]).map(m => m.label);
-    const complexityLabel = (level: 1|2|3) => level === 1 ? "Базовая" : level === 2 ? "Стандарт" : "Сложная";
-    const slaLabel = sla === "lite" ? "Lite" : sla === "pro" ? "Pro" : sla === "enterprise" ? "Enterprise" : "Без поддержки";
+    const activeModuleLabels = MODULES.filter(m => mods[m.key]).map(m => c.modules[m.key]);
+    const slaLabel = sla !== "none" ? c.slaPlans[sla] : c.msg.noSupport;
 
-    const typeNames = activeTypes.map(t => t === "site" ? "Сайт" : t === "webapp" ? "Веб-приложение" : "Мобильное").join(", ");
-    const complexityNames = [...new Set(activeTypes.map(t => complexityLabel(complexity[t])))].join(", ");
+    const typeNames = activeTypes.map(t => c.types[t]).join(", ");
+    const complexityNames = [...new Set(activeTypes.map(t => c.complexity[complexity[t]]))].join(", ");
+    const numLocale = lang === "ru" ? "ru-RU" : "en-US";
 
     const msgLines = [
-      `📋 Результаты калькулятора OneStack`,
+      c.msg.title,
       ``,
-      `Тип проекта: ${typeNames}`,
-      `Сложность: ${complexityNames}`,
-      activeTypes.map(t => `Страниц/экранов (${t === "site" ? "Сайт" : t === "webapp" ? "Веб" : "Моб"}): ${pages[t]}`).join(", "),
-      integrations > 0 ? `Интеграции с API: ${integrations} шт` : null,
-      activeModuleLabels.length ? `Модули: ${activeModuleLabels.join(", ")}` : null,
-      `Развёртывание: ${deployLabel}`,
-      `Сроки: ${timelineLabel} (~${weeks} нед)`,
+      `${c.msg.type}: ${typeNames}`,
+      `${c.msg.complexity}: ${complexityNames}`,
+      activeTypes.map(t => `${c.msg.pages} (${c.typesShort[t]}): ${pages[t]}`).join(", "),
+      integrations > 0 ? `${c.msg.integrations}: ${integrations}` : null,
+      activeModuleLabels.length ? `${c.msg.modules}: ${activeModuleLabels.join(", ")}` : null,
+      `${c.msg.deploy}: ${deployLabel}`,
+      `${c.msg.timeline}: ${timelineLabel} (~${weeks} ${c.msg.weeks})`,
       ``,
-      `💰 Ориентировочный бюджет: ${estimate.low.toLocaleString("ru-RU")} — ${estimate.high.toLocaleString("ru-RU")} ₽`,
-      `⏱ Трудозатраты: ~${estimate.hours} ч`,
-      maintenance ? `🔧 Поддержка (${slaLabel}): ~${estimate.support.toLocaleString("ru-RU")} ₽/мес` : null,
+      `${c.msg.budget}: ${estimate.low.toLocaleString(numLocale)} — ${estimate.high.toLocaleString(numLocale)} ₽`,
+      `${c.msg.hours}: ~${estimate.hours} ${c.hUnit}`,
+      maintenance ? `${c.msg.support} (${slaLabel}): ~${estimate.support.toLocaleString(numLocale)} ₽/${c.perMonth}` : null,
     ].filter(Boolean).join("\n");
 
     // Map to budget chip
@@ -234,20 +348,20 @@ export default function HomeCalculator() {
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
             <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
             <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
-              Калькулятор стоимости
+              {c.eyebrow}
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
             <h2 id={titleId} className={serif.className} style={{ margin: 0, fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}>
               <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: "transparent", WebkitTextStroke: `1.5px ${TEAL}` }}>
-                Рассчитай
+                {c.titleLine1}
               </span>
               <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
-                стоимость проекта
+                {c.titleLine2}
               </span>
             </h2>
             <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(244,250,248,0.4)", maxWidth: 340, textAlign: "right" }}>
-              Оцените бюджет за 2 минуты. Выберите тип проекта, настройте параметры — получите ориентировочную смету.
+              {c.description}
             </p>
           </div>
         </motion.div>
@@ -259,19 +373,19 @@ export default function HomeCalculator() {
 
             {/* Project type */}
             <motion.div {...(fadeUp(0.1) as object)} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 32, paddingBottom: 32 }}>
-              <FigLabel num="01" label="Тип проекта" />
+              <FigLabel num="01" label={c.step1} />
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr 1fr" : "repeat(3,1fr)", gap: 10, marginTop: 10 }}>
                 {([
-                  { key: "site",    label: "Сайт",              icon: Globe       },
-                  { key: "webapp",  label: "Веб-приложение",    icon: Layers      },
-                  { key: "mobile",  label: "Мобильное",         icon: Smartphone  },
-                ] as const).map(({ key, label, icon: Icon }) => (
+                  { key: "site",    icon: Globe       },
+                  { key: "webapp",  icon: Layers      },
+                  { key: "mobile",  icon: Smartphone  },
+                ] as const).map(({ key, icon: Icon }) => (
                   <button key={key}
                     onClick={() => setSelected(p => ({ ...p, [key]: !p[key] }))}
                     style={{ ...selected[key] ? cardActive : card, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, padding: 16, borderRadius: 12, cursor: "pointer", textAlign: "left", transition: "all 0.2s", background: selected[key] ? "rgba(45,212,191,0.08)" : "rgba(255,255,255,0.03)" }}>
                     <Icon size={15} style={{ color: selected[key] ? TEAL : "rgba(244,250,248,0.3)" }} />
                     <span style={{ fontSize: 12, fontWeight: 500, color: selected[key] ? WHITE : "rgba(244,250,248,0.45)" }}>
-                      {label}
+                      {c.types[key]}
                     </span>
                   </button>
                 ))}
@@ -280,15 +394,15 @@ export default function HomeCalculator() {
 
             {/* Pages sliders */}
             <motion.div {...(fadeUp(0.15) as object)} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 32, paddingBottom: 32 }}>
-              <FigLabel num="02" label="Количество страниц / экранов" />
+              <FigLabel num="02" label={c.step2} />
               <div style={{ marginTop: 10, display: "flex", flexDirection: "column", gap: 20 }}>
                 {(Object.keys(selected) as ProjectType[]).filter(t => selected[t]).map(type => (
                   <div key={type}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                       <span style={{ fontSize: 12, color: "rgba(244,250,248,0.4)" }}>
-                        {type === "site" ? "Страницы" : "Экраны"} — {getTypeLabel(type)}
+                        {type === "site" ? c.pagesLabel : c.screensLabel} — {c.types[type]}
                       </span>
-                      <span style={{ fontSize: 12, fontWeight: 500, color: TEAL }}>{pages[type]} шт</span>
+                      <span style={{ fontSize: 12, fontWeight: 500, color: TEAL }}>{pages[type]} {c.unitPcs}</span>
                     </div>
                     <input type="range" min={1} max={30} value={pages[type]}
                       onChange={e => setPages(p => ({ ...p, [type]: +e.target.value }))}
@@ -297,8 +411,8 @@ export default function HomeCalculator() {
                 ))}
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, color: "rgba(244,250,248,0.4)" }}>Интеграции с API</span>
-                    <span style={{ fontSize: 12, fontWeight: 500, color: TEAL }}>{integrations} шт</span>
+                    <span style={{ fontSize: 12, color: "rgba(244,250,248,0.4)" }}>{c.integrationsLabel}</span>
+                    <span style={{ fontSize: 12, fontWeight: 500, color: TEAL }}>{integrations} {c.unitPcs}</span>
                   </div>
                   <input type="range" min={0} max={10} value={integrations}
                     onChange={e => setIntegrations(+e.target.value)}
@@ -309,7 +423,7 @@ export default function HomeCalculator() {
 
             {/* Complexity */}
             <motion.div {...(fadeUp(0.2) as object)} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 32, paddingBottom: 32 }}>
-              <FigLabel num="03" label="Сложность проекта" />
+              <FigLabel num="03" label={c.step3} />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginTop: 10 }}>
                 {([1,2,3] as const).map(level => {
                   const activeTypes = (Object.keys(selected) as ProjectType[]).filter(t => selected[t]);
@@ -322,7 +436,7 @@ export default function HomeCalculator() {
                         setComplexity(next);
                       }}
                       style={{ ...isActive ? cardActive : card, padding: "10px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", color: isActive ? TEAL : "rgba(244,250,248,0.45)" }}>
-                      {level === 1 ? "Базовая" : level === 2 ? "Стандарт" : "Сложная"}
+                      {c.complexity[level]}
                     </button>
                   );
                 })}
@@ -331,7 +445,7 @@ export default function HomeCalculator() {
 
             {/* Modules */}
             <motion.div {...(fadeUp(0.25) as object)} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 32, paddingBottom: 32 }}>
-              <FigLabel num="04" label="Дополнительные модули" />
+              <FigLabel num="04" label={c.step4} />
               <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(3,1fr)", gap: 8 }}>
                 {MODULES.map(m => (
                   <button key={m.key}
@@ -340,10 +454,10 @@ export default function HomeCalculator() {
                     <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
                       <m.icon size={13} style={{ color: mods[m.key] ? TEAL : "rgba(244,250,248,0.25)", flexShrink: 0 }} />
                       <span style={{ fontSize: isMobile ? 10 : 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: mods[m.key] ? WHITE : "rgba(244,250,248,0.4)" }}>
-                        {m.label}
+                        {c.modules[m.key]}
                       </span>
                     </div>
-                    <span style={{ fontSize: 9, flexShrink: 0, color: "rgba(244,250,248,0.2)" }}>+{m.hours}ч</span>
+                    <span style={{ fontSize: 9, flexShrink: 0, color: "rgba(244,250,248,0.2)" }}>+{m.hours}{c.hUnit}</span>
                   </button>
                 ))}
               </div>
@@ -357,16 +471,16 @@ export default function HomeCalculator() {
             {/* Main result */}
             <div style={{ borderRadius: 14, padding: "24px 28px", background: "rgba(45,212,191,0.06)", border: `1px solid rgba(45,212,191,0.18)` }}>
               <p style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16, color: "rgba(244,250,248,0.3)" }}>
-                Ориентировочный бюджет
+                {c.budgetLabel}
               </p>
               <p className={serif.className} style={{ fontSize: "clamp(1.6rem,4vw,2.4rem)", fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em", color: WHITE, marginBottom: 4 }}>
-                {estimate.low.toLocaleString("ru-RU")} —<br />
-                {estimate.high.toLocaleString("ru-RU")} ₽
+                {estimate.low.toLocaleString(lang === "ru" ? "ru-RU" : "en-US")} —<br />
+                {estimate.high.toLocaleString(lang === "ru" ? "ru-RU" : "en-US")} ₽
               </p>
               <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {[
-                  { val: `${estimate.hours} ч`, label: "трудозатраты" },
-                  { val: `${Math.ceil(estimate.hours / 40 / (timeline === "rush" ? RUSH_MULTIPLIER : 1))} нед`, label: timeline === "rush" ? "сроки (срочно)" : "сроки" },
+                  { val: `${estimate.hours} ${c.hUnit}`, label: c.hours },
+                  { val: `${Math.ceil(estimate.hours / 40 / (timeline === "rush" ? RUSH_MULTIPLIER : 1))} ${c.wUnit}`, label: timeline === "rush" ? c.weeksRush : c.weeksNormal },
                 ].map(item => (
                   <div key={item.label} style={{ borderRadius: 10, padding: "12px", textAlign: "center", background: "rgba(255,255,255,0.04)" }}>
                     <p className={serif.className} style={{ fontSize: "1.2rem", color: WHITE }}>{item.val}</p>
@@ -378,11 +492,11 @@ export default function HomeCalculator() {
 
             {/* Timeline */}
             <div style={{ borderRadius: 14, padding: 20, ...card }}>
-              <FigLabel num="EST" label="Сроки реализации" />
+              <FigLabel num="EST" label={c.estLabel} />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 10 }}>
                 {([
-                  { val: "normal", label: "Стандартные" },
-                  { val: "rush",   label: `Срочно ×${RUSH_MULTIPLIER}` },
+                  { val: "normal", label: c.timelineNormal },
+                  { val: "rush",   label: `${c.timelineRush} ×${RUSH_MULTIPLIER}` },
                 ] as const).map(opt => (
                   <button key={opt.val} onClick={() => setTimeline(opt.val)}
                     style={{ ...timeline === opt.val ? cardActive : card, padding: "10px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", color: timeline === opt.val ? TEAL : "rgba(244,250,248,0.45)" }}>
@@ -394,16 +508,12 @@ export default function HomeCalculator() {
 
             {/* Deployment */}
             <div style={{ borderRadius: 14, padding: 20, ...card }}>
-              <FigLabel num="DEV" label="Развёртывание" />
+              <FigLabel num="DEV" label={c.devLabel} />
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
-                {([
-                  { val: "cloud",  label: "Облачный хостинг" },
-                  { val: "onprem", label: "On-premise" },
-                  { val: "none",   label: "Только разработка" },
-                ] as const).map(opt => (
-                  <button key={opt.val} onClick={() => setDeploy(opt.val)}
-                    style={{ ...deploy === opt.val ? cardActive : card, width: "100%", padding: "10px 16px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, textAlign: "left", transition: "all 0.2s", color: deploy === opt.val ? TEAL : "rgba(244,250,248,0.45)" }}>
-                    {opt.label}
+                {(["cloud", "onprem", "none"] as const).map(opt => (
+                  <button key={opt} onClick={() => setDeploy(opt)}
+                    style={{ ...deploy === opt ? cardActive : card, width: "100%", padding: "10px 16px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, textAlign: "left", transition: "all 0.2s", color: deploy === opt ? TEAL : "rgba(244,250,248,0.45)" }}>
+                    {c.deploy[opt]}
                   </button>
                 ))}
               </div>
@@ -412,7 +522,7 @@ export default function HomeCalculator() {
             {/* Support */}
             <div style={{ borderRadius: 14, padding: 20, ...card }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-                <FigLabel num="SLA" label="Техническая поддержка" />
+                <FigLabel num="SLA" label={c.slaLabel} />
                 <button onClick={() => setMaintenance(m => !m)}
                   style={{ position: "relative", display: "inline-flex", width: 36, height: 20, alignItems: "center", borderRadius: 99, border: "none", cursor: "pointer", transition: "background 0.3s", background: maintenance ? TEAL : "rgba(255,255,255,0.1)" }}>
                   <span style={{ display: "inline-block", width: 14, height: 14, borderRadius: "50%", background: BG, transition: "transform 0.3s", transform: maintenance ? "translateX(18px)" : "translateX(2px)" }} />
@@ -421,18 +531,18 @@ export default function HomeCalculator() {
               {maintenance && (
                 <>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
-                    {(["lite","pro","enterprise"] as SLAPlan[]).map(plan => (
+                    {(["lite","pro","enterprise"] as const).map(plan => (
                       <button key={plan} onClick={() => setSla(plan)}
                         style={{ ...sla === plan ? cardActive : card, padding: "8px", borderRadius: 10, cursor: "pointer", fontSize: 11, fontWeight: 500, textAlign: "center", transition: "all 0.2s", color: sla === plan ? TEAL : "rgba(244,250,248,0.45)" }}>
-                        {plan === "lite" ? "Lite" : plan === "pro" ? "Pro" : "Enterprise"}
+                        {c.slaPlans[plan]}
                       </button>
                     ))}
                   </div>
                   <div style={{ marginTop: 12, textAlign: "center", borderRadius: 10, padding: "12px", background: "rgba(255,255,255,0.03)" }}>
                     <p className={serif.className} style={{ fontSize: "1.2rem", color: TEAL }}>
-                      {estimate.support.toLocaleString("ru-RU")} ₽/мес
+                      {estimate.support.toLocaleString(lang === "ru" ? "ru-RU" : "en-US")} ₽/{c.perMonth}
                     </p>
-                    <p style={{ fontSize: 10, marginTop: 2, color: "rgba(244,250,248,0.3)" }}>стоимость поддержки</p>
+                    <p style={{ fontSize: 10, marginTop: 2, color: "rgba(244,250,248,0.3)" }}>{c.supportCaption}</p>
                   </div>
                 </>
               )}
@@ -442,7 +552,7 @@ export default function HomeCalculator() {
             <div style={{ display: "flex", gap: 10, paddingTop: 4 }}>
               <button onClick={handleCTA}
                 style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 20px", borderRadius: 99, fontSize: 14, fontWeight: 600, cursor: "pointer", border: "none", transition: "opacity 0.2s", ...btnTeal }}>
-                Обсудить проект
+                {c.ctaDiscuss}
                 <ArrowRight size={15} />
               </button>
               <button onClick={reset}

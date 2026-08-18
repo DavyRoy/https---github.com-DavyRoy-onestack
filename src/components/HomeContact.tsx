@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { siteName, siteUrl } from "@/app/seo.config";
 import { useQuote } from "@/app/context/QuoteContext";
+import { useI18n } from "@/i18n/I18nProvider";
 
 
 const BG   = "#07100e";
@@ -33,30 +34,113 @@ const INITIAL: FormState = {
   agree: false, file: null, hp: "",
 };
 
-const KIND_OPTIONS: ReadonlyArray<[Kind, string]> = [
-  ["site",     "Сайт"],
-  ["webapp",   "Веб-приложение"],
-  ["mobile",   "Мобильное приложение"],
-  ["crm",      "CRM/ERP система"],
-  ["saas",     "SaaS платформа"],
-  ["uiux",     "UI/UX дизайн"],
-  ["branding", "Брендинг"],
-  ["support",  "Поддержка"],
-];
+const KIND_KEYS: Kind[] = ["site", "webapp", "mobile", "crm", "saas", "uiux", "branding", "support"];
+const BUDGET_KEYS: Budget[] = ["100-300", "300-700", "700-1500", "1500+"];
+const TIMELINE_KEYS: Timeline[] = ["2-4", "4-8", "8-12", "12+"];
 
-const BUDGET_OPTIONS = [
-  { value: "100-300",  label: "100–300 тыс ₽"     },
-  { value: "300-700",  label: "300–700 тыс ₽"     },
-  { value: "700-1500", label: "700 тыс – 1.5 млн" },
-  { value: "1500+",    label: "1.5 млн ₽ +"        },
-] as const;
-
-const TIMELINE_OPTIONS = [
-  { value: "2-4",  label: "2–4 недели"  },
-  { value: "4-8",  label: "4–8 недель"  },
-  { value: "8-12", label: "8–12 недель" },
-  { value: "12+",  label: "12+ недель"  },
-] as const;
+/* ─── Copy ───────────────────────────────────────────────────────────────── */
+const COPY = {
+  ru: {
+    eyebrow: "Обратная связь",
+    titleLine1: "Обсудим",
+    titleLine2: "проект",
+    description: "Отвечаем в течение 2 часов в рабочее время. Подпишем NDA, сделаем экспресс-оценку и предложим оптимальное решение.",
+    contactLabels: { email: "Email", phone: "Телефон", site: "Сайт" },
+    howWeWork: "Как мы работаем",
+    steps: ["Короткий бриф и созвон", "Фиксированная смета и план", "Старт спринта (1–2 недели)", "Демо каждые 1–2 недели"],
+    calcBannerBold: "Данные из калькулятора загружены.",
+    calcBannerRest: "Проверьте и дополните детали при необходимости.",
+    close: "Закрыть",
+    step1: "Контактные данные",
+    nameLabel: "Как вас зовут *",
+    namePh: "Иван Петров",
+    emailPh: "you@company.com",
+    phoneLabel: "Телефон",
+    phonePh: "+7 (___) ___-__-__",
+    companyLabel: "Компания",
+    companyPh: "ООО «Пример»",
+    step2: "Тип проекта *",
+    multiHint: "можно несколько",
+    kind: {
+      site: "Сайт", webapp: "Веб-приложение", mobile: "Мобильное приложение",
+      crm: "CRM/ERP система", saas: "SaaS платформа", uiux: "UI/UX дизайн",
+      branding: "Брендинг", support: "Поддержка",
+    },
+    step3: "Бюджет и сроки",
+    budgetLabel: "Бюджет *",
+    budget: { "100-300": "100–300 тыс ₽", "300-700": "300–700 тыс ₽", "700-1500": "700 тыс – 1.5 млн", "1500+": "1.5 млн ₽ +" },
+    timelineLabel: "Сроки *",
+    timeline: { "2-4": "2–4 недели", "4-8": "4–8 недель", "8-12": "8–12 недель", "12+": "12+ недель" },
+    step4: "Описание проекта *",
+    messagePh: "Цели, функции, аудитория, интеграции...",
+    attachFile: "Прикрепить файл до 10 МБ (необязательно)",
+    agree: "Согласен на обработку персональных данных в соответствии с ФЗ-152",
+    sending: "Отправляем...",
+    submit: "Отправить заявку",
+    sentTitle: "Заявка отправлена!",
+    sentSub: "Свяжемся в ближайшее время",
+    errName: "Укажите имя",
+    errEmail: "Email или телефон обязателен",
+    errKind: "Выберите тип проекта",
+    errBudget: "Укажите бюджет",
+    errTimeline: "Укажите сроки",
+    errAgree: "Подтвердите согласие",
+    errFile: "Файл больше 10 МБ",
+    errMessage: "Минимум 10 символов",
+    errGeneric: "Не удалось отправить заявку.",
+    errStatus: (n: number) => `Ошибка ${n}`,
+  },
+  en: {
+    eyebrow: "Get in touch",
+    titleLine1: "Let's discuss",
+    titleLine2: "your project",
+    description: "We reply within 2 business hours. We'll sign an NDA, give you a quick estimate and suggest the best approach.",
+    contactLabels: { email: "Email", phone: "Phone", site: "Website" },
+    howWeWork: "How we work",
+    steps: ["Short brief and a call", "Fixed quote and a plan", "Sprint kickoff (1–2 weeks)", "Demo every 1–2 weeks"],
+    calcBannerBold: "Calculator data loaded.",
+    calcBannerRest: "Review and refine the details if needed.",
+    close: "Close",
+    step1: "Contact details",
+    nameLabel: "Your name *",
+    namePh: "John Smith",
+    emailPh: "you@company.com",
+    phoneLabel: "Phone",
+    phonePh: "+1 (___) ___-____",
+    companyLabel: "Company",
+    companyPh: "Acme Inc.",
+    step2: "Project type *",
+    multiHint: "multiple allowed",
+    kind: {
+      site: "Website", webapp: "Web app", mobile: "Mobile app",
+      crm: "CRM/ERP system", saas: "SaaS platform", uiux: "UI/UX design",
+      branding: "Branding", support: "Support",
+    },
+    step3: "Budget & timeline",
+    budgetLabel: "Budget *",
+    budget: { "100-300": "$1K–3K", "300-700": "$3K–7K", "700-1500": "$7K–15K", "1500+": "$15K+" },
+    timelineLabel: "Timeline *",
+    timeline: { "2-4": "2–4 weeks", "4-8": "4–8 weeks", "8-12": "8–12 weeks", "12+": "12+ weeks" },
+    step4: "Project description *",
+    messagePh: "Goals, features, audience, integrations...",
+    attachFile: "Attach a file up to 10 MB (optional)",
+    agree: "I agree to the processing of my personal data",
+    sending: "Sending...",
+    submit: "Send request",
+    sentTitle: "Request sent!",
+    sentSub: "We'll be in touch shortly",
+    errName: "Please enter your name",
+    errEmail: "Email or phone is required",
+    errKind: "Select a project type",
+    errBudget: "Select a budget",
+    errTimeline: "Select a timeline",
+    errAgree: "Please confirm consent",
+    errFile: "File exceeds 10 MB",
+    errMessage: "10 characters minimum",
+    errGeneric: "Could not send the request.",
+    errStatus: (n: number) => `Error ${n}`,
+  },
+} as const;
 
 const ACCEPTED = ".pdf,.doc,.docx,.ppt,.pptx,.txt,.md,.jpg,.jpeg,.png,.webp,.zip,.rar";
 const MAX_FILE  = 10 * 1024 * 1024;
@@ -81,6 +165,9 @@ const inputErrBorder = "1px solid rgba(239,68,68,0.5)";
    MAIN
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function HomeContact() {
+  const { locale } = useI18n();
+  const lang = locale === "ru" ? "ru" : "en";
+  const c = COPY[lang];
   const [form,      setForm]      = useState<FormState>(INITIAL);
   const [sending,   setSending]   = useState(false);
   const [sent,      setSent]      = useState(false);
@@ -145,17 +232,17 @@ export default function HomeContact() {
 
   const validate = useCallback(() => {
     const e: Record<string, string> = {};
-    if (!form.name.trim())                          e.name     = "Укажите имя";
-    if (!isEmailValid && !form.phone.trim())         e.email    = "Email или телефон обязателен";
-    if (!form.kind.length)                           e.kind     = "Выберите тип проекта";
-    if (!form.budget)                                e.budget   = "Укажите бюджет";
-    if (!form.timeline)                              e.timeline = "Укажите сроки";
-    if (!form.agree)                                 e.agree    = "Подтвердите согласие";
-    if (form.file && form.file.size > MAX_FILE)      e.file     = "Файл больше 10 МБ";
-    if (!form.message.trim() || form.message.length < 10) e.message = "Минимум 10 символов";
+    if (!form.name.trim())                          e.name     = c.errName;
+    if (!isEmailValid && !form.phone.trim())         e.email    = c.errEmail;
+    if (!form.kind.length)                           e.kind     = c.errKind;
+    if (!form.budget)                                e.budget   = c.errBudget;
+    if (!form.timeline)                              e.timeline = c.errTimeline;
+    if (!form.agree)                                 e.agree    = c.errAgree;
+    if (form.file && form.file.size > MAX_FILE)      e.file     = c.errFile;
+    if (!form.message.trim() || form.message.length < 10) e.message = c.errMessage;
     setErrors(e);
     return !Object.keys(e).length;
-  }, [form, isEmailValid]);
+  }, [form, isEmailValid, c]);
 
   const abortRef = useRef<AbortController | null>(null);
 
@@ -164,7 +251,7 @@ export default function HomeContact() {
     setSubmitErr("");
     if (sending || !validate() || form.hp) return;
     const fd = new FormData();
-    fd.append("subject",   "Заявка с Home Contact Page");
+    fd.append("subject",   lang === "ru" ? "Заявка с Home Contact Page" : "Lead from Home Contact Page");
     fd.append("name",      form.name.trim());
     fd.append("email",     form.email.trim().toLowerCase());
     fd.append("phone",     form.phone.trim());
@@ -187,7 +274,7 @@ export default function HomeContact() {
       if (!res.ok) {
         let msg = "";
         try { const d = await res.json(); msg = d?.error || d?.message || ""; } catch {}
-        throw new Error(msg || `Ошибка ${res.status}`);
+        throw new Error(msg || c.errStatus(res.status));
       }
       setSent(true); setForm(INITIAL); setErrors({});
       try {
@@ -198,16 +285,16 @@ export default function HomeContact() {
       return () => clearTimeout(t);
     } catch (err: any) {
       if (err?.name === "AbortError") return;
-      setSubmitErr(err?.message || "Не удалось отправить заявку.");
+      setSubmitErr(err?.message || c.errGeneric);
     } finally {
       setSending(false);
     }
-  }, [form, sending, validate, quote]);
+  }, [form, sending, validate, quote, c]);
 
   const jsonLd = useMemo(() => [
-    { "@context": "https://schema.org", "@type": "ContactPage",   name: `Контакты | ${siteName}`, url: `${ORG.site}#contact` },
+    { "@context": "https://schema.org", "@type": "ContactPage",   name: `${lang === "ru" ? "Контакты" : "Contact"} | ${siteName}`, url: `${ORG.site}#contact` },
     { "@context": "https://schema.org", "@type": "Organization",  name: siteName, url: ORG.site, email: ORG.email, telephone: ORG.phoneHref.replace("tel:", "") },
-  ], []);
+  ], [lang]);
 
   const fadeUp = (d = 0) => reduced ? {} : {
     initial: { opacity: 0, y: 20 },
@@ -242,12 +329,12 @@ export default function HomeContact() {
               <motion.div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }} {...(fadeUp(0) as object)}>
                 <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
                 <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
-                  Обратная связь
+                  {c.eyebrow}
                 </span>
               </motion.div>
 
               <div style={{ marginBottom: 28 }}>
-                {(["Обсудим", "проект"] as const).map((text, i) => (
+                {[c.titleLine1, c.titleLine2].map((text, i) => (
                   <motion.div key={i}
                     className={serif.className}
                     style={i === 0
@@ -263,14 +350,14 @@ export default function HomeContact() {
               </div>
 
               <motion.p style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 36, color: "rgba(244,250,248,0.45)" }} {...(fadeUp(0.2) as object)}>
-                Отвечаем в течение 2 часов в рабочее время. Подпишем NDA, сделаем экспресс-оценку и предложим оптимальное решение.
+                {c.description}
               </motion.p>
 
               <motion.div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 36 }} {...(fadeUp(0.25) as object)}>
                 {[
-                  { icon: Mail,      label: "Email",   val: ORG.email,       href: `mailto:${ORG.email}` },
-                  { icon: Phone,     label: "Телефон", val: ORG.phone,       href: ORG.phoneHref          },
-                  { icon: Building2, label: "Сайт",    val: "onestack24.ru", href: ORG.site               },
+                  { icon: Mail,      label: c.contactLabels.email, val: ORG.email,       href: `mailto:${ORG.email}` },
+                  { icon: Phone,     label: c.contactLabels.phone, val: ORG.phone,       href: ORG.phoneHref          },
+                  { icon: Building2, label: c.contactLabels.site,  val: "onestack24.ru", href: ORG.site               },
                 ].map(({ icon: Icon, label, val, href }) => (
                   <a key={label} href={href} style={{ display: "flex", alignItems: "center", gap: 16, textDecoration: "none" }}
                     onMouseEnter={e => (e.currentTarget.querySelector("p:last-child") as HTMLElement)!.style.opacity = "0.7"}
@@ -288,9 +375,9 @@ export default function HomeContact() {
 
               <motion.div style={{ borderRadius: 14, padding: 20, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }} {...(fadeUp(0.3) as object)}>
                 <p style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", marginBottom: 16, color: "rgba(244,250,248,0.3)" }}>
-                  Как мы работаем
+                  {c.howWeWork}
                 </p>
-                {["Короткий бриф и созвон", "Фиксированная смета и план", "Старт спринта (1–2 недели)", "Демо каждые 1–2 недели"].map((s, i) => (
+                {c.steps.map((s, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0", borderBottom: i < 3 ? "1px solid rgba(255,255,255,0.05)" : "none" }}>
                     <span style={{ fontSize: 10, fontFamily: "monospace", width: 20, flexShrink: 0, color: TEAL }}>0{i+1}</span>
                     <span style={{ fontSize: 13, color: "rgba(244,250,248,0.55)" }}>{s}</span>
@@ -300,7 +387,7 @@ export default function HomeContact() {
             </div>
 
             {/* ── RIGHT: form ── */}
-            <motion.div {...fadeUp(0.1)}>
+            <motion.div {...(fadeUp(0.1) as object)}>
               {/* Calculator pre-fill banner */}
               <AnimatePresence>
                 {calcBanner && (
@@ -311,13 +398,13 @@ export default function HomeContact() {
                     <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                       <span style={{ color: TEAL, flexShrink: 0, fontSize: 16 }}>✓</span>
                       <p style={{ fontSize: 12, lineHeight: 1.5, color: "rgba(244,250,248,0.75)" }}>
-                        <span style={{ fontWeight: 600, color: TEAL }}>Данные из калькулятора загружены.</span>
-                        {" "}Проверьте и дополните детали при необходимости.
+                        <span style={{ fontWeight: 600, color: TEAL }}>{c.calcBannerBold}</span>
+                        {" "}{c.calcBannerRest}
                       </p>
                     </div>
                     <button type="button" onClick={() => setCalcBanner(false)}
                       style={{ flexShrink: 0, background: "none", border: "none", cursor: "pointer", color: "rgba(244,250,248,0.3)", padding: 0 }}
-                      aria-label="Закрыть">
+                      aria-label={c.close}>
                       <X size={14} />
                     </button>
                   </motion.div>
@@ -336,18 +423,18 @@ export default function HomeContact() {
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 28, paddingBottom: 28 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                     <span style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(244,250,248,0.25)" }}>01</span>
-                    <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>Контактные данные</span>
+                    <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>{c.step1}</span>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16, marginBottom: 16 }}>
-                    <Inp label="Как вас зовут *" placeholder="Иван Петров" value={form.name}
+                    <Inp label={c.nameLabel} placeholder={c.namePh} value={form.name}
                       onChange={v => set("name", v)} name="name" type="text" error={errors.name} />
-                    <Inp label="Email" placeholder="you@company.com" value={form.email}
+                    <Inp label={c.contactLabels.email} placeholder={c.emailPh} value={form.email}
                       onChange={v => set("email", v)} name="email" type="email" error={errors.email} />
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 16 }}>
-                    <Inp label="Телефон" placeholder="+7 (___) ___-__-__" value={form.phone}
+                    <Inp label={c.phoneLabel} placeholder={c.phonePh} value={form.phone}
                       onChange={v => set("phone", v.replace(/[^\d+]/g, ""))} name="tel" type="tel" />
-                    <Inp label="Компания" placeholder="ООО «Пример»" value={form.company}
+                    <Inp label={c.companyLabel} placeholder={c.companyPh} value={form.company}
                       onChange={v => set("company", v)} name="organization" type="text" />
                   </div>
                 </div>
@@ -356,14 +443,14 @@ export default function HomeContact() {
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 28, paddingBottom: 28 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                     <span style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(244,250,248,0.25)" }}>02</span>
-                    <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>Тип проекта *</span>
-                    <span style={{ fontSize: 10, color: "rgba(244,250,248,0.25)", letterSpacing: 0, textTransform: "none" }}>можно несколько</span>
+                    <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>{c.step2}</span>
+                    <span style={{ fontSize: 10, color: "rgba(244,250,248,0.25)", letterSpacing: 0, textTransform: "none" }}>{c.multiHint}</span>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
-                    {KIND_OPTIONS.map(([k, l]) => (
+                    {KIND_KEYS.map(k => (
                       <button key={k} type="button" onClick={() => toggleKind(k)}
                         style={{ ...chipStyle(form.kind.includes(k)), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center" }}>
-                        {l}
+                        {c.kind[k]}
                       </button>
                     ))}
                   </div>
@@ -374,27 +461,27 @@ export default function HomeContact() {
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 28, paddingBottom: 28 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                     <span style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(244,250,248,0.25)" }}>03</span>
-                    <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>Бюджет и сроки</span>
+                    <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>{c.step3}</span>
                   </div>
                   <div style={{ marginBottom: 12 }}>
-                    <Label>Бюджет *</Label>
+                    <Label>{c.budgetLabel}</Label>
                     <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
-                      {BUDGET_OPTIONS.map(o => (
-                        <button key={o.value} type="button" onClick={() => set("budget", o.value as Budget)}
-                          style={{ ...chipStyle(form.budget === o.value), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center" }}>
-                          {o.label}
+                      {BUDGET_KEYS.map(k => (
+                        <button key={k} type="button" onClick={() => set("budget", k)}
+                          style={{ ...chipStyle(form.budget === k), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center" }}>
+                          {c.budget[k]}
                         </button>
                       ))}
                     </div>
                     {errors.budget && <Err>{errors.budget}</Err>}
                   </div>
                   <div>
-                    <Label>Сроки *</Label>
+                    <Label>{c.timelineLabel}</Label>
                     <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
-                      {TIMELINE_OPTIONS.map(o => (
-                        <button key={o.value} type="button" onClick={() => set("timeline", o.value as Timeline)}
-                          style={{ ...chipStyle(form.timeline === o.value), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center" }}>
-                          {o.label}
+                      {TIMELINE_KEYS.map(k => (
+                        <button key={k} type="button" onClick={() => set("timeline", k)}
+                          style={{ ...chipStyle(form.timeline === k), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center" }}>
+                          {c.timeline[k]}
                         </button>
                       ))}
                     </div>
@@ -406,13 +493,13 @@ export default function HomeContact() {
                 <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 28, paddingBottom: 28 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                     <span style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(244,250,248,0.25)" }}>04</span>
-                    <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>Описание проекта *</span>
+                    <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>{c.step4}</span>
                   </div>
                   <div style={{ position: "relative" }}>
                     <textarea rows={5} value={form.message} maxLength={MSG_MAX}
                       onChange={e => set("message", e.target.value.slice(0, MSG_MAX))}
                       style={{ width: "100%", borderRadius: 12, padding: "12px 16px", fontSize: 13, outline: "none", resize: "none", boxSizing: "border-box", ...inputBase, border: errors.message ? inputErrBorder : inputBase.border }}
-                      placeholder="Цели, функции, аудитория, интеграции..." />
+                      placeholder={c.messagePh} />
                     <span style={{ position: "absolute", bottom: 12, right: 12, fontSize: 10, color: MSG_MAX - form.message.length < 100 ? "#fbbf24" : "rgba(244,250,248,0.2)" }}>
                       {MSG_MAX - form.message.length}
                     </span>
@@ -422,7 +509,7 @@ export default function HomeContact() {
                   <label style={{ display: "flex", alignItems: "center", gap: 12, cursor: "pointer", borderRadius: 12, padding: "12px 16px", marginTop: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     <Paperclip size={15} style={{ color: TEAL, flexShrink: 0 }} />
                     <span style={{ fontSize: 12, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "rgba(244,250,248,0.4)" }}>
-                      {form.file ? `${form.file.name} (${humanSize(form.file.size)})` : "Прикрепить файл до 10 МБ (необязательно)"}
+                      {form.file ? `${form.file.name} (${humanSize(form.file.size, lang)})` : c.attachFile}
                     </span>
                     {form.file && (
                       <button type="button" onClick={e => { e.preventDefault(); set("file", null); }}
@@ -433,7 +520,7 @@ export default function HomeContact() {
                     <input type="file" style={{ display: "none" }} accept={ACCEPTED}
                       onChange={e => {
                         const f = e.target.files?.[0] || null;
-                        if (f && f.size > MAX_FILE) { setErrors(s => ({ ...s, file: "Файл больше 10 МБ" })); return; }
+                        if (f && f.size > MAX_FILE) { setErrors(s => ({ ...s, file: c.errFile })); return; }
                         setErrors(s => ({ ...s, file: "" }));
                         set("file", f);
                       }} />
@@ -445,7 +532,7 @@ export default function HomeContact() {
                       onChange={e => set("agree", e.target.checked)}
                       style={{ marginTop: 2, width: 16, height: 16, flexShrink: 0, cursor: "pointer", accentColor: TEAL }} />
                     <label htmlFor={agreeId} style={{ fontSize: 12, lineHeight: 1.6, cursor: "pointer", color: "rgba(244,250,248,0.4)" }}>
-                      Согласен на обработку персональных данных в соответствии с ФЗ-152
+                      {c.agree}
                     </label>
                   </div>
                   {errors.agree && <Err>{errors.agree}</Err>}
@@ -454,8 +541,8 @@ export default function HomeContact() {
                 <button type="submit" disabled={sending}
                   style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, padding: "16px 24px", borderRadius: 99, fontSize: 14, fontWeight: 600, cursor: sending ? "not-allowed" : "pointer", border: "none", opacity: sending ? 0.6 : 1, background: TEAL, color: BG, transition: "opacity 0.2s" }}>
                   {sending
-                    ? <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><Clock3 size={15} /></motion.div> Отправляем...</>
-                    : <><MessageCircle size={15} /> Отправить заявку <ArrowRight size={15} /></>
+                    ? <><motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}><Clock3 size={15} /></motion.div> {c.sending}</>
+                    : <><MessageCircle size={15} /> {c.submit} <ArrowRight size={15} /></>
                   }
                 </button>
 
@@ -471,8 +558,8 @@ export default function HomeContact() {
                       style={{ display: "flex", alignItems: "center", gap: 12, borderRadius: 12, padding: "12px 16px", fontSize: 13, background: "rgba(45,212,191,0.08)", border: "1px solid rgba(45,212,191,0.25)", color: TEAL }}>
                       <CheckCircle2 size={15} style={{ flexShrink: 0 }} />
                       <div>
-                        <p style={{ fontWeight: 600, marginBottom: 2 }}>Заявка отправлена!</p>
-                        <p style={{ fontSize: 11, opacity: 0.7 }}>Свяжемся в ближайшее время</p>
+                        <p style={{ fontWeight: 600, marginBottom: 2 }}>{c.sentTitle}</p>
+                        <p style={{ fontSize: 11, opacity: 0.7 }}>{c.sentSub}</p>
                       </div>
                     </motion.div>
                   )}
@@ -522,8 +609,9 @@ const Inp = memo(function Inp({ label, placeholder, value, onChange, name, type,
   );
 });
 
-function humanSize(bytes: number) {
-  const u = ["Б","КБ","МБ","ГБ"]; let i = 0, v = bytes;
+function humanSize(bytes: number, lang: "ru" | "en" = "ru") {
+  const u = lang === "ru" ? ["Б","КБ","МБ","ГБ"] : ["B","KB","MB","GB"];
+  let i = 0, v = bytes;
   while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
   return `${v.toFixed(v < 10 && i > 0 ? 1 : 0)} ${u[i]}`;
 }

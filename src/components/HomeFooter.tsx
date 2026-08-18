@@ -7,6 +7,7 @@ import { useCallback, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUp, Mail, Phone, Send, ArrowRight } from "lucide-react";
 import { siteName, siteUrl } from "@/app/seo.config";
+import { useI18n } from "@/i18n/I18nProvider";
 
 
 const BG    = "#07100e";
@@ -24,18 +25,60 @@ const ORG = {
   siteUrl,
 };
 
-const NAV = [
-  { label: "Сайты",           href: "/sites"   },
-  { label: "Веб-приложения",  href: "/webapp"  },
-  { label: "Мобильные",       href: "/mobile"  },
-] as const;
-
-const LEGAL = [
-  { label: "Политика",   href: "/privacy" },
-  { label: "Условия",    href: "/terms"   },
-] as const;
+/* ─── Copy ───────────────────────────────────────────────────────────────── */
+const COPY = {
+  ru: {
+    footerAria: "Футер",
+    ctaLine1: "Готовы",
+    ctaLine2: "начать?",
+    ctaDiscuss: "Обсудить проект",
+    ctaCall: "Позвонить",
+    brandBlurb: "Фиксированная цена, предсказуемый срок, поддержка после запуска. Сайты, веб- и мобильные приложения под ключ.",
+    nav: [
+      { label: "Сайты",          href: "/sites"  },
+      { label: "Веб-приложения", href: "/webapp" },
+      { label: "Мобильные",      href: "/mobile" },
+    ],
+    navLabel: "Услуги",
+    contactsLabel: "Контакты",
+    tags: ["Дизайн-подход", "Senior-команда", "SLA"],
+    legal: [
+      { label: "Политика", href: "/privacy" },
+      { label: "Условия",  href: "/terms"   },
+    ],
+    rights: "Все права защищены.",
+    toTop: "Наверх",
+    scrollTopAria: "Прокрутить наверх",
+  },
+  en: {
+    footerAria: "Footer",
+    ctaLine1: "Ready to",
+    ctaLine2: "start?",
+    ctaDiscuss: "Discuss project",
+    ctaCall: "Call us",
+    brandBlurb: "Fixed price, predictable timeline, post-launch support. Turnkey websites, web and mobile apps.",
+    nav: [
+      { label: "Websites", href: "/sites"  },
+      { label: "Web apps", href: "/webapp" },
+      { label: "Mobile",   href: "/mobile" },
+    ],
+    navLabel: "Services",
+    contactsLabel: "Contact",
+    tags: ["Design-driven", "Senior team", "SLA"],
+    legal: [
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms",   href: "/terms"   },
+    ],
+    rights: "All rights reserved.",
+    toTop: "Back to top",
+    scrollTopAria: "Scroll to top",
+  },
+} as const;
 
 export default function HomeFooter() {
+  const { locale } = useI18n();
+  const lang = locale === "ru" ? "ru" : "en";
+  const c = COPY[lang];
   const year    = useMemo(() => new Date().getFullYear(), []);
   const reduced = useReducedMotion();
 
@@ -64,7 +107,7 @@ export default function HomeFooter() {
       <Script id="ld-home-footer" type="application/ld+json" strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <footer id="footer" role="contentinfo" aria-label="Футер"
+      <footer id="footer" role="contentinfo" aria-label={c.footerAria}
         className="relative overflow-hidden" style={{ background: BG }}>
 
         <div className="pointer-events-none absolute inset-0 opacity-[0.025]"
@@ -80,7 +123,7 @@ export default function HomeFooter() {
           {/* ── Big CTA row ── */}
           <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16 sm:mb-20">
             <div>
-              {(["Готовы", "начать?"] as const).map((text, i) => (
+              {[c.ctaLine1, c.ctaLine2].map((text, i) => (
                 <motion.div key={i}
                   className={`${serif.className} block font-normal leading-[1.0] tracking-[-0.04em]`}
                   style={i === 0
@@ -96,15 +139,15 @@ export default function HomeFooter() {
             </div>
 
             <motion.div className="flex flex-col sm:flex-row gap-3 lg:pb-4" {...fadeUp(0.15)}>
-              <Link href="/home#contact"
+              <Link href="/#contact"
                 className="inline-flex items-center gap-2 py-4 px-7 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.03] focus:outline-none"
                 style={{ background: TEAL, color: BG }}>
-                Обсудить проект <ArrowRight className="w-4 h-4" />
+                {c.ctaDiscuss} <ArrowRight className="w-4 h-4" />
               </Link>
               <a href={ORG.phoneHref}
                 className="inline-flex items-center gap-2 py-4 px-6 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white/5 focus:outline-none"
                 style={{ border: "1px solid rgba(255,255,255,0.1)", color: "rgba(244,250,248,0.6)" }}>
-                <Phone className="w-4 h-4" /> Позвонить
+                <Phone className="w-4 h-4" /> {c.ctaCall}
               </a>
             </motion.div>
           </div>
@@ -121,7 +164,7 @@ export default function HomeFooter() {
               </div>
               <p className="text-sm leading-relaxed mb-6 max-w-xs"
                 style={{ color: "rgba(244,250,248,0.42)" }}>
-                Фиксированная цена, предсказуемый срок, поддержка после запуска. Сайты, веб- и мобильные приложения под ключ.
+                {c.brandBlurb}
               </p>
               <div className="flex gap-2">
                 {[
@@ -141,9 +184,9 @@ export default function HomeFooter() {
             {/* Nav */}
             <motion.div {...fadeUp(0.07)}>
               <p className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5"
-                style={{ color: "rgba(244,250,248,0.28)" }}>Услуги</p>
+                style={{ color: "rgba(244,250,248,0.28)" }}>{c.navLabel}</p>
               <ul className="space-y-3">
-                {NAV.map(({ label, href }) => (
+                {c.nav.map(({ label, href }) => (
                   <li key={href}>
                     <Link href={href} prefetch={false}
                       className="text-sm transition-colors duration-200 hover:opacity-100 focus:outline-none"
@@ -158,7 +201,7 @@ export default function HomeFooter() {
             {/* Contacts */}
             <motion.div {...fadeUp(0.12)}>
               <p className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5"
-                style={{ color: "rgba(244,250,248,0.28)" }}>Контакты</p>
+                style={{ color: "rgba(244,250,248,0.28)" }}>{c.contactsLabel}</p>
               <div className="space-y-4">
                 {[
                   { icon: <Mail className="w-3.5 h-3.5" />, val: ORG.email,     href: ORG.emailHref },
@@ -177,7 +220,7 @@ export default function HomeFooter() {
               </div>
 
               <div className="mt-6 flex flex-wrap gap-2">
-                {["Дизайн-подход", "Senior-команда", "SLA"].map(tag => (
+                {c.tags.map(tag => (
                   <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full"
                     style={{ background: "rgba(45,212,191,0.07)", border: "1px solid rgba(45,212,191,0.15)", color: "rgba(244,250,248,0.5)" }}>
                     {tag}
@@ -190,21 +233,21 @@ export default function HomeFooter() {
           {/* ── Bottom bar ── */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs" style={{ color: "rgba(244,250,248,0.28)" }}>
-              © <span suppressHydrationWarning>{year}</span> {ORG.name}. Все права защищены.
+              © <span suppressHydrationWarning>{year}</span> {ORG.name}. {c.rights}
             </p>
 
             <div className="flex items-center gap-5">
-              {LEGAL.map(({ label, href }) => (
+              {c.legal.map(({ label, href }) => (
                 <Link key={href} href={href} prefetch={false}
                   className="text-xs transition-colors hover:opacity-80 focus:outline-none"
                   style={{ color: "rgba(244,250,248,0.3)" }}>
                   {label}
                 </Link>
               ))}
-              <button onClick={scrollTop} type="button" aria-label="Прокрутить наверх"
+              <button onClick={scrollTop} type="button" aria-label={c.scrollTopAria}
                 className="flex items-center gap-1.5 text-xs py-2 px-3.5 rounded-full transition-all duration-300 hover:bg-white/5 focus:outline-none"
                 style={{ border: "1px solid rgba(255,255,255,0.1)", color: "rgba(244,250,248,0.35)" }}>
-                Наверх <ArrowUp className="w-3 h-3" />
+                {c.toTop} <ArrowUp className="w-3 h-3" />
               </button>
             </div>
           </div>
