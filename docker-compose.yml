@@ -15,6 +15,8 @@ services:
       - "3000"
     networks: [web, gen_dev]
     restart: unless-stopped
+    mem_limit: 1g
+    memswap_limit: 1g
     healthcheck:
       test: ["CMD", "node", "-e", "process.exit(0)"]
       interval: 30s
