@@ -120,38 +120,35 @@ export default async function HomePage() {
     logo: `${siteUrl}/logo.png`,
   };
 
+  const FAQ_RU = [
+    { q: "Сколько стоит разработка сайта?", a: "Стоимость разработки лендинга — от 150 000 ₽, корпоративного сайта — от 420 000 ₽, интернет-магазина — от 720 000 ₽. Точная стоимость зависит от функциональности и сроков." },
+    { q: "Сколько времени займёт разработка?", a: "Лендинг — 1–2 недели, корпоративный сайт — 3–6 недель, веб-приложение — от 6 недель, мобильное приложение — от 8 недель. Работаем спринтами с еженедельными демо." },
+    { q: "Вы работаете по NDA?", a: "Да, мы подписываем NDA на этапе первого звонка и обеспечиваем полную конфиденциальность вашего проекта." },
+    { q: "Есть ли поддержка после запуска?", a: "Да. Мы предлагаем SLA-планы: Lite (10 ч/мес), Pro (20 ч/мес) и Enterprise (40 ч/мес). Включают мониторинг 24/7, обновления и техническую поддержку." },
+  ];
+  const FAQ_EN = [
+    { q: "How much does website development cost?", a: "A landing page starts from ₽150,000, a corporate website from ₽420,000, and an online store from ₽720,000. The exact price depends on functionality and timeline." },
+    { q: "How long does development take?", a: "A landing page takes 1–2 weeks, a corporate website 3–6 weeks, a web app from 6 weeks, and a mobile app from 8 weeks. We work in sprints with weekly demos." },
+    { q: "Do you work under NDA?", a: "Yes, we sign an NDA at the first call and keep your project fully confidential." },
+    { q: "Is there support after launch?", a: "Yes. We offer SLA plans: Lite (10h/mo), Pro (20h/mo) and Enterprise (40h/mo). They include 24/7 monitoring, updates and technical support." },
+  ];
+  const faqItems = locale === "ru" ? FAQ_RU : FAQ_EN;
+
   const ldFaq = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "Сколько стоит разработка сайта?",
-        acceptedAnswer: { "@type": "Answer", text: "Стоимость разработки лендинга — от 150 000 ₽, корпоративного сайта — от 420 000 ₽, интернет-магазина — от 720 000 ₽. Точная стоимость зависит от функциональности и сроков." },
-      },
-      {
-        "@type": "Question",
-        name: "Сколько времени займёт разработка?",
-        acceptedAnswer: { "@type": "Answer", text: "Лендинг — 1–2 недели, корпоративный сайт — 3–6 недель, веб-приложение — от 6 недель, мобильное приложение — от 8 недель. Работаем спринтами с еженедельными демо." },
-      },
-      {
-        "@type": "Question",
-        name: "Вы работаете по NDA?",
-        acceptedAnswer: { "@type": "Answer", text: "Да, мы подписываем NDA на этапе первого звонка и обеспечиваем полную конфиденциальность вашего проекта." },
-      },
-      {
-        "@type": "Question",
-        name: "Есть ли поддержка после запуска?",
-        acceptedAnswer: { "@type": "Answer", text: "Да. Мы предлагаем SLA-планы: Lite (10 ч/мес), Pro (20 ч/мес) и Enterprise (40 ч/мес). Включают мониторинг 24/7, обновления и техническую поддержку." },
-      },
-    ],
+    mainEntity: faqItems.map(({ q, a }) => ({
+      "@type": "Question",
+      name: q,
+      acceptedAnswer: { "@type": "Answer", text: a },
+    })),
   };
 
   const ldBreadcrumbs = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Главная", item: siteUrl },
+      { "@type": "ListItem", position: 1, name: locale === "ru" ? "Главная" : "Home", item: siteUrl },
     ],
   };
 
