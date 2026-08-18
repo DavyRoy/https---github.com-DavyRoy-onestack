@@ -7,20 +7,6 @@
       "runtimeArgs": ["run", "dev"],
       "port": 3000,
       "autoPort": false
-    },
-    {
-      "name": "hartiya-redesign",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "dev",
-        "--prefix",
-        "/Users/sergeylapshov/Documents/hartiya-redesign",
-        "--",
-        "-p",
-        "3010"
-      ],
-      "port": 3010
     }
   ]
 }
