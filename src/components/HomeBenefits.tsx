@@ -85,11 +85,11 @@ const TESTIMONIALS: { ru: { text: string; author: string; role: string }; en: { 
   },
 ];
 
-const RESULTS: { num: number; suffix: string; label: { ru: string; en: string }; sub: { ru: string; en: string } }[] = [
-  { num: 150, suffix: "+",    label: { ru: "проектов сдано",   en: "projects delivered" }, sub: { ru: "за 5 лет работы",        en: "over 5 years"            } },
-  { num: 6,   suffix: " нед", label: { ru: "средний MVP",      en: "average MVP"        }, sub: { ru: "с нуля до продакшна",    en: "from zero to production" } },
-  { num: 98,  suffix: "%",    label: { ru: "сдаём в срок",     en: "on-time delivery"   }, sub: { ru: "по всем проектам",       en: "across all projects"     } },
-  { num: 74,  suffix: "%",    label: { ru: "клиентов вернулись", en: "clients returned" }, sub: { ru: "для повторных проектов", en: "for repeat projects"     } },
+const RESULTS: { num: number; suffix: { ru: string; en: string }; label: { ru: string; en: string }; sub: { ru: string; en: string } }[] = [
+  { num: 150, suffix: { ru: "+",    en: "+"   }, label: { ru: "проектов сдано",   en: "projects delivered" }, sub: { ru: "за 5 лет работы",        en: "over 5 years"            } },
+  { num: 6,   suffix: { ru: " нед", en: " wk" }, label: { ru: "средний MVP",      en: "average MVP"        }, sub: { ru: "с нуля до продакшна",    en: "from zero to production" } },
+  { num: 98,  suffix: { ru: "%",    en: "%"   }, label: { ru: "сдаём в срок",     en: "on-time delivery"   }, sub: { ru: "по всем проектам",       en: "across all projects"     } },
+  { num: 74,  suffix: { ru: "%",    en: "%"   }, label: { ru: "клиентов вернулись", en: "clients returned" }, sub: { ru: "для повторных проектов", en: "for repeat projects"     } },
 ];
 
 const COPY = {
@@ -427,7 +427,7 @@ function ResultCell({ r, lang, isMobile }: { r: typeof RESULTS[number]; lang: "r
         fontSize: isMobile ? "1.8rem" : "2.6rem",
         fontWeight: 400, lineHeight: 1, letterSpacing: "-0.03em", color: TEAL,
       }}>
-        {value}{r.suffix}
+        {value}{r.suffix[lang]}
       </div>
       <p style={{ margin: 0, fontSize: isMobile ? 12 : 13, fontWeight: 600, color: WHITE }}>{r.label[lang]}</p>
       <p style={{ margin: 0, fontSize: 11, color: "rgba(244,250,248,0.3)" }}>{r.sub[lang]}</p>
