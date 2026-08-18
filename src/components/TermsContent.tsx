@@ -299,7 +299,7 @@ export default function TermsContent() {
         ? "Условия использования сайта, демо и услуг"
         : "Website, demo environments & services"}
       updatedAt="2026-01-01"
-      backHref="/home"
+      backHref="/"
       toc={lang === "ru" ? TOC_RU : TOC_EN}
       langToggle={langToggle}
     >

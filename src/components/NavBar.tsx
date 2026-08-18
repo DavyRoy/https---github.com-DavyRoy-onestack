@@ -19,7 +19,7 @@ const WHITE = "#f4faf8";
 
 /* ─── Nav items ──────────────────────────────────────────────────────────── */
 const NAV_ITEMS = [
-  { href: "/home",   ru: "Домашняя",       en: "Home"     },
+  { href: "/",       ru: "Домашняя",       en: "Home"     },
   { href: "/sites",  ru: "Сайты",          en: "Websites" },
   { href: "/webapp", ru: "Веб-приложения", en: "Web apps" },
   { href: "/mobile",   ru: "Мобильные",      en: "Mobile"   },

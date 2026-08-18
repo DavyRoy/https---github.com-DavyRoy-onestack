@@ -480,7 +480,7 @@ export default function HeroNew() {
               {lang === "ru" ? "Обсудить проект" : "Start a project"}
               <ArrowUpRight className="w-4 h-4" />
             </motion.button>
-            <Link href={localizePath("/home")}
+            <Link href={localizePath("/")}
               className="inline-flex items-center gap-2 rounded-full border px-6 h-11 text-sm font-medium transition-colors hover:border-white/25 hover:text-white/70"
               style={{ borderColor: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)" }}>
               {h.detailsCta}

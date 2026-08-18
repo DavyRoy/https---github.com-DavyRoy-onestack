@@ -307,7 +307,7 @@ export default function PrivacyContent() {
         ? "Обработка персональных данных — ФЗ-152 и GDPR"
         : "Personal Data Processing — Russian Law & GDPR"}
       updatedAt="2026-01-01"
-      backHref="/home"
+      backHref="/"
       toc={lang === "ru" ? TOC_RU : TOC_EN}
       langToggle={langToggle}
     >
