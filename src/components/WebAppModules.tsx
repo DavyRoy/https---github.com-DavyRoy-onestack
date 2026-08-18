@@ -90,14 +90,14 @@ export default function WebAppModules() {
         <motion.div
           aria-hidden="true"
           className="pointer-events-none absolute -top-40 -right-40 rounded-full"
-          style={{ width: 560, height: 560, background: TEAL, opacity: 0.07, filter: "blur(180px)" }}
+          style={{ width: 560, height: 560, background: TEAL, opacity: 0.07, willChange: "transform", transform: "translateZ(0)", filter: "blur(180px)" }}
           animate={reduced ? undefined : { scale: [1, 1.1, 1], opacity: [0.07, 0.11, 0.07] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -bottom-40 -left-40 rounded-full"
-          style={{ width: 400, height: 400, background: TEAL, opacity: 0.05, filter: "blur(140px)" }}
+          style={{ width: 400, height: 400, background: TEAL, opacity: 0.05, willChange: "transform", transform: "translateZ(0)", filter: "blur(140px)" }}
         />
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-14">

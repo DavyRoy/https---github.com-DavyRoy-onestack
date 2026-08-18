@@ -339,7 +339,7 @@ export default function HomeCalculator() {
       {/* Grain */}
       <div aria-hidden style={{ pointerEvents: "none", position: "absolute", inset: 0, opacity: 0.025, backgroundImage: GRAIN, backgroundSize: "180px 180px" }} />
       {/* Glow */}
-      <div aria-hidden style={{ pointerEvents: "none", position: "absolute", bottom: 0, right: "-15%", width: 600, height: 600, borderRadius: "50%", filter: "blur(240px)", background: TEAL, opacity: 0.06 }} />
+      <div aria-hidden style={{ pointerEvents: "none", position: "absolute", bottom: 0, right: "-15%", width: 600, height: 600, borderRadius: "50%", willChange: "transform", transform: "translateZ(0)", filter: "blur(240px)", background: TEAL, opacity: 0.06 }} />
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px" }}>
 

@@ -17,6 +17,8 @@ services:
     restart: unless-stopped
     mem_limit: 1g
     memswap_limit: 1g
+    volumes:
+      - next_image_cache:/app/.next/cache
     healthcheck:
       test: ["CMD", "node", "-e", "process.exit(0)"]
       interval: 30s
@@ -141,6 +143,7 @@ volumes:
   db_backups:
   caddy_data:
   caddy_config:
+  next_image_cache:
 
 networks:
   web:

@@ -147,7 +147,7 @@ export default function WebAppBenefits() {
       <div aria-hidden style={{
         pointerEvents: "none", position: "absolute", top: -160, right: -160,
         width: 520, height: 520, borderRadius: "50%",
-        background: TEAL, opacity: 0.04, filter: "blur(180px)",
+        background: TEAL, opacity: 0.04, willChange: "transform", transform: "translateZ(0)", filter: "blur(180px)",
       }} />
 
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px", position: "relative", zIndex: 1 }}>

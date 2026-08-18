@@ -316,7 +316,7 @@ export default function HomeSites() {
         <div aria-hidden="true" style={{
           pointerEvents: "none", position: "absolute",
           top: "5%", right: "-8%", width: 800, height: 800,
-          borderRadius: "50%", filter: "blur(280px)",
+          borderRadius: "50%", willChange: "transform", transform: "translateZ(0)", filter: "blur(280px)",
           background: TEAL, opacity: 0.05,
         }} />
 

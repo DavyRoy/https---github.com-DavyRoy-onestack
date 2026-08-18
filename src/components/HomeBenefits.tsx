@@ -160,7 +160,7 @@ export default function HomeBenefits() {
         <div aria-hidden style={{
           pointerEvents: "none", position: "absolute", top: "20%", right: "-8%",
           width: 560, height: 560, borderRadius: "50%",
-          background: TEAL, opacity: 0.05, filter: "blur(200px)",
+          background: TEAL, opacity: 0.05, willChange: "transform", transform: "translateZ(0)", filter: "blur(200px)",
         }} />
 
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px", position: "relative", zIndex: 1 }}>

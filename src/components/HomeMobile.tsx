@@ -397,7 +397,7 @@ export default function HomeMobile() {
         <div aria-hidden="true" style={{
           pointerEvents: "none", position: "absolute",
           top: "10%", left: "-10%", width: 700, height: 700,
-          borderRadius: "50%", filter: "blur(260px)",
+          borderRadius: "50%", willChange: "transform", transform: "translateZ(0)", filter: "blur(260px)",
           background: TEAL, opacity: 0.05,
         }} />
 

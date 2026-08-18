@@ -276,7 +276,7 @@ export default function MobileContact() {
         <div aria-hidden style={{
           pointerEvents: "none", position: "absolute", bottom: -160, left: 0,
           width: 480, height: 480, borderRadius: "50%",
-          background: TEAL, opacity: 0.06, filter: "blur(160px)",
+          background: TEAL, opacity: 0.06, willChange: "transform", transform: "translateZ(0)", filter: "blur(160px)",
         }} />
 
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px", position: "relative", zIndex: 1 }}>
