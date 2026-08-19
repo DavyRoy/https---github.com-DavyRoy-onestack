@@ -71,7 +71,7 @@ export const messages: Record<Locale, Messages> = {
     seo: {
       siteDescription:
         "OneStack — разрабатываем сайты, веб-сервисы и мобильные приложения для бизнеса. Более 150 проектов, 4 года на рынке, спринты 1–2 недели.",
-      homeTitle: "OneStack — цифровые продукты под ключ: сайты, веб-сервисы, мобильные приложения",
+      homeTitle: "OneStack — сайты, веб-сервисы и мобильные приложения",
       homeDescription: "Разрабатываем сайты, веб-приложения и мобильные продукты для малого, среднего и крупного бизнеса. Фиксированные сроки, прозрачная смета, поддержка после запуска.",
     },
     nav: {
@@ -138,7 +138,7 @@ export const messages: Record<Locale, Messages> = {
     seo: {
       siteDescription:
         "OneStack — we build websites, web services and mobile apps for businesses of any size. 150+ projects, 4 years on the market, 1–2 week sprints.",
-      homeTitle: "OneStack — digital products end-to-end: websites, web apps, mobile",
+      homeTitle: "OneStack — websites, web services and mobile apps",
       homeDescription: "We build websites, web applications and mobile products for small, mid-size and enterprise clients. Fixed timelines, transparent estimates, post-launch support.",
     },
     nav: {
