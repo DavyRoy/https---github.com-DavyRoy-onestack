@@ -92,18 +92,17 @@ export default function HomeFooter() {
      На остальных страницах ссылка вела на главную, уводя человека с раздела,
      поэтому там открываем форму модальным окном. */
   const isHome = pathname === "/" || pathname === "/en";
-  const isSites = /\/sites(\/|$)/.test(pathname);
   const [contactOpen, setContactOpen] = useState(false);
 
   const openDiscuss = useCallback(() => {
-    // На /sites раздел «Обсудить проект» уже открывается слоями — переиспользуем
-    // его, чтобы на одной странице не было двух разных форм.
-    if (isSites) {
-      window.dispatchEvent(new CustomEvent("site-open-section", { detail: "contact" }));
-      return;
-    }
-    setContactOpen(true);
-  }, [isSites]);
+    // Если страница собрана из слоёв (/sites, /webapp), у неё уже есть раздел
+    // «Обсудить проект» — просим открыть его, чтобы на одной странице не
+    // оказалось двух разных форм. Слой отвечает preventDefault; если никто не
+    // ответил, показываем собственное окно.
+    const ev = new CustomEvent("site-open-section", { detail: "contact", cancelable: true });
+    const handled = !window.dispatchEvent(ev);
+    if (!handled) setContactOpen(true);
+  }, []);
 
   const scrollTop = useCallback(() => {
     if (typeof window === "undefined") return;

@@ -6,14 +6,7 @@ import { canonical, siteName, siteUrl } from "@/app/seo.config";
 import { QuoteProvider } from "@/app/context/QuoteContext";
 
 import NavBar from "@/components/NavBar";
-import WebAppIntro from "@/components/WebAppIntro";
-import WebAppKinds from "@/components/WebAppKinds";
-import WebAppModules from "@/components/WebAppModules";
-import WebAppBenefits from "@/components/WebAppBenefits";
-import WebAppCalculator from "@/components/WebAppCalculator";
-import WebAppPerfSecurity from "@/components/WebAppPerfSecurity";
-import WebAppContact from "@/components/WebAppContact";
-import WebAppFAQ from "@/components/WebAppFAQ";
+import WebAppLayers from "@/components/WebAppLayers";
 import HomeFooter from "@/components/HomeFooter";
 
 /* ==================== SEO / CONFIG ==================== */
@@ -110,14 +103,10 @@ export default function WebAppPage() {
       <Suspense fallback={null}>
         <QuoteProvider>
           <NavBar />
-          <WebAppIntro />
-          <WebAppKinds />
-          <WebAppModules />
-          <WebAppBenefits />
-          <WebAppCalculator />
-          <WebAppPerfSecurity />
-          <WebAppContact />
-          <WebAppFAQ />
+          {/* Разделы открываются во весь экран из WebAppLayers. Со страницы
+              убраны первый блок, «Преимущества», «Производительность и
+              безопасность» и «Вопросы и ответы». */}
+          <WebAppLayers />
           <HomeFooter />
         </QuoteProvider>
       </Suspense>

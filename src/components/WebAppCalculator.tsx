@@ -6,7 +6,6 @@ import { serif } from "@/lib/fonts";
 import { useEffect, useMemo, useState, useId } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { Sparkles, Server, Percent, MessageCircle, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useQuote } from "@/app/context/QuoteContext";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useMoney } from "@/lib/useMoney";
@@ -92,7 +91,6 @@ export default function WebAppCalculator() {
   const { locale } = useI18n();
   const isEn = locale === "en";
   const { money, amount } = useMoney(isEn ? "en" : "ru");
-  const router = useRouter();
   const { setQuote } = useQuote();
   const reduced = useReducedMotion();
   const titleId = useId();
@@ -233,7 +231,8 @@ export default function WebAppCalculator() {
         speedK: `x${result.breakdown.speedK}`,
       },
     });
-    router.push("#contact");
+    // Раздел «Обсудить проект» теперь открывается окном (WebAppLayers).
+    window.dispatchEvent(new CustomEvent("site-open-section", { detail: "contact" }));
   };
 
   const jsonLd = useMemo(() => ({
