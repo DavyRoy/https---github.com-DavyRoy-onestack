@@ -130,8 +130,14 @@ export default function SiteLayers() {
                 aria-haspopup="dialog"
               >
                 <span className="site-layer__row">
-                  <span className="site-layer__eyebrow">{copy.eyebrow}</span>
-                  <span className={`${serif.className} site-layer__title`}>{copy.title}</span>
+                  {/* Распорки: левая тянется всегда, правая — только при наведении.
+                      За счёт этого подпись плавно съезжает от правого края к центру. */}
+                  <span className="site-layer__grow" aria-hidden="true" />
+                  <span className="site-layer__label">
+                    <span className="site-layer__eyebrow">{copy.eyebrow}</span>
+                    <span className={`${serif.className} site-layer__title`}>{copy.title}</span>
+                  </span>
+                  <span className="site-layer__grow site-layer__grow--tail" aria-hidden="true" />
                   <span className="site-layer__arrow" aria-hidden="true">↗</span>
                 </span>
               </button>
