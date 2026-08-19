@@ -292,10 +292,10 @@ export default function WebAppContact() {
             </div>
             <h2 id={titleId} className={serif.className}
               style={{ margin: "0 0 16px", fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}>
-              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: TEAL }}>
+              <span style={{ display: "block", fontSize: "clamp(1.9rem, 3vw, 3rem)", overflowWrap: "anywhere", color: TEAL }}>
                 {isEn ? "We're in touch" : "Мы на связи"}
               </span>
-              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
+              <span style={{ display: "block", fontSize: "clamp(1.9rem, 3vw, 3rem)", overflowWrap: "anywhere", color: WHITE }}>
                 {isEn ? "tell us about the project" : "расскажите о проекте"}
               </span>
             </h2>
@@ -309,7 +309,7 @@ export default function WebAppContact() {
           {/* ── Two-column layout ── */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "280px 1fr",
+            gridTemplateColumns: isMobile ? "1fr" : "380px 1fr",
             gap: isMobile ? 0 : 40,
             alignItems: "start",
             borderTop: "1px solid rgba(255,255,255,0.06)",

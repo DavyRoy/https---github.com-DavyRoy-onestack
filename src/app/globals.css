@@ -266,7 +266,11 @@ input[type="text"],input[type="email"],input[type="tel"],input[type="password"],
 select,textarea {
   @apply rounded-xl border border-[--color-border] bg-[--color-panel] px-3 py-2;
 }
-input::placeholder,textarea::placeholder{ color: color-mix(in oklab, var(--foreground) 55%, transparent); }
+/* Плейсхолдеры: нейтральный средний тон, читаемый и на тёмных секциях сайта,
+   и на светлых экранах. Раньше здесь был var(--foreground) — в :root это
+   значение светлой темы (почти чёрный), а весь публичный сайт тёмный, так что
+   подсказки в полях сливались с фоном. */
+input::placeholder,textarea::placeholder{ color: oklch(0.62 0.015 261.692); }
 
 /* Tables */
 table{ width:100%; border-collapse: separate; border-spacing:0; }

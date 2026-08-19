@@ -322,7 +322,7 @@ export default function HomeContact() {
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto", padding: isMobile ? "60px 20px 72px" : "80px 40px 110px" }}>
 
           {/* 2-col layout: info | form */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "380px 1fr", gap: isMobile ? 40 : 64, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "440px 1fr", gap: isMobile ? 40 : 64, alignItems: "start" }}>
 
             {/* ── LEFT ── */}
             <div>
@@ -338,8 +338,8 @@ export default function HomeContact() {
                   <motion.div key={i}
                     className={serif.className}
                     style={i === 0
-                      ? { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.8rem, 6vw, 7rem)", color: TEAL }
-                      : { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.8rem, 6vw, 7rem)", color: WHITE }}
+                      ? { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.2rem, 4vw, 4.6rem)", overflowWrap: "anywhere", color: TEAL }
+                      : { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.2rem, 4vw, 4.6rem)", overflowWrap: "anywhere", color: WHITE }}
                     initial={reduced ? undefined : { opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
