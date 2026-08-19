@@ -117,7 +117,7 @@ export default function HomeAbout() {
               <motion.div key={i}
                 className={`${serif.className} block font-normal leading-[1.0] tracking-[-0.04em]`}
                 style={i === 0
-                  ? { fontSize: "clamp(2.8rem, 7vw, 8rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }
+                  ? { fontSize: "clamp(2.8rem, 7vw, 8rem)", color: TEAL }
                   : { fontSize: "clamp(2.8rem, 7vw, 8rem)", color: WHITE }}
                 initial={reduced ? undefined : { opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}

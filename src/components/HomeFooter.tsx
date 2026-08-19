@@ -127,7 +127,7 @@ export default function HomeFooter() {
                 <motion.div key={i}
                   className={`${serif.className} block font-normal leading-[1.0] tracking-[-0.04em]`}
                   style={i === 0
-                    ? { fontSize: "clamp(3rem, 8vw, 9rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }
+                    ? { fontSize: "clamp(3rem, 8vw, 9rem)", color: TEAL }
                     : { fontSize: "clamp(3rem, 8vw, 9rem)", color: WHITE }}
                   initial={reduced ? undefined : { opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}

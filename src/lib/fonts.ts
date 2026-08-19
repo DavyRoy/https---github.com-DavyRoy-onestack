@@ -1,18 +1,21 @@
-import { Playfair_Display } from "next/font/google";
+import { Unbounded } from "next/font/google";
 
-// DM Serif Display has no Cyrillic glyphs, so every Russian headline
-// (the default locale) was silently falling back to a generic system
-// serif. Playfair Display keeps the same high-contrast display-serif
-// character but actually renders Cyrillic.
-export const serif = Playfair_Display({
-  weight: "500",
-  subsets: ["latin", "latin-ext", "cyrillic"],
+// Unbounded — a soft, geometric, expressive display face with full Cyrillic
+// support. Replaces Playfair Display: the old high-contrast serif read as
+// "neon" once outlined in teal (WebkitTextStroke); Unbounded's even, rounded
+// strokes stay clear and modern whether filled or outlined.
+// Only latin + cyrillic are subset — the site copy is Russian/English only.
+export const serif = Unbounded({
+  weight: "600",
+  subsets: ["latin", "cyrillic"],
   display: "swap",
 });
 
-export const serifItalic = Playfair_Display({
-  weight: "500",
-  style: "italic",
-  subsets: ["latin", "latin-ext", "cyrillic"],
+// Unbounded has no italic cut; reuse the upright face where an "italic"
+// wordmark was previously requested (only the nav logo) at a lighter weight
+// so it still reads as a distinct, softer mark next to the bold headlines.
+export const serifItalic = Unbounded({
+  weight: "400",
+  subsets: ["latin", "cyrillic"],
   display: "swap",
 });

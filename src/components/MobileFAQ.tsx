@@ -335,7 +335,7 @@ export default function MobileFAQ() {
               </div>
               <h2 id={titleId} className={serif.className}
                 style={{ margin: 0, fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}>
-                <span style={{ display: "block", fontSize: "clamp(2.2rem, 5vw, 5rem)", color: "transparent", WebkitTextStroke: `1.5px ${TEAL}` }}>
+                <span style={{ display: "block", fontSize: "clamp(2.2rem, 5vw, 5rem)", color: TEAL }}>
                   {isEn ? "Frequent" : "Частые"}
                 </span>
                 <span style={{ display: "block", fontSize: "clamp(2.2rem, 5vw, 5rem)", color: WHITE }}>

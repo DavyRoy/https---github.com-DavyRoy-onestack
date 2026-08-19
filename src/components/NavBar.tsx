@@ -4,7 +4,8 @@ import { serif, serifItalic } from "@/lib/fonts";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { useMountTransition } from "@/lib/useEnterTransition";
 import Script from "next/script";
 import { siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -41,6 +42,7 @@ export default function NavBar() {
   const pathname = usePathname();
   const reduced  = useReducedMotion();
   const btnRef   = useRef<HTMLButtonElement>(null);
+  const { mounted: overlayMounted, shown: overlayShown } = useMountTransition(open, 550);
 
   /* scroll → show border on bar */
   useEffect(() => {
@@ -110,10 +112,11 @@ export default function NavBar() {
         <Link href={localizePath("/")} aria-label={m.nav.brandAria}
           className="group flex items-center focus:outline-none focus-visible:ring-2 rounded z-[110] relative">
           <motion.span
-            className={`${serifItalic.className} text-[19px] sm:text-[21px] font-normal tracking-tight logo-enter`}
+            className={`${serifItalic.className} text-[19px] sm:text-[21px] font-normal tracking-tight`}
             style={{ color: WHITE }}
-            whileHover={reduced ? undefined : { color: TEAL }}
-            transition={{ duration: 0.25 }}
+            initial={reduced ? { opacity: 1, x: 0 } : { opacity: 0, x: -6 }}
+            animate={{ opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } }}
+            whileHover={reduced ? undefined : { color: TEAL, transition: { duration: 0.25 } }}
           >
             OneStack
           </motion.span>
@@ -157,16 +160,15 @@ export default function NavBar() {
       </header>
 
       {/* ── Full-screen overlay ───────────────────────────────────── */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            key="nav-overlay"
-            className="fixed inset-0 z-[100] flex flex-col overflow-hidden"
-            style={{ background: BG }}
-            initial={reduced ? undefined : { clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }}
-            animate={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)" }}
-            exit={{ clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)" }}
-            transition={{ duration: 0.55, ease: [0.76, 0, 0.24, 1] }}
+      {overlayMounted && (
+          <div
+            className="fixed inset-0 z-[100] flex flex-col overflow-hidden transition-[clip-path] duration-[550ms] ease-[cubic-bezier(0.76,0,0.24,1)]"
+            style={{
+              background: BG,
+              clipPath: reduced || overlayShown
+                ? "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)"
+                : "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
+            }}
           >
             {/* Grain */}
             <div className="pointer-events-none absolute inset-0 opacity-[0.025]"
@@ -190,11 +192,12 @@ export default function NavBar() {
                   return (
                     <div key={item.href} className="overflow-hidden border-b"
                       style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                      <motion.div
-                        initial={reduced ? undefined : { y: "110%" }}
-                        animate={{ y: 0 }}
-                        exit={{ y: "110%" }}
-                        transition={{ delay: 0.1 + i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                      <div
+                        className="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                        style={{
+                          transform: reduced || overlayShown ? "translateY(0)" : "translateY(90px)",
+                          transitionDelay: `${100 + i * 60}ms`,
+                        }}
                       >
                         <Link
                           href={localizePath(item.href)}
@@ -238,25 +241,30 @@ export default function NavBar() {
                             />
                           )}
                         </Link>
-                      </motion.div>
+                      </div>
                     </div>
                   );
                 })}
               </nav>
 
               {/* Vertical divider */}
-              <motion.div className="hidden lg:block w-px self-stretch mx-14 my-4"
-                style={{ background: "rgba(255,255,255,0.06)" }}
-                initial={{ scaleY: 0 }} animate={{ scaleY: 1 }}
-                transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              <div
+                className="hidden lg:block w-px self-stretch mx-14 my-4 origin-top transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)]"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  transform: overlayShown ? "scaleY(1)" : "scaleY(0)",
+                  transitionDelay: "300ms",
+                }}
               />
 
               {/* RIGHT — contacts */}
-              <motion.aside
-                className="hidden lg:flex flex-col justify-end gap-8 w-60 xl:w-68 py-4"
-                initial={{ opacity: 0, x: 16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.38, duration: 0.45 }}
+              <aside
+                className="hidden lg:flex flex-col justify-end gap-8 w-60 xl:w-68 py-4 transition-[opacity,transform] duration-[450ms]"
+                style={{
+                  opacity: reduced || overlayShown ? 1 : 0,
+                  transform: reduced || overlayShown ? "translateX(0)" : "translateX(16px)",
+                  transitionDelay: "380ms",
+                }}
               >
                 <div className="flex flex-col gap-2.5">
                   <p className="text-[10px] uppercase tracking-[0.16em] font-medium mb-1"
@@ -287,15 +295,17 @@ export default function NavBar() {
                   </a>
                 </div>
 
-              </motion.aside>
+              </aside>
             </div>
 
             {/* Bottom strip */}
-            <motion.div
-              className="shrink-0 px-6 sm:px-10 py-4 border-t flex items-center justify-between gap-4"
-              style={{ borderColor: "rgba(255,255,255,0.06)" }}
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              transition={{ delay: 0.48, duration: 0.35 }}
+            <div
+              className="shrink-0 px-6 sm:px-10 py-4 border-t flex items-center justify-between gap-4 transition-opacity duration-[350ms]"
+              style={{
+                borderColor: "rgba(255,255,255,0.06)",
+                opacity: reduced || overlayShown ? 1 : 0,
+                transitionDelay: "480ms",
+              }}
             >
               <span className="text-xs" style={{ color: "rgba(255,255,255,0.18)" }}>
                 © {new Date().getFullYear()} OneStack
@@ -305,10 +315,9 @@ export default function NavBar() {
                 {lang === "ru" ? "Веб-студия полного цикла" : "Full-cycle web studio"}
               </span>
               <span />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+      )}
 
       <Script id="ld-site-nav" type="application/ld+json" strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(navLd) }} />

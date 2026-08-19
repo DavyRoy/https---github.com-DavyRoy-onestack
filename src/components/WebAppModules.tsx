@@ -123,7 +123,7 @@ export default function WebAppModules() {
                 className={`${serif.className} font-normal tracking-[-0.04em]`}
                 style={{ margin: 0, lineHeight: 0.92 }}
               >
-                <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }}>
+                <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", color: TEAL }}>
                   {isEn ? "System modules" : "Модули системы"}
                 </span>
                 <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", color: WHITE }}>

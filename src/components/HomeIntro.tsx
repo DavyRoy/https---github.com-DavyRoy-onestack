@@ -10,6 +10,7 @@ import Script from "next/script";
 import { useRef, useMemo, useId, useEffect, useState, useCallback } from "react";
 import { siteName, siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useEnterTransition } from "@/lib/useEnterTransition";
 
 /* ─── Font ──────────────────────────────────────────────────────────────── */
 
@@ -78,6 +79,8 @@ export default function HomeIntro() {
   const titleId    = useId();
   const sectionRef = useRef<HTMLElement>(null);
   const [hoverSvc, setHoverSvc] = useState<number | null>(null);
+
+  const headlineIn = useEnterTransition();
 
   /* parallax */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
@@ -208,8 +211,13 @@ export default function HomeIntro() {
             <h1 id={titleId} className="mb-10 sm:mb-14 max-w-4xl">
               <span className="block overflow-hidden leading-[1.12] py-1">
                 <span
-                  className={`${serif.className} headline-enter block font-bold tracking-[-0.02em]`}
-                  style={{ fontSize: "clamp(2.2rem, 8vw, 7.5rem)", color: WHITE }}
+                  className={`${serif.className} block font-bold tracking-[-0.02em] transition-transform duration-[800ms] ease-[cubic-bezier(0.16,1,0.3,1)]`}
+                  style={{
+                    fontSize: "clamp(2.2rem, 8vw, 7.5rem)",
+                    color: WHITE,
+                    transform: reduced || headlineIn ? "translateY(0)" : "translateY(120px)",
+                    transitionDelay: "150ms",
+                  }}
                 >
                   {c.headline}
                 </span>

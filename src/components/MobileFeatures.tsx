@@ -86,7 +86,7 @@ export default function MobileFeatures() {
             className={`${serif.className} font-normal tracking-[-0.04em] mb-5`}
             style={{ lineHeight: 0.9 }}
           >
-            <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }}>
+            <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", color: TEAL }}>
               {isEn ? "Everything" : "Всё, что нужно"}
             </span>
             <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", color: WHITE }}>

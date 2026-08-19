@@ -352,7 +352,7 @@ export default function HomeSites() {
                     lineHeight: 1, letterSpacing: "-0.04em",
                     fontSize: "clamp(2.8rem,7vw,8rem)",
                     ...(line.outline
-                      ? { WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }
+                      ? { color: TEAL }
                       : { color: WHITE }),
                   }}
                   initial={reduced ? undefined : { opacity: 0, y: 20 }}

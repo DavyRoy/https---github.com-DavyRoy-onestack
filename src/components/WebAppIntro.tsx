@@ -15,6 +15,7 @@ import Script from "next/script";
 import { useRef, useMemo, useId, useEffect, useCallback, useState } from "react";
 import { siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useEnterTransition } from "@/lib/useEnterTransition";
 
 /* ─── Font ──────────────────────────────────────────────────────────────── */
 
@@ -91,6 +92,7 @@ export default function WebAppIntro() {
   const [hoverSec, setHoverSec] = useState<number | null>(null);
   const titleId    = useId();
   const sectionRef = useRef<HTMLElement>(null);
+  const headlineIn = useEnterTransition();
 
   /* parallax */
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
@@ -261,52 +263,60 @@ export default function WebAppIntro() {
             <h1 id={titleId} className="mb-10 sm:mb-14" itemProp="name">
 
               {/* LINE 0 — OUTLINE / STROKE */}
-              <motion.span
-                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em]`}
+              <span
+                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em] transition-[opacity,transform] duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)]`}
                 style={{
                   fontSize: "clamp(2rem, 8.5vw, 8.5rem)",
-                  WebkitTextStroke: `1.5px ${TEAL}`,
-                  color: "transparent",
+                  color: TEAL,
+                  opacity: reduced || headlineIn ? 1 : 0,
+                  transform: reduced || headlineIn ? "translateY(0)" : "translateY(24px)",
+                  transitionDelay: "150ms",
                 }}
-                initial={reduced ? undefined : { opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
               >
                 {COPY.word0}
-              </motion.span>
+              </span>
 
               {/* LINE 1 — full white */}
-              <motion.span
-                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em]`}
-                style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: WHITE }}
-                initial={reduced ? undefined : { opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.24 }}
+              <span
+                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em] transition-[opacity,transform] duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)]`}
+                style={{
+                  fontSize: "clamp(2rem, 8.5vw, 8.5rem)",
+                  color: WHITE,
+                  opacity: reduced || headlineIn ? 1 : 0,
+                  transform: reduced || headlineIn ? "translateY(0)" : "translateY(24px)",
+                  transitionDelay: "240ms",
+                }}
               >
                 {COPY.word1}
-              </motion.span>
+              </span>
 
               {/* LINE 2 — dimmer */}
-              <motion.span
-                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em]`}
-                style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: "rgba(244,250,248,0.55)" }}
-                initial={reduced ? undefined : { opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.33 }}
+              <span
+                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em] transition-[opacity,transform] duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)]`}
+                style={{
+                  fontSize: "clamp(2rem, 8.5vw, 8.5rem)",
+                  color: "rgba(244,250,248,0.55)",
+                  opacity: reduced || headlineIn ? 1 : 0,
+                  transform: reduced || headlineIn ? "translateY(0)" : "translateY(24px)",
+                  transitionDelay: "330ms",
+                }}
               >
                 {COPY.word2}
-              </motion.span>
+              </span>
 
               {/* LINE 3 — dimmest */}
-              <motion.span
-                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em]`}
-                style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: "rgba(244,250,248,0.25)" }}
-                initial={reduced ? undefined : { opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1], delay: 0.42 }}
+              <span
+                className={`${serif.className} block font-normal leading-[1.05] tracking-[-0.04em] transition-[opacity,transform] duration-[750ms] ease-[cubic-bezier(0.22,1,0.36,1)]`}
+                style={{
+                  fontSize: "clamp(2rem, 8.5vw, 8.5rem)",
+                  color: "rgba(244,250,248,0.25)",
+                  opacity: reduced || headlineIn ? 1 : 0,
+                  transform: reduced || headlineIn ? "translateY(0)" : "translateY(24px)",
+                  transitionDelay: "420ms",
+                }}
               >
                 {COPY.word3}
-              </motion.span>
+              </span>
             </h1>
 
             {/* ── Bottom row: description + CTA | sections nav ── */}

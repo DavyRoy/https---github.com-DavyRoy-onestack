@@ -185,7 +185,7 @@ export default function WebAppPerfSecurity() {
                 className={`${serif.className} font-normal tracking-[-0.04em]`}
                 style={{ lineHeight: 0.9 }}
               >
-                <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }}>{isEn ? "Speed" : "Скорость"}</span>
+                <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", color: TEAL }}>{isEn ? "Speed" : "Скорость"}</span>
                 <span className="block" style={{ fontSize: "clamp(2.6rem, 6vw, 6rem)", color: WHITE }}>{isEn ? "and protection" : "и защита"}</span>
               </h2>
 

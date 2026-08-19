@@ -160,7 +160,7 @@ export default function MobileBenefits() {
 
           <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "flex-end", justifyContent: "space-between", gap: 24 }}>
             <h2 id={titleId} className={serif.className} style={{ margin: 0, fontWeight: 400, letterSpacing: "-0.04em", lineHeight: 0.92 }}>
-              <span style={{ display: "block", fontSize: "clamp(2.2rem, 5vw, 4.5rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }}>
+              <span style={{ display: "block", fontSize: "clamp(2.2rem, 5vw, 4.5rem)", color: TEAL }}>
                 {isEn ? "Why choose" : "Почему с нами"}
               </span>
               <span style={{ display: "block", fontSize: "clamp(2.2rem, 5vw, 4.5rem)", color: WHITE }}>

@@ -338,7 +338,7 @@ export default function HomeContact() {
                   <motion.div key={i}
                     className={serif.className}
                     style={i === 0
-                      ? { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.8rem, 6vw, 7rem)", WebkitTextStroke: `1.5px ${TEAL}`, color: "transparent" }
+                      ? { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.8rem, 6vw, 7rem)", color: TEAL }
                       : { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.8rem, 6vw, 7rem)", color: WHITE }}
                     initial={reduced ? undefined : { opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
