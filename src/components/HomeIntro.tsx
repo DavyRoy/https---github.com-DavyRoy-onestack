@@ -1,6 +1,4 @@
 "use client";
-import { serif, serifItalic } from "@/lib/fonts";
-
 import {
   motion,
   useReducedMotion, useScroll, useTransform,
@@ -22,13 +20,8 @@ const WHITE = "#f4faf8";
 /* ─── Copy ───────────────────────────────────────────────────────────────── */
 const COPY = {
   ru: {
-    tag:   "Технологический партнёр · с 2021",
-    /* outline word — BIG, italic, stroke only */
-    word0: "Сдаём",
-    /* filled lines */
-    word1: "точно в срок",
-    word2: "и в бюджет",
-    word3: "",
+    tag:      "Технологический партнёр · с 2021",
+    headline: "Одна экосистема для вашего бизнеса",
     sub:   "Сайты, веб- и мобильные приложения с фиксированной ценой, спринтами 1–2 недели и поддержкой после запуска.",
     cta1:  "Обсудить проект",
     cta2:  "Наши работы",
@@ -48,11 +41,8 @@ const COPY = {
     ],
   },
   en: {
-    tag:   "Technology partner · since 2021",
-    word0: "We ship",
-    word1: "on time,",
-    word2: "on budget",
-    word3: "",
+    tag:      "Technology partner · since 2021",
+    headline: "One ecosystem for your business",
     sub:   "Websites, web & mobile apps with fixed price, 1–2 week sprints and post-launch support.",
     cta1:  "Discuss project",
     cta2:  "Our works",
@@ -199,7 +189,7 @@ export default function HomeIntro() {
         >
           {/* ── Top tag ── */}
           <motion.div
-            className="flex items-center gap-3 mb-10 sm:mb-14"
+            className="flex items-center justify-center gap-3 mb-10 sm:mb-14"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.55, ease: [0.22,1,0.36,1] }}
@@ -212,67 +202,33 @@ export default function HomeIntro() {
             </span>
           </motion.div>
 
-          {/* ── Headline block ── */}
-          <div className="flex-1 flex flex-col justify-center">
-            <h1 id={titleId} className="mb-10 sm:mb-14">
-
-              {/* LINE 0 — italic outline word, curtain reveal */}
-              <span className="block overflow-hidden leading-[1.05]">
+          {/* ── Headline block — compact centered neon line ── */}
+          <div className="flex-1 flex flex-col justify-center items-center text-center">
+            <h1 id={titleId} className="mb-10 sm:mb-14 max-w-4xl">
+              <span className="block overflow-hidden leading-[1.2] py-1">
                 <motion.span
-                  className={`${serifItalic.className} block font-normal tracking-[-0.03em]`}
-                  style={{
-                    fontSize: "clamp(2rem, 8.5vw, 8.5rem)",
-                    WebkitTextStroke: `1.5px ${TEAL}`,
-                    color: "transparent",
-                  }}
+                  className="block font-sans font-extrabold tracking-[-0.01em]"
+                  style={{ fontSize: "clamp(1.6rem, 4.2vw, 3.1rem)", color: WHITE }}
                   initial={reduced ? undefined : { y: "110%" }}
                   animate={{ y: "0%" }}
-                  transition={{ duration: 0.8, ease: [0.16,1,0.3,1], delay: 0.12 }}
+                  transition={{ duration: 0.8, ease: [0.16,1,0.3,1], delay: 0.15 }}
                 >
-                  {c.word0}
-                </motion.span>
-              </span>
-
-              {/* LINE 1 — filled, full white */}
-              <span className="block overflow-hidden leading-[1.05]">
-                <motion.span
-                  className={`${serif.className} block font-normal tracking-[-0.04em]`}
-                  style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: WHITE }}
-                  initial={reduced ? undefined : { y: "110%" }}
-                  animate={{ y: "0%" }}
-                  transition={{ duration: 0.8, ease: [0.16,1,0.3,1], delay: 0.22 }}
-                >
-                  {c.word1}
-                </motion.span>
-              </span>
-
-              {/* LINE 2 — dimmer */}
-              <span className="block overflow-hidden leading-[1.05]">
-                <motion.span
-                  className={`${serif.className} block font-normal tracking-[-0.04em]`}
-                  style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: "rgba(244,250,248,0.55)" }}
-                  initial={reduced ? undefined : { y: "110%" }}
-                  animate={{ y: "0%" }}
-                  transition={{ duration: 0.8, ease: [0.16,1,0.3,1], delay: 0.32 }}
-                >
-                  {c.word2}
-                </motion.span>
-              </span>
-
-              {/* LINE 3 — dimmest */}
-              {c.word3 && (
-                <span className="block overflow-hidden leading-[1.05]">
                   <motion.span
-                    className={`${serif.className} block font-normal tracking-[-0.04em]`}
-                    style={{ fontSize: "clamp(2rem, 8.5vw, 8.5rem)", color: "rgba(244,250,248,0.25)" }}
-                    initial={reduced ? undefined : { y: "110%" }}
-                    animate={{ y: "0%" }}
-                    transition={{ duration: 0.8, ease: [0.16,1,0.3,1], delay: 0.42 }}
+                    className="block"
+                    animate={reduced ? undefined : {
+                      textShadow: [
+                        `0 0 14px ${TEAL}55, 0 0 32px ${TEAL}33, 0 0 60px ${TEAL}1a`,
+                        `0 0 20px ${TEAL}77, 0 0 44px ${TEAL}44, 0 0 80px ${TEAL}22`,
+                        `0 0 14px ${TEAL}55, 0 0 32px ${TEAL}33, 0 0 60px ${TEAL}1a`,
+                      ],
+                    }}
+                    style={reduced ? { textShadow: `0 0 14px ${TEAL}55, 0 0 32px ${TEAL}33, 0 0 60px ${TEAL}1a` } : undefined}
+                    transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
                   >
-                    {c.word3}
+                    {c.headline}
                   </motion.span>
-                </span>
-              )}
+                </motion.span>
+              </span>
             </h1>
 
             {/* ── Bottom row: description + CTA | services ── */}

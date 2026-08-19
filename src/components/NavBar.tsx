@@ -1,5 +1,5 @@
 "use client";
-import { serif } from "@/lib/fonts";
+import { serif, serifItalic } from "@/lib/fonts";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -106,20 +106,17 @@ export default function NavBar() {
           {m.nav.skipToContent}
         </a>
 
-        {/* Logo */}
+        {/* Logo — italic wordmark, no icon badge */}
         <Link href={localizePath("/")} aria-label={m.nav.brandAria}
-          className="flex items-center gap-2.5 focus:outline-none focus-visible:ring-2 rounded z-[110] relative">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-            <rect width="28" height="28" rx="7" fill={TEAL} fillOpacity="0.08"/>
-            <rect x=".5" y=".5" width="27" height="27" rx="6.5" stroke={TEAL} strokeOpacity="0.25"/>
-            <path d="M14 4.5 L19 11.5 L14 10.5 L9 11.5 Z" fill={TEAL}/>
-            <text x="14" y="22" textAnchor="middle" fontFamily="Georgia, serif"
-              fontSize="10" fontWeight="700" letterSpacing="-0.5" fill={TEAL}>OS</text>
-            <rect x="7" y="23.5" width="14" height="1.5" rx="0.75" fill={TEAL} fillOpacity="0.35"/>
-          </svg>
-          <span className="text-[15px] font-semibold tracking-tight" style={{ color: WHITE }}>
+          className="group flex items-center focus:outline-none focus-visible:ring-2 rounded z-[110] relative">
+          <motion.span
+            className={`${serifItalic.className} text-[19px] sm:text-[21px] font-normal tracking-tight logo-enter`}
+            style={{ color: WHITE }}
+            whileHover={reduced ? undefined : { color: TEAL }}
+            transition={{ duration: 0.25 }}
+          >
             OneStack
-          </span>
+          </motion.span>
         </Link>
 
         {/* Right controls */}
