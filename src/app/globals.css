@@ -276,8 +276,9 @@ select,textarea {
   margin-top: clamp(58px, 6vw, 76px);   /* высота фиксированной шапки */
   --row: clamp(74px, 11vw, 150px);   /* высота кликабельной строки слоя */
   --inset: clamp(14px, 5vw, 96px);   /* насколько каждый слой уже правого края */
+  --n: 4;                            /* число слоёв, проставляется компонентом */
   position: relative;
-  height: calc(var(--row) * 4 + clamp(150px, 26vw, 320px));
+  height: calc(var(--row) * var(--n) + clamp(150px, 26vw, 320px));
 }
 .site-layer {
   position: absolute;
@@ -393,7 +394,8 @@ select,textarea {
   .site-layer__eyebrow { font-size: 9px; letter-spacing: 0.16em; }
   .site-layer__title {
     font-size: clamp(1.3rem, 7vw, 2.1rem);
-    white-space: normal;   /* длинные названия переносятся, а не вылезают */
+    white-space: normal;      /* длинные названия переносятся, а не вылезают */
+    overflow-wrap: anywhere;  /* страховка: одно длинное слово тоже перенесётся */
   }
   /* Без наведения стрелка иначе осталась бы невидимой. */
   .site-layer__arrow { opacity: 1; transform: none; font-size: 1.3rem; }

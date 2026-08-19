@@ -4,14 +4,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 
 import NavBar from "@/components/NavBar";
-import MobileIntro from "@/components/MobileIntro";
-import MobileTypes from "@/components/MobileTypes";
-import MobileFeatures from "@/components/MobileFeatures";
-import MobileBenefits from "@/components/MobileBenefits";
-import MobileCalculator from "@/components/MobileCalculator";
-import MobilePerfSecurity from "@/components/MobilePerfSecurity";
-import MobileContact from "@/components/MobileContact";
-import MobileFAQ from "@/components/MobileFAQ";
+import MobileLayers from "@/components/MobileLayers";
 import HomeFooter from "@/components/HomeFooter";
 
 import { QuoteProvider } from "@/app/context/QuoteContext";
@@ -173,14 +166,9 @@ export default function MobilePage() {
 
           {/* Контент страницы */}
           <NavBar />
-          <MobileIntro />
-          <MobileTypes />
-          <MobileFeatures />
-          <MobileBenefits />
-          <MobileCalculator />
-          <MobilePerfSecurity />
-          <MobileContact />
-          <MobileFAQ />
+          {/* Разделы открываются во весь экран из MobileLayers. Со страницы
+              убраны первый блок, «Преимущества» и «Частые вопросы». */}
+          <MobileLayers />
           <HomeFooter />
         </main>
       </Suspense>

@@ -5,7 +5,6 @@ import { serif } from "@/lib/fonts";
 import { useEffect, useMemo, useState, useId } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { Sparkles, Server, Percent, MessageCircle, ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useQuote } from "@/app/context/QuoteContext";
 import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -73,7 +72,6 @@ function CountUp({ value, lang }: { value: number; lang: "ru" | "en" }) {
    MAIN
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function MobileCalculator() {
-  const router = useRouter();
   const { setQuote } = useQuote();
   const reduced = useReducedMotion();
   const { locale } = useI18n();
@@ -236,7 +234,8 @@ export default function MobileCalculator() {
     });
     const el = document.querySelector<HTMLElement>("#contact");
     if (el) { el.scrollIntoView({ behavior: "smooth" }); history.pushState(null, "", "#contact"); }
-    else router.push("#contact");
+    else // Раздел «Обсудить проект» теперь открывается окном (MobileLayers).
+    window.dispatchEvent(new CustomEvent("site-open-section", { detail: "contact" }));
   };
 
   const jsonLd = useMemo(() => ({

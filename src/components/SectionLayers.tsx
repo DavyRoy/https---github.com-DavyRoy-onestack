@@ -96,7 +96,7 @@ export default function SectionLayers({
         {/* Единственный h1 страницы: заголовки разделов живут внутри окон. */}
         <h1 style={srOnly}>{isEn ? h1En : h1Ru}</h1>
 
-        <div className="site-layers">
+        <div className="site-layers" style={{ "--n": layers.length } as React.CSSProperties}>
           {layers.map((l, i) => {
             const copy = isEn ? l.en : l.ru;
             return (
