@@ -322,7 +322,11 @@ export default function HomeContact() {
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto", padding: isMobile ? "60px 20px 72px" : "80px 40px 110px" }}>
 
           {/* 2-col layout: info | form */}
-          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "440px 1fr", gap: isMobile ? 40 : 64, alignItems: "start" }}>
+          {/* Колонка заголовка фиксирована на 440px, поэтому ниже ~1100px форме
+              оставалось слишком мало места (на 768px — около 180px). Складываем
+              в одну колонку заранее: правило на CSS, без участия JS, поэтому
+              работает и до гидратации. */}
+          <div className="contact-split" style={{ display: "grid", gap: isMobile ? 40 : 64, alignItems: "start" }}>
 
             {/* ── LEFT ── */}
             <div>
@@ -446,10 +450,10 @@ export default function HomeContact() {
                     <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>{c.step2}</span>
                     <span style={{ fontSize: 10, color: "rgba(244,250,248,0.25)", letterSpacing: 0, textTransform: "none" }}>{c.multiHint}</span>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8 }}>
                     {KIND_KEYS.map(k => (
                       <button key={k} type="button" onClick={() => toggleKind(k)}
-                        style={{ ...chipStyle(form.kind.includes(k)), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center" }}>
+                        style={{ ...chipStyle(form.kind.includes(k)), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center", minWidth: 0, overflowWrap: "anywhere" }}>
                         {c.kind[k]}
                       </button>
                     ))}
@@ -465,10 +469,10 @@ export default function HomeContact() {
                   </div>
                   <div style={{ marginBottom: 12 }}>
                     <Label>{c.budgetLabel}</Label>
-                    <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+                    <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8 }}>
                       {BUDGET_KEYS.map(k => (
                         <button key={k} type="button" onClick={() => set("budget", k)}
-                          style={{ ...chipStyle(form.budget === k), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center" }}>
+                          style={{ ...chipStyle(form.budget === k), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center", minWidth: 0, overflowWrap: "anywhere" }}>
                           {c.budget[k]}
                         </button>
                       ))}
@@ -477,10 +481,10 @@ export default function HomeContact() {
                   </div>
                   <div>
                     <Label>{c.timelineLabel}</Label>
-                    <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+                    <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: 8 }}>
                       {TIMELINE_KEYS.map(k => (
                         <button key={k} type="button" onClick={() => set("timeline", k)}
-                          style={{ ...chipStyle(form.timeline === k), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center" }}>
+                          style={{ ...chipStyle(form.timeline === k), padding: "8px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", textAlign: "center", minWidth: 0, overflowWrap: "anywhere" }}>
                           {c.timeline[k]}
                         </button>
                       ))}

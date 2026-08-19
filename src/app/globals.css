@@ -266,6 +266,14 @@ input[type="text"],input[type="email"],input[type="tel"],input[type="password"],
 select,textarea {
   @apply rounded-xl border border-[--color-border] bg-[--color-panel] px-3 py-2;
 }
+/* Секция «Обсудим проект»: заголовок и форма рядом только когда форме хватает
+   места. Ширина 440px под заголовок + 64px зазор оставляли форме слишком узкую
+   колонку на планшетах, поэтому до 1100px раскладываем в один столбец. */
+.contact-split { grid-template-columns: 1fr; }
+@media (min-width: 1100px) {
+  .contact-split { grid-template-columns: 440px 1fr; }
+}
+
 /* Плейсхолдеры: нейтральный средний тон, читаемый и на тёмных секциях сайта,
    и на светлых экранах. Раньше здесь был var(--foreground) — в :root это
    значение светлой темы (почти чёрный), а весь публичный сайт тёмный, так что
