@@ -15,8 +15,12 @@ services:
       - "3000"
     networks: [web, gen_dev]
     restart: unless-stopped
-    mem_limit: 1g
-    memswap_limit: 1g
+    # Приложение в покое держит ~140 МБ; запас — на пики SSR и прогрев кеша.
+    # Лимит намеренно оставлен умеренным: он ограничивает ущерб, если внутри
+    # контейнера снова начнёт плодиться что-то постороннее (см. инцидент 19.08.2026,
+    # когда процессы под чужими именами съедали ~800 МБ и роняли next-server).
+    mem_limit: 1536m
+    memswap_limit: 1536m
     volumes:
       - next_image_cache:/app/.next/cache
     healthcheck:
