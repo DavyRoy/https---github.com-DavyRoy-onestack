@@ -207,15 +207,12 @@ export default function HomeIntro() {
           <div className="flex-1 flex flex-col justify-center">
             <h1 id={titleId} className="mb-10 sm:mb-14 max-w-4xl">
               <span className="block overflow-hidden leading-[1.12] py-1">
-                <motion.span
-                  className={`${serif.className} block font-bold tracking-[-0.02em]`}
+                <span
+                  className={`${serif.className} headline-enter block font-bold tracking-[-0.02em]`}
                   style={{ fontSize: "clamp(2.2rem, 5.6vw, 4.6rem)", color: WHITE }}
-                  initial={reduced ? undefined : { y: "110%" }}
-                  animate={{ y: "0%" }}
-                  transition={{ duration: 0.8, ease: [0.16,1,0.3,1], delay: 0.15 }}
                 >
                   {c.headline}
-                </motion.span>
+                </span>
               </span>
             </h1>
 
