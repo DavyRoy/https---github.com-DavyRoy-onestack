@@ -1,4 +1,5 @@
 "use client";
+import { serif } from "@/lib/fonts";
 import {
   motion,
   useReducedMotion, useScroll, useTransform,
@@ -202,31 +203,18 @@ export default function HomeIntro() {
             </span>
           </motion.div>
 
-          {/* ── Headline block — compact centered neon line ── */}
-          <div className="flex-1 flex flex-col justify-center items-center text-center">
+          {/* ── Headline block ── */}
+          <div className="flex-1 flex flex-col justify-center">
             <h1 id={titleId} className="mb-10 sm:mb-14 max-w-4xl">
-              <span className="block overflow-hidden leading-[1.2] py-1">
+              <span className="block overflow-hidden leading-[1.12] py-1">
                 <motion.span
-                  className="block font-sans font-extrabold tracking-[-0.01em]"
-                  style={{ fontSize: "clamp(1.6rem, 4.2vw, 3.1rem)", color: WHITE }}
+                  className={`${serif.className} block font-bold tracking-[-0.02em]`}
+                  style={{ fontSize: "clamp(2.2rem, 5.6vw, 4.6rem)", color: WHITE }}
                   initial={reduced ? undefined : { y: "110%" }}
                   animate={{ y: "0%" }}
                   transition={{ duration: 0.8, ease: [0.16,1,0.3,1], delay: 0.15 }}
                 >
-                  <motion.span
-                    className="block"
-                    animate={reduced ? undefined : {
-                      textShadow: [
-                        `0 0 14px ${TEAL}55, 0 0 32px ${TEAL}33, 0 0 60px ${TEAL}1a`,
-                        `0 0 20px ${TEAL}77, 0 0 44px ${TEAL}44, 0 0 80px ${TEAL}22`,
-                        `0 0 14px ${TEAL}55, 0 0 32px ${TEAL}33, 0 0 60px ${TEAL}1a`,
-                      ],
-                    }}
-                    style={reduced ? { textShadow: `0 0 14px ${TEAL}55, 0 0 32px ${TEAL}33, 0 0 60px ${TEAL}1a` } : undefined}
-                    transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                  >
-                    {c.headline}
-                  </motion.span>
+                  {c.headline}
                 </motion.span>
               </span>
             </h1>
