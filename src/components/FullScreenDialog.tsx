@@ -73,7 +73,11 @@ export default function FullScreenDialog({
         onClick={onClose}
         aria-label={closeLabel}
         style={{
-          position: "fixed", top: 18, right: 18, zIndex: 2,
+          position: "fixed", top: 18, right: 18,
+          // Выше контента разделов (там встречается z-index 10), но ниже их
+          // собственных модалок (999): те закрываются своей кнопкой, и
+          // перекрывать их этой было бы неверно.
+          zIndex: 100,
           display: "flex", alignItems: "center", gap: 8,
           padding: "10px 16px", borderRadius: 999, cursor: "pointer",
           background: "rgba(7,16,14,0.82)",
