@@ -3,7 +3,12 @@ import { serif } from "@/lib/fonts";
 
 import Link from "next/link";
 import Script from "next/script";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import FullScreenDialog from "@/components/FullScreenDialog";
+import HomeContact from "@/components/HomeContact";
+import WebAppContact from "@/components/WebAppContact";
+import MobileContact from "@/components/MobileContact";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUp, Mail, Phone, Send, ArrowRight } from "lucide-react";
 import { siteName, siteUrl } from "@/app/seo.config";
@@ -81,6 +86,24 @@ export default function HomeFooter() {
   const c = COPY[lang];
   const year    = useMemo(() => new Date().getFullYear(), []);
   const reduced = useReducedMotion();
+  const pathname = usePathname() || "/";
+
+  /* На главной форма есть прямо на странице — просто прокручиваем к ней.
+     На остальных страницах ссылка вела на главную, уводя человека с раздела,
+     поэтому там открываем форму модальным окном. */
+  const isHome = pathname === "/" || pathname === "/en";
+  const isSites = /\/sites(\/|$)/.test(pathname);
+  const [contactOpen, setContactOpen] = useState(false);
+
+  const openDiscuss = useCallback(() => {
+    // На /sites раздел «Обсудить проект» уже открывается слоями — переиспользуем
+    // его, чтобы на одной странице не было двух разных форм.
+    if (isSites) {
+      window.dispatchEvent(new CustomEvent("site-open-section", { detail: "contact" }));
+      return;
+    }
+    setContactOpen(true);
+  }, [isSites]);
 
   const scrollTop = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -139,11 +162,19 @@ export default function HomeFooter() {
             </div>
 
             <motion.div className="flex flex-col sm:flex-row gap-3 lg:pb-4" {...fadeUp(0.15)}>
-              <Link href="/#contact"
-                className="inline-flex items-center gap-2 py-4 px-7 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.03] focus:outline-none"
-                style={{ background: TEAL, color: BG }}>
-                {c.ctaDiscuss} <ArrowRight className="w-4 h-4" />
-              </Link>
+              {isHome ? (
+                <Link href="/#contact"
+                  className="inline-flex items-center gap-2 py-4 px-7 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.03] focus:outline-none"
+                  style={{ background: TEAL, color: BG }}>
+                  {c.ctaDiscuss} <ArrowRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <button type="button" onClick={openDiscuss}
+                  className="inline-flex items-center gap-2 py-4 px-7 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.03] focus:outline-none"
+                  style={{ background: TEAL, color: BG }}>
+                  {c.ctaDiscuss} <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
               <a href={ORG.phoneHref}
                 className="inline-flex items-center gap-2 py-4 px-6 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white/5 focus:outline-none"
                 style={{ border: "1px solid rgba(255,255,255,0.1)", color: "rgba(244,250,248,0.6)" }}>
@@ -254,6 +285,22 @@ export default function HomeFooter() {
 
         </div>
       </footer>
+
+      {/* Форма в модальном окне — для страниц, где её нет в потоке.
+          Раздел берём под страницу, чтобы текст соответствовал контексту. */}
+      {contactOpen && (
+        <FullScreenDialog
+          title={c.ctaDiscuss}
+          closeLabel={locale === "en" ? "Close" : "Закрыть"}
+          onClose={() => setContactOpen(false)}
+        >
+          {/\/webapp(\/|$)/.test(pathname)
+            ? <WebAppContact inDialog />
+            : /\/mobile(\/|$)/.test(pathname)
+              ? <MobileContact inDialog />
+              : <HomeContact />}
+        </FullScreenDialog>
+      )}
     </>
   );
 }

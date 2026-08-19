@@ -102,7 +102,10 @@ function humanSize(bytes: number) {
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN
 ═══════════════════════════════════════════════════════════════════════════ */
-export default function MobileContact() {
+/** inDialog — секция открыта в модальном окне. Тогда она не занимает
+    id="contact": такая секция уже есть на самой странице, и второй такой
+    же id ломал бы якорные переходы. */
+export default function MobileContact({ inDialog = false }: { inDialog?: boolean } = {}) {
   const { locale } = useI18n();
   const isEn = locale === "en";
   const KIND_OPTIONS     = isEn ? KIND_OPTIONS_EN     : KIND_OPTIONS_RU;
@@ -269,7 +272,7 @@ export default function MobileContact() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section
-        id="contact"
+        id={inDialog ? undefined : "contact"}
         aria-labelledby={titleId}
         style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
       >
