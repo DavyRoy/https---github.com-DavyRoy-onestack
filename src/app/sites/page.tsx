@@ -6,7 +6,6 @@ import { QuoteProvider } from "@/app/context/QuoteContext";
 import { canonical, siteName, siteUrl } from "@/app/seo.config";
 
 import NavBar from "@/components/NavBar";
-import SiteIntro from "@/components/SiteIntro";
 import HomeFooter from "@/components/HomeFooter";
 import SiteTypes from "@/components/SiteTypes";
 import SiteConfigurator from "@/components/SiteConfigurator";
@@ -56,7 +55,6 @@ function SitesClientTree() {
   return (
     <QuoteProvider>
       <NavBar />
-      <SiteIntro />
       <SiteTypes />
       <SiteConfigurator />
       <SiteBenefits />
