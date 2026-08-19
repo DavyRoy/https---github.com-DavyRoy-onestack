@@ -5,6 +5,7 @@ import React, { useRef, useState, useMemo, useId, useCallback, useEffect } from 
 import { motion, useReducedMotion } from "framer-motion";
 import { useQuote } from "@/app/context/QuoteContext";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useMoney } from "@/lib/useMoney";
 import {
   Globe, Layers, Smartphone, Lock, CreditCard, BarChart3,
   Bell, Search, MessageSquare, Files, Settings2, PanelsTopLeft,
@@ -164,7 +165,7 @@ type ModuleKey = (typeof MODULES)[number]["key"];
 
 const SLA_HOURS: Record<SLAPlan, number>    = { none: 0,    lite: 10,   pro: 20,  enterprise: 40  };
 const SLA_DISCOUNT: Record<SLAPlan, number> = { none: 1,    lite: 0.95, pro: 0.9, enterprise: 0.85 };
-const SUPPORT_MIN = 50000;
+const SUPPORT_MIN = 62500;
 
 /* ─── Shared styles ─────────────────────────────────────────────────────── */
 const card = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" };
@@ -178,6 +179,7 @@ export default function HomeCalculator() {
   const { locale } = useI18n();
   const lang = locale === "ru" ? "ru" : "en";
   const c = COPY[lang];
+  const { money, moneyPerMonth } = useMoney(lang);
   const reduced  = useReducedMotion();
   const titleId  = useId();
   const _ref     = useRef<HTMLElement | null>(null);
@@ -197,15 +199,15 @@ export default function HomeCalculator() {
     i18n: false, cms: false, db: false,
   });
   const [hourlyMode]                  = useState<HourlyMode>("premium");
-  const [hourlyCustom]                = useState<number>(4500);
+  const [hourlyCustom]                = useState<number>(5500);
 
   /* calc */
   const hourly = useMemo(() => {
     switch (hourlyMode) {
-      case "budget":   return 1200;
-      case "standard": return 2500;
-      case "premium":  return 4500;
-      case "custom":   return Math.max(500, Math.min(30000, Number.isFinite(hourlyCustom) ? hourlyCustom : 4500));
+      case "budget":   return 1800;
+      case "standard": return 3200;
+      case "premium":  return 5500;
+      case "custom":   return Math.max(800, Math.min(30000, Number.isFinite(hourlyCustom) ? hourlyCustom : 5500));
     }
   }, [hourlyMode, hourlyCustom]);
 
@@ -244,7 +246,6 @@ export default function HomeCalculator() {
 
     const typeNames = activeTypes.map(t => c.types[t]).join(", ");
     const complexityNames = [...new Set(activeTypes.map(t => c.complexity[complexity[t]]))].join(", ");
-    const numLocale = lang === "ru" ? "ru-RU" : "en-US";
 
     const msgLines = [
       c.msg.title,
@@ -257,9 +258,9 @@ export default function HomeCalculator() {
       `${c.msg.deploy}: ${deployLabel}`,
       `${c.msg.timeline}: ${timelineLabel} (~${weeks} ${c.msg.weeks})`,
       ``,
-      `${c.msg.budget}: ${estimate.low.toLocaleString(numLocale)} — ${estimate.high.toLocaleString(numLocale)} ₽`,
+      `${c.msg.budget}: ${money(estimate.low)} — ${money(estimate.high)}`,
       `${c.msg.hours}: ~${estimate.hours} ${c.hUnit}`,
-      maintenance ? `${c.msg.support} (${slaLabel}): ~${estimate.support.toLocaleString(numLocale)} ₽/${c.perMonth}` : null,
+      maintenance ? `${c.msg.support} (${slaLabel}): ~${moneyPerMonth(estimate.support)}` : null,
     ].filter(Boolean).join("\n");
 
     // Map to budget chip
@@ -303,7 +304,7 @@ export default function HomeCalculator() {
 
     // Navigate to contact section
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  }, [selected, pages, complexity, integrations, mods, deploy, timeline, maintenance, sla, estimate, setQuote]);
+  }, [selected, pages, complexity, integrations, mods, deploy, timeline, maintenance, sla, estimate, setQuote, money, moneyPerMonth]);
 
   const fadeUp = (d = 0) => reduced ? {} : {
     initial: { opacity: 0, y: 24 },
@@ -474,8 +475,8 @@ export default function HomeCalculator() {
                 {c.budgetLabel}
               </p>
               <p className={serif.className} style={{ fontSize: "clamp(1.6rem,4vw,2.4rem)", fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em", color: WHITE, marginBottom: 4 }}>
-                {estimate.low.toLocaleString(lang === "ru" ? "ru-RU" : "en-US")} —<br />
-                {estimate.high.toLocaleString(lang === "ru" ? "ru-RU" : "en-US")} ₽
+                {money(estimate.low)} —<br />
+                {money(estimate.high)}
               </p>
               <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
                 {[
@@ -540,7 +541,7 @@ export default function HomeCalculator() {
                   </div>
                   <div style={{ marginTop: 12, textAlign: "center", borderRadius: 10, padding: "12px", background: "rgba(255,255,255,0.03)" }}>
                     <p className={serif.className} style={{ fontSize: "1.2rem", color: TEAL }}>
-                      {estimate.support.toLocaleString(lang === "ru" ? "ru-RU" : "en-US")} ₽/{c.perMonth}
+                      {moneyPerMonth(estimate.support)}
                     </p>
                     <p style={{ fontSize: 10, marginTop: 2, color: "rgba(244,250,248,0.3)" }}>{c.supportCaption}</p>
                   </div>

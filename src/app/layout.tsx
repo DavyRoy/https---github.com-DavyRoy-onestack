@@ -2,6 +2,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
+import { getUsdRate } from "@/lib/rate";
+import { RateProvider } from "@/app/context/RateContext";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import Script from "next/script";
@@ -118,6 +120,7 @@ export default async function RootLayout({
   const locale = await getRequestLocale();
   const messages = getMessages(locale);
   const pathWithLocale = await getPathWithLocaleHeader();
+  const usdRub = await getUsdRate();
 
   return (
     <html
@@ -149,6 +152,7 @@ export default async function RootLayout({
         {/* =====================================================================================
             I18N CONTEXT
         ====================================================================================== */}
+        <RateProvider rate={usdRub}>
         <I18nProvider
           locale={locale}
           messages={messages}
@@ -242,6 +246,7 @@ export default async function RootLayout({
 
           <CookieBanner />
         </I18nProvider>
+        </RateProvider>
       </body>
     </html>
   );

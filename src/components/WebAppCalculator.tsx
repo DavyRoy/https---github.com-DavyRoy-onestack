@@ -9,6 +9,7 @@ import { Sparkles, Server, Percent, MessageCircle, ArrowRight } from "lucide-rea
 import { useRouter } from "next/navigation";
 import { useQuote } from "@/app/context/QuoteContext";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useMoney } from "@/lib/useMoney";
 import Script from "next/script";
 import { siteUrl } from "@/app/seo.config";
 
@@ -27,35 +28,34 @@ type Support     = "none" | "basic" | "pro";
 
 const PRICING = {
   base: {
-    crm:       780_000,
-    portal:    590_000,
-    client:    520_000,
-    analytics: 700_000,
-    b2b:       620_000,
-    saas:      940_000,
+    crm:       975_000,
+    portal:    740_000,
+    client:    650_000,
+    analytics: 875_000,
+    b2b:       775_000,
+    saas:      1_175_000,
   },
-  scope: { included: 10, perUnit: 25_000 },
+  scope: { included: 10, perUnit: 31_000 },
   design: { basic: 1.0, pro: 1.22, brand: 1.45 },
   features: {
-    rbac: 95_000, sso: 78_000, audit: 65_000, notifications: 52_000, realtime: 88_000,
-    queues: 75_000, storage: 48_000, extIntegr: 62_000, payments: 90_000, subscriptions: 82_000,
-    reports: 68_000, i18n: 52_000,
+    rbac: 120_000, sso: 98_000, audit: 81_000, notifications: 65_000, realtime: 110_000,
+    queues: 94_000, storage: 60_000, extIntegr: 78_000, payments: 110_000, subscriptions: 100_000,
+    reports: 85_000, i18n: 65_000,
   },
   infra: {
-    hosting: { none: { monthly: 0, setup: 0 }, cloud: { monthly: 11_000, setup: 22_000 }, vps: { monthly: 9_000, setup: 32_000 } },
-    db:    { monthly: 5_000, setup: 7_500 },
-    cache: { monthly: 3_000, setup: 5_500 },
-    observ:{ monthly: 3_500, setup: 7_000 },
-    ci:    { monthly: 3_500, setup: 15_000 },
-    domains:{ monthly: 500, setup: 2_500 },
+    hosting: { none: { monthly: 0, setup: 0 }, cloud: { monthly: 14_000, setup: 28_000 }, vps: { monthly: 11_000, setup: 40_000 } },
+    db:    { monthly: 6_000, setup: 9_500 },
+    cache: { monthly: 4_000, setup: 7_000 },
+    observ:{ monthly: 4_500, setup: 9_000 },
+    ci:    { monthly: 4_500, setup: 19_000 },
+    domains:{ monthly: 600, setup: 3_000 },
   },
-  support: { none: 0, basic: 35_000, pro: 80_000 },
+  support: { none: 0, basic: 44_000, pro: 100_000 },
   speedMultiplier: { normal: 1.0, fast: 1.25 },
   discounts: { saasBilling: 0.90, analyticsPack: 0.92 },
 } as const;
 
 function clamp(n: number, min: number, max: number) { return Math.max(min, Math.min(max, n)); }
-function fmt(n: number) { return n.toLocaleString("ru-RU") + " ₽"; }
 function mapKind(k: AppKind, isEn: boolean) {
   if (isEn) return k === "crm" ? "CRM system" : k === "portal" ? "Corp. portal" :
     k === "client" ? "User portal" : k === "analytics" ? "Analytics" :
@@ -75,11 +75,14 @@ function useCountUp(value: number) {
   useEffect(() => { s.set(value); }, [value, s]);
   return useTransform(s, (v) => Math.round(v));
 }
-function CountUp({ value }: { value: number }) {
+function CountUp({ value, lang }: { value: number; lang: "ru" | "en" }) {
   const a = useCountUp(value);
   const [v, setV] = useState(value);
   useEffect(() => { const u = a.on("change", n => setV(n)); return () => u(); }, [a]);
-  return <span style={{ fontVariantNumeric: "tabular-nums" }}>{v.toLocaleString("ru-RU")}</span>;
+  const n = Math.round(v);
+  return <span style={{ fontVariantNumeric: "tabular-nums" }}>{
+    lang === "en" ? `$${n.toLocaleString("en-US")}` : `${n.toLocaleString("ru-RU")} ₽`
+  }</span>;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -88,6 +91,7 @@ function CountUp({ value }: { value: number }) {
 export default function WebAppCalculator() {
   const { locale } = useI18n();
   const isEn = locale === "en";
+  const { money, amount } = useMoney(isEn ? "en" : "ru");
   const router = useRouter();
   const { setQuote } = useQuote();
   const reduced = useReducedMotion();
@@ -500,11 +504,11 @@ export default function WebAppCalculator() {
                     {isEn ? "Breakdown" : "Детализация"}
                   </div>
                   {[
-                    [isEn ? "Base" : "База",                     fmt(result.breakdown.base)],
-                    [isEn ? "Extra modules" : "Доп. модули",     fmt(result.breakdown.scopeCost)],
+                    [isEn ? "Base" : "База",                     money(result.breakdown.base)],
+                    [isEn ? "Extra modules" : "Доп. модули",     money(result.breakdown.scopeCost)],
                     [isEn ? "Design" : "Дизайн",                 `×${result.breakdown.designK.toFixed(2)}`],
-                    [isEn ? "Features" : "Функционал",           fmt(result.breakdown.features)],
-                    [isEn ? "Infrastructure" : "Инфраструктура", fmt(result.breakdown.infraSetup)],
+                    [isEn ? "Features" : "Функционал",           money(result.breakdown.features)],
+                    [isEn ? "Infrastructure" : "Инфраструктура", money(result.breakdown.infraSetup)],
                     ...(result.breakdown.discountK !== 1 ? [[isEn ? "Discount" : "Скидка", `-${Math.round((1 - result.breakdown.discountK) * 100)}%`]] : []),
                     ...(result.breakdown.speedK !== 1 ? [[isEn ? "Urgency" : "Срочность", `×${result.breakdown.speedK.toFixed(2)}`]] : []),
                   ].map(([l, v]) => (
@@ -528,7 +532,7 @@ export default function WebAppCalculator() {
                       )}
                     </div>
                     <div className={serif.className} style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", color: TEAL, lineHeight: 1 }}>
-                      <CountUp value={result.oneOff} /> ₽
+                      <CountUp value={amount(result.oneOff)} lang={isEn ? "en" : "ru"} />
                     </div>
                   </div>
                   <div>
@@ -537,7 +541,7 @@ export default function WebAppCalculator() {
                       <span style={{ fontSize: 12, color: "rgba(244,250,248,0.45)" }}>{isEn ? "Monthly (hosting + support)" : "Ежемесячно (хостинг + поддержка)"}</span>
                     </div>
                     <div className={serif.className} style={{ fontSize: "clamp(1.4rem, 2.5vw, 1.9rem)", color: WHITE, lineHeight: 1 }}>
-                      <CountUp value={result.monthly} /> ₽
+                      <CountUp value={amount(result.monthly)} lang={isEn ? "en" : "ru"} />
                     </div>
                   </div>
                 </div>

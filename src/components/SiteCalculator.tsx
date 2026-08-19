@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useQuote } from "@/app/context/QuoteContext";
 import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useMoney } from "@/lib/useMoney";
 
 
 const BG    = "#07100e";
@@ -23,22 +24,22 @@ type Hosting     = "none" | "cloud" | "vps";
 type Support     = "none" | "basic" | "pro";
 
 const PRICING = {
-  base:          { landing: 120_000, business: 65_000, corporate: 350_000, ecommerce: 580_000, content: 220_000, portfolio: 85_000 },
-  perPage:       { landing: 10_000,  business: 8_000,  corporate: 15_000,  ecommerce: 18_000,  content: 12_000,  portfolio: 8_000  },
+  base:          { landing: 150_000, business: 81_000, corporate: 440_000, ecommerce: 725_000, content: 275_000, portfolio: 105_000 },
+  perPage:       { landing: 12_000,  business: 10_000,  corporate: 19_000,  ecommerce: 22_000,  content: 15_000,  portfolio: 10_000  },
   includedPages: { landing: 4,       business: 6,       corporate: 10,      ecommerce: 10,      content: 12,      portfolio: 6       },
   design:        { basic: 1.0, pro: 1.18, brand: 1.38 },
-  seo:           { none: 0, lite: 40_000, pro: 95_000 },
+  seo:           { none: 0, lite: 50_000, pro: 120_000 },
   features: {
-    blog: 55_000, auth: 60_000, forms: 25_000, catalog: 85_000, payments: 70_000,
-    delivery: 55_000, crm: 65_000, search: 40_000, analytics: 20_000,
-    animation: 35_000, integrations: 45_000,
+    blog: 69_000, auth: 75_000, forms: 31_000, catalog: 105_000, payments: 88_000,
+    delivery: 69_000, crm: 81_000, search: 50_000, analytics: 25_000,
+    animation: 44_000, integrations: 56_000,
   },
   infra: {
-    hosting: { none: { monthly: 0, setup: 0 }, cloud: { monthly: 6_000, setup: 12_000 }, vps: { monthly: 4_000, setup: 18_000 } },
-    ci:      { monthly: 2_000, setup: 8_000 },
-    domains: { monthly: 400,   setup: 1_500  },
+    hosting: { none: { monthly: 0, setup: 0 }, cloud: { monthly: 7_500, setup: 15_000 }, vps: { monthly: 5_000, setup: 22_000 } },
+    ci:      { monthly: 2_500, setup: 10_000 },
+    domains: { monthly: 500,   setup: 2_000  },
   },
-  support:         { none: 0, basic: 14_000, pro: 35_000 },
+  support:         { none: 0, basic: 18_000, pro: 44_000 },
   speedMultiplier: { normal: 1.0, fast: 1.22 },
   discount:        { ecommerceKit: 0.92 },
 } as const;
@@ -73,7 +74,6 @@ const PRESETS_EN = [
 ] as const;
 
 function clamp(n: number, min: number, max: number) { return Math.max(min, Math.min(max, n)); }
-function fmt(n: number) { return n.toLocaleString("ru-RU") + " ₽"; }
 
 const TIMELINES_RU: Record<SiteKind, { normal: string; fast: string }> = {
   landing:   { normal: "1–2 нед",  fast: "3–5 дней" },
@@ -111,11 +111,14 @@ function useCountUp(value: number) {
   useEffect(() => { s.set(value); }, [value, s]);
   return useTransform(s, (v) => Math.round(v));
 }
-function CountUp({ value }: { value: number }) {
+function CountUp({ value, lang }: { value: number; lang: "ru" | "en" }) {
   const a = useCountUp(value);
   const [v, setV] = useState(value);
   useEffect(() => { const u = a.on("change", n => setV(n)); return () => u(); }, [a]);
-  return <span style={{ fontVariantNumeric: "tabular-nums" }}>{v.toLocaleString("ru-RU")}</span>;
+  const n = Math.round(v);
+  return <span style={{ fontVariantNumeric: "tabular-nums" }}>{
+    lang === "en" ? `$${n.toLocaleString("en-US")}` : `${n.toLocaleString("ru-RU")} ₽`
+  }</span>;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -124,6 +127,7 @@ function CountUp({ value }: { value: number }) {
 export default function SiteCalculator() {
   const { locale } = useI18n();
   const isEn = locale === "en";
+  const { money, amount } = useMoney(isEn ? "en" : "ru");
   const PRESETS = isEn ? PRESETS_EN : PRESETS_RU;
   const router    = useRouter();
   const { setQuote } = useQuote();
@@ -573,21 +577,21 @@ export default function SiteCalculator() {
                     {isEn ? "Breakdown" : "Детализация"}
                   </div>
                   {(isEn ? [
-                    ["Base",           fmt(result.breakdown.base)],
-                    ["Extra pages",    fmt(result.breakdown.pagesCost)],
+                    ["Base",           money(result.breakdown.base)],
+                    ["Extra pages",    money(result.breakdown.pagesCost)],
                     ["Design",         `×${result.breakdown.designK.toFixed(2)}`],
-                    ["Features",       fmt(result.breakdown.features)],
-                    ["SEO",            fmt(result.breakdown.seoCost)],
-                    ["Infrastructure", fmt(result.breakdown.infraSetup)],
+                    ["Features",       money(result.breakdown.features)],
+                    ["SEO",            money(result.breakdown.seoCost)],
+                    ["Infrastructure", money(result.breakdown.infraSetup)],
                     ...(result.breakdown.discountK !== 1 ? [["Discount", `-${Math.round((1 - result.breakdown.discountK) * 100)}%`]] : []),
                     ...(result.breakdown.speedK !== 1 ? [["Rush", `×${result.breakdown.speedK.toFixed(2)}`]] : []),
                   ] : [
-                    ["База",           fmt(result.breakdown.base)],
-                    ["Доп. страницы",  fmt(result.breakdown.pagesCost)],
+                    ["База",           money(result.breakdown.base)],
+                    ["Доп. страницы",  money(result.breakdown.pagesCost)],
                     ["Дизайн",         `×${result.breakdown.designK.toFixed(2)}`],
-                    ["Функционал",     fmt(result.breakdown.features)],
-                    ["SEO",            fmt(result.breakdown.seoCost)],
-                    ["Инфраструктура", fmt(result.breakdown.infraSetup)],
+                    ["Функционал",     money(result.breakdown.features)],
+                    ["SEO",            money(result.breakdown.seoCost)],
+                    ["Инфраструктура", money(result.breakdown.infraSetup)],
                     ...(result.breakdown.discountK !== 1 ? [["Скидка", `-${Math.round((1 - result.breakdown.discountK) * 100)}%`]] : []),
                     ...(result.breakdown.speedK !== 1 ? [["Срочность", `×${result.breakdown.speedK.toFixed(2)}`]] : []),
                   ]).map(([l, v]) => (
@@ -626,7 +630,7 @@ export default function SiteCalculator() {
                       </span>
                     </div>
                     <div className={serif.className} style={{ fontSize: 34, color: TEAL, lineHeight: 1 }}>
-                      <CountUp value={result.oneOff} /> ₽
+                      <CountUp value={amount(result.oneOff)} lang={isEn ? "en" : "ru"} />
                     </div>
                   </div>
                   <div style={{ borderRadius: 10, padding: "12px 16px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
@@ -637,7 +641,7 @@ export default function SiteCalculator() {
                       </span>
                     </div>
                     <div className={serif.className} style={{ fontSize: 26, color: WHITE, lineHeight: 1 }}>
-                      <CountUp value={result.monthly} /> ₽
+                      <CountUp value={amount(result.monthly)} lang={isEn ? "en" : "ru"} />
                     </div>
                   </div>
                 </div>

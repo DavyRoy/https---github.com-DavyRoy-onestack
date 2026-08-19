@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { useQuote } from "@/app/context/QuoteContext";
 import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
+import { useMoney } from "@/lib/useMoney";
 
 
 const BG    = "#07100e";
@@ -24,34 +25,33 @@ type Support     = "none" | "basic" | "pro";
 
 /* ─── Pricing ────────────────────────────────────────────────────────────── */
 const PRICING = {
-  base: { client: 480_000, loyalty: 520_000, field: 650_000, marketplace: 1_100_000, fintech: 1_300_000, saasMobile: 780_000 } as Record<AppKind, number>,
-  scope: { included: 8, perUnit: 30_000 },
+  base: { client: 600_000, loyalty: 650_000, field: 810_000, marketplace: 1_375_000, fintech: 1_625_000, saasMobile: 975_000 } as Record<AppKind, number>,
+  scope: { included: 8, perUnit: 38_000 },
   design: { basic: 1.0, pro: 1.2, brand: 1.4 } as Record<DesignLevel, number>,
   features: {
-    auth: 70_000, push: 45_000, offline: 85_000, payments: 110_000, subscriptions: 90_000,
-    maps: 65_000, geofencing: 55_000, chat: 80_000, cameraMedia: 50_000,
-    analytics: 25_000, abtests: 35_000, deeplinks: 25_000, extIntegr: 60_000, i18n: 45_000,
+    auth: 88_000, push: 56_000, offline: 105_000, payments: 140_000, subscriptions: 110_000,
+    maps: 81_000, geofencing: 69_000, chat: 100_000, cameraMedia: 62_000,
+    analytics: 31_000, abtests: 44_000, deeplinks: 31_000, extIntegr: 75_000, i18n: 56_000,
   },
   infra: {
     hosting: {
       none:  { monthly: 0,      setup: 0      },
-      cloud: { monthly: 10_000, setup: 20_000 },
-      vps:   { monthly: 8_000,  setup: 28_000 },
+      cloud: { monthly: 12_000, setup: 25_000 },
+      vps:   { monthly: 10_000,  setup: 35_000 },
     } as Record<Hosting, { monthly: number; setup: number }>,
-    notifications: { monthly: 2_000, setup: 4_000 },
-    ota:           { monthly: 1_500, setup: 4_000 },
-    crashlytics:   { monthly: 1_000, setup: 2_000 },
-    observ:        { monthly: 2_500, setup: 6_000 },
-    ci:            { monthly: 3_000, setup: 12_000 },
-    domains:       { monthly: 500,   setup: 2_500  },
+    notifications: { monthly: 2_500, setup: 5_000 },
+    ota:           { monthly: 2_000, setup: 5_000 },
+    crashlytics:   { monthly: 1_000, setup: 2_500 },
+    observ:        { monthly: 3_000, setup: 7_500 },
+    ci:            { monthly: 4_000, setup: 15_000 },
+    domains:       { monthly: 600,   setup: 3_000  },
   },
-  support: { none: 0, basic: 30_000, pro: 70_000 } as Record<Support, number>,
+  support: { none: 0, basic: 38_000, pro: 88_000 } as Record<Support, number>,
   speed:   { normal: 1.0, fast: 1.22 } as Record<Speed, number>,
   discounts: { loyaltyPack: 0.92, marketPack: 0.93 },
 };
 
 function clamp(n: number, lo: number, hi: number) { return Math.max(lo, Math.min(hi, n)); }
-function fmt(n: number) { return n.toLocaleString("ru-RU") + " ₽"; }
 
 /* ─── CountUp (spring) ───────────────────────────────────────────────────── */
 function useCountUp(value: number) {
@@ -59,11 +59,14 @@ function useCountUp(value: number) {
   useEffect(() => { s.set(value); }, [value, s]);
   return useTransform(s, v => Math.round(v));
 }
-function CountUp({ value }: { value: number }) {
+function CountUp({ value, lang }: { value: number; lang: "ru" | "en" }) {
   const a = useCountUp(value);
   const [v, setV] = useState(value);
   useEffect(() => { const u = a.on("change", n => setV(n)); return () => u(); }, [a]);
-  return <span style={{ fontVariantNumeric: "tabular-nums" }}>{v.toLocaleString("ru-RU")}</span>;
+  const n = Math.round(v);
+  return <span style={{ fontVariantNumeric: "tabular-nums" }}>{
+    lang === "en" ? `$${n.toLocaleString("en-US")}` : `${n.toLocaleString("ru-RU")} ₽`
+  }</span>;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -75,6 +78,7 @@ export default function MobileCalculator() {
   const reduced = useReducedMotion();
   const { locale } = useI18n();
   const isEn = locale === "en";
+  const { money, amount } = useMoney(isEn ? "en" : "ru");
   const titleId = useId();
 
   const [isMobile, setIsMobile] = useState(false);
@@ -520,11 +524,11 @@ export default function MobileCalculator() {
                     {isEn ? "Breakdown" : "Детализация"}
                   </div>
                   {[
-                    [isEn ? "Base" : "База",                     fmt(result.base)],
-                    [isEn ? "Extra modules" : "Доп. модули",     fmt(result.scopeAdd)],
+                    [isEn ? "Base" : "База",                     money(result.base)],
+                    [isEn ? "Extra modules" : "Доп. модули",     money(result.scopeAdd)],
                     [isEn ? "Design" : "Дизайн",                 `×${result.designK.toFixed(2)}`],
-                    [isEn ? "Features" : "Функционал",           fmt(result.features)],
-                    [isEn ? "Infrastructure" : "Инфраструктура", fmt(result.infraSetup)],
+                    [isEn ? "Features" : "Функционал",           money(result.features)],
+                    [isEn ? "Infrastructure" : "Инфраструктура", money(result.infraSetup)],
                     ...(result.discountK !== 1 ? [[isEn ? "Discount" : "Скидка", `-${Math.round((1 - result.discountK) * 100)}%`]] : []),
                     ...(result.speedK !== 1 ? [[isEn ? "Urgency" : "Срочность", `×${result.speedK.toFixed(2)}`]] : []),
                   ].map(([l, v]) => (
@@ -548,7 +552,7 @@ export default function MobileCalculator() {
                       )}
                     </div>
                     <div className={serif.className} style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", color: TEAL, lineHeight: 1 }}>
-                      <CountUp value={result.oneOff} /> ₽
+                      <CountUp value={amount(result.oneOff)} lang={isEn ? "en" : "ru"} />
                     </div>
                   </div>
                   <div>
@@ -557,7 +561,7 @@ export default function MobileCalculator() {
                       <span style={{ fontSize: 12, color: "rgba(244,250,248,0.45)" }}>{isEn ? "Monthly (infra + support)" : "Ежемесячно (инфра + поддержка)"}</span>
                     </div>
                     <div className={serif.className} style={{ fontSize: "clamp(1.4rem, 2.5vw, 1.9rem)", color: WHITE, lineHeight: 1 }}>
-                      <CountUp value={result.monthly} /> ₽
+                      <CountUp value={amount(result.monthly)} lang={isEn ? "en" : "ru"} />
                     </div>
                   </div>
                 </div>
