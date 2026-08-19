@@ -3,7 +3,6 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { serif } from "@/lib/fonts";
 import { useI18n } from "@/i18n/I18nProvider";
-import { useMountTransition } from "@/lib/useEnterTransition";
 
 import SiteTypes from "@/components/SiteTypes";
 import SiteConfigurator from "@/components/SiteConfigurator";
@@ -68,7 +67,6 @@ export default function SiteLayers() {
   const { locale } = useI18n();
   const isEn = locale === "en";
   const [open, setOpen] = useState<LayerKey | null>(null);
-  const { mounted, shown } = useMountTransition(open !== null, 400);
   const dialogId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
@@ -143,7 +141,7 @@ export default function SiteLayers() {
       </section>
 
       {/* ── Полноэкранное окно с содержимым выбранного раздела ── */}
-      {mounted && active && (
+      {active && (
         <div
           role="dialog"
           aria-modal="true"
@@ -152,9 +150,6 @@ export default function SiteLayers() {
             position: "fixed", inset: 0, zIndex: 120,
             background: BG,
             overflowY: "auto",
-            opacity: shown ? 1 : 0,
-            transform: shown ? "translateY(0)" : "translateY(12px)",
-            transition: "opacity 0.4s ease, transform 0.4s cubic-bezier(0.22,1,0.36,1)",
           }}
         >
           <h2 id={dialogId} style={srOnly}>

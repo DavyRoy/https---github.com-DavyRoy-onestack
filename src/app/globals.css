@@ -273,6 +273,7 @@ select,textarea {
    Раскладка на чистом CSS: не зависит от JS и работает до гидратации.
    ========================================================================== */
 .site-layers {
+  margin-top: clamp(58px, 6vw, 76px);   /* высота фиксированной шапки */
   --row: clamp(74px, 11vw, 150px);   /* высота кликабельной строки слоя */
   --inset: clamp(14px, 5vw, 96px);   /* насколько каждый слой уже правого края */
   position: relative;
@@ -290,8 +291,13 @@ select,textarea {
   font: inherit;
   cursor: pointer;
   overflow: hidden;
-  display: block;
   width: auto;
+  /* Именно flex-column: у button содержимое иначе центрируется по вертикали,
+     и строка с названием уезжала на середину слоя под соседний слой. */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
 }
 /* Строка с подписью и названием — прижата к правому краю своего слоя. */
 .site-layer__row {
