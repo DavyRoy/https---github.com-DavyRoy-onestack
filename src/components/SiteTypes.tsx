@@ -663,7 +663,7 @@ export default function SiteTypes() {
   }, []);
 
   return (
-    <section id="types" style={{ background: BG, padding: isMobile ? "120px 0 60px" : "160px 0 80px" }}>
+    <section id="types" style={{ background: BG, padding: isMobile ? "72px 0 60px" : "100px 0 80px" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px" }}>
 
         {/* Header */}
@@ -686,9 +686,7 @@ export default function SiteTypes() {
               {label}
             </span>
           </div>
-          {/* Первый блок страницы /sites, поэтому здесь h1: прежний h1 жил
-              в SiteIntro, который со страницы убран. */}
-          <h1
+          <h2
             className={serif.className}
             style={{ margin: 0, fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}
           >
@@ -698,7 +696,7 @@ export default function SiteTypes() {
             <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
               {titleLines[1]}
             </span>
-          </h1>
+          </h2>
         </motion.div>
 
         {/* Two rows */}

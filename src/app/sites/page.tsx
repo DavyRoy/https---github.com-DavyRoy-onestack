@@ -6,13 +6,8 @@ import { QuoteProvider } from "@/app/context/QuoteContext";
 import { canonical, siteName, siteUrl } from "@/app/seo.config";
 
 import NavBar from "@/components/NavBar";
+import SiteLayers from "@/components/SiteLayers";
 import HomeFooter from "@/components/HomeFooter";
-import SiteTypes from "@/components/SiteTypes";
-import SiteConfigurator from "@/components/SiteConfigurator";
-import SiteBenefits from "@/components/SiteBenefits";
-import SiteCalculator from "@/components/SiteCalculator";
-import SiteContact from "@/components/SiteContact";
-import SiteFAQ from "@/components/SiteFAQ";
 
 /* ───────────────── SEO constants ───────────────── */
 const title = "Разработка сайтов под ключ — лендинги, порталы, e-commerce | OneStack";
@@ -55,12 +50,9 @@ function SitesClientTree() {
   return (
     <QuoteProvider>
       <NavBar />
-      <SiteTypes />
-      <SiteConfigurator />
-      <SiteBenefits />
-      <SiteCalculator /> {/* может вызывать router.push('#contact') */}
-      <SiteContact />
-      <SiteFAQ />
+      {/* Разделы открываются во весь экран из SiteLayers.
+          «Преимущества» и «Вопросы и ответы» со страницы убраны. */}
+      <SiteLayers />
       <HomeFooter />
     </QuoteProvider>
   );

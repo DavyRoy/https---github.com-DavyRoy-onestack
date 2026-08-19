@@ -266,6 +266,79 @@ input[type="text"],input[type="email"],input[type="tel"],input[type="password"],
 select,textarea {
   @apply rounded-xl border border-[--color-border] bg-[--color-panel] px-3 py-2;
 }
+/* ==========================================================================
+   /sites — вложенные цветные слои (по образцу parkgorkogo.ru)
+   Каждый следующий слой начинается ниже предыдущего и уже него справа,
+   поэтому справа остаются видны узкие полосы нижележащих слоёв.
+   Раскладка на чистом CSS: не зависит от JS и работает до гидратации.
+   ========================================================================== */
+.site-layers {
+  --row: clamp(74px, 11vw, 150px);   /* высота кликабельной строки слоя */
+  --inset: clamp(14px, 5vw, 96px);   /* насколько каждый слой уже правого края */
+  position: relative;
+  height: calc(var(--row) * 4 + clamp(150px, 26vw, 320px));
+}
+.site-layer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: calc(var(--inset) * var(--i));
+  top: calc(var(--row) * var(--i));
+  border: 0;
+  padding: 0;
+  text-align: inherit;
+  font: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  display: block;
+  width: auto;
+}
+/* Строка с подписью и названием — прижата к правому краю своего слоя. */
+.site-layer__row {
+  height: var(--row);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(10px, 1.6vw, 26px);
+  padding: 0 clamp(14px, 2.4vw, 44px);
+}
+.site-layer__eyebrow {
+  font-size: clamp(8px, 0.72vw, 11px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.72;
+}
+.site-layer__title {
+  font-size: clamp(1.05rem, 3.5vw, 3.6rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.site-layer__arrow {
+  font-size: clamp(1rem, 1.8vw, 1.9rem);
+  line-height: 1;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translate(-6px, 6px);
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.site-layer:hover .site-layer__arrow,
+.site-layer:focus-visible .site-layer__arrow { opacity: 1; transform: translate(0, 0); }
+.site-layer:focus-visible { outline: 2px solid #2dd4bf; outline-offset: -4px; }
+
+/* На узких экранах вложенность съедает ширину — раскладываем простым списком. */
+@media (max-width: 700px) {
+  .site-layers { height: auto; }
+  .site-layer { position: static; top: auto; right: auto; bottom: auto; width: 100%; }
+  .site-layer__row { justify-content: space-between; }
+  .site-layer__title { font-size: clamp(1.15rem, 6.2vw, 2rem); }
+  .site-layer__eyebrow { font-size: 9px; }
+}
+
 /* Секция «Обсудим проект»: заголовок и форма рядом только когда форме хватает
    места. Ширина 440px под заголовок + 64px зазор оставляли форме слишком узкую
    колонку на планшетах, поэтому до 1100px раскладываем в один столбец. */
