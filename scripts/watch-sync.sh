@@ -2,8 +2,11 @@
 set -e
 
 # === НАСТРОЙ ===
-REMOTE="root@5.129.249.234"
-REMOTE_DIR="/srv/onestack"
+# Боевой сервер (сюда указывает A-запись onestack24.ru).
+# Прежние значения 5.129.249.234:/srv/onestack устарели после переезда —
+# синк туда молча уходил в пустоту, а сайт оставался старым.
+REMOTE="root@194.87.104.57"
+REMOTE_DIR="/opt/onestack"
 
 RSYNC_EXCLUDES=(
   "--exclude=.git"
