@@ -356,13 +356,47 @@ select,textarea {
 .site-layer:focus-visible { outline: 2px solid #2dd4bf; outline-offset: -4px; }
 
 /* На узких экранах вложенность съедает ширину — раскладываем простым списком. */
+/* На узких экранах вложенность съедала бы ширину: раскладываем четыре
+   равных блока на всю ширину и высоту экрана — получается полноэкранное
+   меню, а не четыре узкие полосы. */
 @media (max-width: 700px) {
-  .site-layers { height: auto; }
-  .site-layer { position: static; top: auto; right: auto; bottom: auto; width: 100%; }
-  .site-layer__grow, .site-layer__grow--tail { flex-grow: 0; }
-  .site-layer__label { flex: 1; justify-content: space-between; }
-  .site-layer__title { font-size: clamp(1.15rem, 6.2vw, 2rem); }
-  .site-layer__eyebrow { font-size: 9px; }
+  .site-layers {
+    height: calc(100svh - clamp(58px, 6vw, 76px));
+    min-height: 470px;
+    display: flex;
+    flex-direction: column;
+  }
+  .site-layer {
+    position: static;
+    inset: auto;
+    width: 100%;
+    flex: 1 1 0;
+    min-height: 104px;
+  }
+  .site-layer__row {
+    height: auto;
+    flex: 1;
+    padding: 0 20px;
+    gap: 14px;
+  }
+  /* Распорки нужны только для съезда к центру по наведению — на тач-экранах
+     наведения нет, подпись просто стоит слева. */
+  .site-layer__grow, .site-layer__grow--tail { display: none; }
+  .site-layer__label {
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 7px;
+  }
+  .site-layer__eyebrow { font-size: 9px; letter-spacing: 0.16em; }
+  .site-layer__title {
+    font-size: clamp(1.3rem, 7vw, 2.1rem);
+    white-space: normal;   /* длинные названия переносятся, а не вылезают */
+  }
+  /* Без наведения стрелка иначе осталась бы невидимой. */
+  .site-layer__arrow { opacity: 1; transform: none; font-size: 1.3rem; }
 }
 
 /* Секция «Обсудим проект»: заголовок и форма рядом только когда форме хватает
