@@ -209,7 +209,7 @@ export default function HomeIntro() {
               <span className="block overflow-hidden leading-[1.12] py-1">
                 <span
                   className={`${serif.className} headline-enter block font-bold tracking-[-0.02em]`}
-                  style={{ fontSize: "clamp(2.2rem, 5.6vw, 4.6rem)", color: WHITE }}
+                  style={{ fontSize: "clamp(2.2rem, 8vw, 7.5rem)", color: WHITE }}
                 >
                   {c.headline}
                 </span>
