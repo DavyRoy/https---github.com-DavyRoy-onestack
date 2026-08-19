@@ -5,7 +5,6 @@ import { serif } from "@/lib/fonts";
 import React, { useEffect, useMemo, useState, useId } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { MessageCircle, ArrowRight, Percent, Sparkles, Server } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useQuote } from "@/app/context/QuoteContext";
 import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -129,7 +128,6 @@ export default function SiteCalculator() {
   const isEn = locale === "en";
   const { money, amount } = useMoney(isEn ? "en" : "ru");
   const PRESETS = isEn ? PRESETS_EN : PRESETS_RU;
-  const router    = useRouter();
   const { setQuote } = useQuote();
   const reduced   = useReducedMotion();
   const titleId   = useId();
@@ -277,7 +275,9 @@ export default function SiteCalculator() {
         discountK: `x${result.breakdown.discountK}`, speedK: `x${result.breakdown.speedK}`,
       },
     });
-    router.push("#contact");
+    // Раздел «Обсудить проект» теперь открывается отдельным окном (SiteLayers),
+    // прокрутка к #contact на странице больше ни к чему не привела бы.
+    window.dispatchEvent(new CustomEvent("site-open-section", { detail: "contact" }));
   };
 
   const structuredData = useMemo(() => ({

@@ -77,6 +77,45 @@ export default function SiteLayers() {
   }, []);
   const close = useCallback(() => setOpen(null), []);
 
+  /* Переходы между разделами.
+     Раньше все блоки были на одной странице и «Рассчитать стоимость» просто
+     прокручивала к калькулятору. Теперь разделы живут в отдельных окнах, и
+     нужный раздел надо открыть — иначе событие ловить некому. */
+  const pendingPrefill = useRef<unknown>(null);
+  const suppress = useRef(false);
+
+  useEffect(() => {
+    const onPrefill = (e: Event) => {
+      if (suppress.current) return;           // это наша же повторная отправка
+      pendingPrefill.current = (e as CustomEvent).detail;
+      setOpen("calculator");
+    };
+    const onGoto = (e: Event) => {
+      const key = (e as CustomEvent).detail as LayerKey;
+      if (LAYERS.some(l => l.key === key)) setOpen(key);
+    };
+    window.addEventListener("calc-prefill", onPrefill);
+    window.addEventListener("site-open-section", onGoto);
+    return () => {
+      window.removeEventListener("calc-prefill", onPrefill);
+      window.removeEventListener("site-open-section", onGoto);
+    };
+  }, []);
+
+  /* Калькулятор монтируется уже после того, как событие отправлено, поэтому
+     повторяем его — теперь слушатель на месте. */
+  useEffect(() => {
+    if (open !== "calculator" || pendingPrefill.current === null) return;
+    const detail = pendingPrefill.current;
+    pendingPrefill.current = null;
+    const t = setTimeout(() => {
+      suppress.current = true;
+      window.dispatchEvent(new CustomEvent("calc-prefill", { detail }));
+      suppress.current = false;
+    }, 0);
+    return () => clearTimeout(t);
+  }, [open]);
+
   /* Esc закрывает окно */
   useEffect(() => {
     if (!open) return;
