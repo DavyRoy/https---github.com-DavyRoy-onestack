@@ -6,7 +6,6 @@ import React, { useEffect, useMemo, useState, useId } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { MessageCircle, ArrowRight, Percent, Sparkles, Server } from "lucide-react";
 import { useQuote } from "@/app/context/QuoteContext";
-import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useMoney } from "@/lib/useMoney";
 
@@ -303,7 +302,7 @@ export default function SiteCalculator() {
 
   return (
     <>
-      <Script id="ld-sites-calc" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-sites-calc" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
       <section

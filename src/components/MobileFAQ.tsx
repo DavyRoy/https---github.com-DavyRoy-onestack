@@ -4,7 +4,6 @@ import { serif } from "@/lib/fonts";
 
 import { memo, useCallback, useId, useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import Script from "next/script";
 import { Plus, Minus } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 import { siteName, siteUrl } from "@/app/seo.config";
@@ -307,7 +306,7 @@ export default function MobileFAQ() {
 
   return (
     <>
-      <Script id="ld-mobile-faq" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-mobile-faq" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

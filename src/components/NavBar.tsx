@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useMountTransition } from "@/lib/useEnterTransition";
-import Script from "next/script";
 import { siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
 import LanguageSwitcher from "./LanguageSwitcher";
@@ -319,7 +318,7 @@ export default function NavBar() {
           </div>
       )}
 
-      <Script id="ld-site-nav" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-site-nav" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(navLd) }} />
     </>
   );

@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState, useId } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { Sparkles, Server, Percent, MessageCircle, ArrowRight } from "lucide-react";
 import { useQuote } from "@/app/context/QuoteContext";
-import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useMoney } from "@/lib/useMoney";
 
@@ -260,7 +259,7 @@ export default function MobileCalculator() {
 
   return (
     <>
-      <Script id="ld-mobile-calc" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-mobile-calc" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

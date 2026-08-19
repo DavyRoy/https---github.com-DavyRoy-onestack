@@ -3,7 +3,6 @@
 import { serif } from "@/lib/fonts";
 
 import React, { memo, useMemo, useId, useState } from "react";
-import Script from "next/script";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Timer, Activity, Boxes, ShieldCheck, KeyRound, Database,
@@ -149,9 +148,9 @@ export default function WebAppPerfSecurity() {
 
   return (
     <>
-      <Script id="ld-webapp-perf-service" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-webapp-perf-service" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdService) }} />
-      <Script id="ld-webapp-perf-list" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-webapp-perf-list" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdList) }} />
 
       <section

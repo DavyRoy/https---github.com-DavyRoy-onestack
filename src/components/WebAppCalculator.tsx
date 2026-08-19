@@ -9,7 +9,6 @@ import { Sparkles, Server, Percent, MessageCircle, ArrowRight } from "lucide-rea
 import { useQuote } from "@/app/context/QuoteContext";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useMoney } from "@/lib/useMoney";
-import Script from "next/script";
 import { siteUrl } from "@/app/seo.config";
 
 
@@ -258,7 +257,7 @@ export default function WebAppCalculator() {
 
   return (
     <>
-      <Script id="ld-webapp-calc" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-webapp-calc" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

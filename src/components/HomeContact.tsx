@@ -3,7 +3,6 @@ import { serif } from "@/lib/fonts";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, memo } from "react";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
-import Script from "next/script";
 import {
   Mail, Phone, Building2, Paperclip, CheckCircle2, X,
   ArrowRight, MessageCircle, Clock3,
@@ -310,7 +309,7 @@ export default function HomeContact() {
 
   return (
     <>
-      <Script id="ld-home-contact" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-home-contact" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section id="contact" aria-labelledby={titleId}

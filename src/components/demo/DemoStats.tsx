@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Menu, X, Play, Home, Crown } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import Script from "next/script";
 
 /* ===================== DATA ===================== */
 const NAV_LINKS = [
@@ -293,7 +292,7 @@ export default function DemoNavBar() {
       </AnimatePresence>
 
       {/* SEO Structured Data */}
-      <Script
+      <script
         id="ld-demo-nav"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(navLd) }}

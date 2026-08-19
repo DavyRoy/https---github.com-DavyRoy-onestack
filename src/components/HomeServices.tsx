@@ -8,7 +8,6 @@ import { X, Globe, Cpu, Smartphone, ArrowRight, Check, Sparkles } from "lucide-r
 import { motion, AnimatePresence, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { createPortal } from "react-dom";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import Script from "next/script";
 
 /* ==================== PREMIUM ANIMATIONS ==================== */
 const fadeUp = (d = 0) => ({
@@ -411,10 +410,9 @@ export default function HomeServices() {
   return (
     <>
       {/* New SEO JSON-LD (single optimized block) */}
-      <Script
+      <script
         id="ld-home-services"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 

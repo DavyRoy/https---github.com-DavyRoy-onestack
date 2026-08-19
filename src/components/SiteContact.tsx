@@ -8,7 +8,6 @@ import {
   Mail, Phone, Building2, Paperclip, CheckCircle2, X,
   ArrowRight, MessageCircle, Clock3, User, Calendar, FileText, Calculator,
 } from "lucide-react";
-import Script from "next/script";
 import { siteName, siteUrl } from "@/app/seo.config";
 import { useQuote } from "@/app/context/QuoteContext";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -261,7 +260,7 @@ export default function SiteContact() {
 
   return (
     <>
-      <Script id="ld-site-contact" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-site-contact" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

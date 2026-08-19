@@ -5,7 +5,6 @@ import { serif } from "@/lib/fonts";
 import { useCallback, useEffect, useId, useMemo, useState, memo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Plus, Minus, Mail, Phone } from "lucide-react";
-import Script from "next/script";
 import { siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
 
@@ -222,7 +221,7 @@ export default function WebAppFAQ() {
 
   return (
     <>
-      <Script id="ld-webapp-faq" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-webapp-faq" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

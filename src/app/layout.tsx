@@ -162,10 +162,9 @@ export default async function RootLayout({
               GLOBAL SCRIPTS (analytics separated but still here for performance)
           ====================================================================================== */}
 
-          <Script
+          <script
             id="structured-data-org"
             type="application/ld+json"
-            strategy="afterInteractive"
             dangerouslySetInnerHTML={{
               __html: JSON.stringify({
                 "@context": "https://schema.org",

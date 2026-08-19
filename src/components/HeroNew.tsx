@@ -2,7 +2,6 @@
 import { serif } from "@/lib/fonts";
 
 import Link from "next/link";
-import Script from "next/script";
 import React, {
   useState, useCallback, useEffect, useRef, FormEvent, forwardRef, useId,
 } from "react";
@@ -384,9 +383,8 @@ export default function HeroNew() {
       className="relative w-full min-h-[100dvh] flex flex-col"
       style={{ background: BG }}
     >
-      <Script id="schema-hero-new" type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context":"https://schema.org","@type":"Organization",name:SITE_NAME,url:SITE_URL }) }}
-        strategy="afterInteractive" />
+      <script id="schema-hero-new" type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({ "@context":"https://schema.org","@type":"Organization",name:SITE_NAME,url:SITE_URL }) }} />
 
       <CursorGlow />
       <Grain />

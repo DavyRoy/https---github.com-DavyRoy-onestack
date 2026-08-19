@@ -5,7 +5,6 @@ import { serif } from "@/lib/fonts";
 import React, { useEffect, useState, useMemo, useId, useRef } from "react";
 import { motion, useReducedMotion, useInView } from "framer-motion";
 import { ShieldCheck, Zap, Gauge, Code2, Rocket, LineChart, Cpu, Handshake, Sparkles } from "lucide-react";
-import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
 
 
@@ -129,7 +128,7 @@ export default function SiteBenefits() {
       aria-labelledby={titleId}
       style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
     >
-      <Script id="ld-sitebenefits" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-sitebenefits" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(seoJsonLd) }} />
 
       {/* Ambient glow */}

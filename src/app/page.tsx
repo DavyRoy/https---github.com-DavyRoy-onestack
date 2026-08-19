@@ -1,6 +1,5 @@
 // src/app/page.tsx
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Suspense } from "react";
 import { QuoteProvider } from "@/app/context/QuoteContext";
 import { canonical, siteName, siteUrl } from "@/app/seo.config";
@@ -155,22 +154,22 @@ export default async function HomePage() {
   return (
     <main style={{ background: "#07100e" }} className="text-white">
       {/* ─── JSON-LD для SEO ─── */}
-      <Script
+      <script
         id="ld-website-home"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldWebsite) }}
       />
-      <Script
+      <script
         id="ld-org-home"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrg) }}
       />
-      <Script
+      <script
         id="ld-breadcrumbs-home"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumbs) }}
       />
-      <Script
+      <script
         id="ld-faq-home"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldFaq) }}

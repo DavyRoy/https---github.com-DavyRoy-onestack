@@ -3,7 +3,6 @@
 import { serif } from "@/lib/fonts";
 
 import React, { useState, useMemo, useId, useEffect, useRef } from "react";
-import Script from "next/script";
 import { motion, useReducedMotion, useInView } from "framer-motion";
 import {
   Rocket, Smartphone, WifiOff, Bell,
@@ -137,7 +136,7 @@ export default function MobileBenefits() {
       aria-labelledby={titleId}
       style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
     >
-      <Script id="ld-mobile-benefits" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-mobile-benefits" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Ambient glow */}

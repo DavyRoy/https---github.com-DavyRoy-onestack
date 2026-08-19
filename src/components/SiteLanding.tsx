@@ -4,7 +4,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import Script from "next/script";
 import { CheckCircle } from "lucide-react";
 import { useMemo } from "react";
 
@@ -97,10 +96,9 @@ export default function SiteLanding() {
       itemType="https://schema.org/Service"
     >
       {/* JSON-LD */}
-      <Script
+      <script
         id="schema-service-landing"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 

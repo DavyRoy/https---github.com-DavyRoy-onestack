@@ -1,8 +1,8 @@
 // src/app/webapp/page.tsx
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Suspense } from "react";
 import { canonical, siteName, siteUrl } from "@/app/seo.config";
+import { getRequestLocale, buildCanonical, buildLanguageAlternates, buildOpenGraphLocale } from "@/i18n/server";
 import { QuoteProvider } from "@/app/context/QuoteContext";
 
 import NavBar from "@/components/NavBar";
@@ -12,33 +12,50 @@ import HomeFooter from "@/components/HomeFooter";
 /* ==================== SEO / CONFIG ==================== */
 
 
-const title = "Разработка веб-приложений: CRM, ERP, личные кабинеты | OneStack";
+const title =
+  "Разработка веб-приложений: CRM, ERP, кабинеты";
 const description =
   "Проектируем и создаём веб-приложения: личные кабинеты, CRM/ERP, аналитические дашборды. Роли и доступы, безопасные API, интеграции (оплаты, CRM, склад), масштабируемость.";
+
+// Английская версия индексируется отдельно, поэтому у неё свои title и description.
+const TITLE_EN = "Web application development: CRM, ERP, client portals";
+const DESC_EN =
+  "We design and build web applications: client portals, CRM/ERP, analytics dashboards. Roles and permissions, security, scalable architecture.";
 const url = canonical("/webapp");
 
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: {
-    canonical: url,
-    languages: {
-      "ru": url,
-      "en": canonical("/webapp"),
-      "x-default": url,
+export async function generateMetadata(): Promise<Metadata> {
+  // Локаль берём из запроса: без этого canonical английской страницы указывал
+  // на русскую, и вся /en-версия выпадала из индекса как дубль.
+  const locale = await getRequestLocale();
+  const pageUrl = buildCanonical("/webapp", locale);
+
+  const isEn = locale === "en";
+  const pageTitle = isEn ? TITLE_EN : title;
+  const pageDesc = isEn ? DESC_EN : description;
+
+  return {
+    title: pageTitle,
+    description: pageDesc,
+    alternates: {
+      canonical: pageUrl,
+      languages: {
+        ...buildLanguageAlternates("/webapp"),
+        "x-default": canonical("/webapp"),
+      },
     },
-  },
-  openGraph: {
-    type: "website",
-    url,
-    title,
-    description,
-    siteName,
-    locale: "ru_RU",
-    images: [{ url: `${siteUrl}/og/webapp.svg`, width: 1200, height: 630, alt: title }],
-  },
-  twitter: { card: "summary_large_image", title, description, images: [`${siteUrl}/og/webapp.svg`] },
-};
+    openGraph: {
+      type: "website",
+      url: pageUrl,
+      title: pageTitle,
+      description: pageDesc,
+      siteName,
+      locale: buildOpenGraphLocale(locale),
+      // og:image не задаём: Next возьмёт его из opengraph-image.tsx и отдаст
+      // PNG. Прежние SVG соцсети не показывали вовсе.
+    },
+    twitter: { card: "summary_large_image", title: pageTitle, description: pageDesc },
+  };
+}
 
 // Важно: дочерние компоненты могут использовать useSearchParams(). Запрещаем SSG.
 export const dynamic = "force-dynamic";
@@ -88,12 +105,12 @@ export default function WebAppPage() {
         }}
       />
       {/* ==================== JSON-LD ==================== */}
-      <Script
+      <script
         id="ld-service-webapp"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }}
       />
-      <Script
+      <script
         id="ld-breadcrumbs-webapp"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumbs) }}

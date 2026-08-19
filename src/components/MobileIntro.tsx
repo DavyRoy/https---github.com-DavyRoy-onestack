@@ -11,7 +11,6 @@ import {
   useSpring,
 } from "framer-motion";
 import Link from "next/link";
-import Script from "next/script";
 import { useRef, useMemo, useId, useEffect, useCallback, useState } from "react";
 import { siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -139,10 +138,9 @@ export default function MobileIntro() {
 
   return (
     <>
-      <Script
+      <script
         id="ld-mi-svc"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSvc) }}
       />
 

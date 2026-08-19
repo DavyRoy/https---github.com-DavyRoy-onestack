@@ -7,7 +7,6 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { createPortal } from "react-dom";
 import { X, ArrowRight, CheckCircle } from "lucide-react";
 import NextImage from "next/image";
-import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
 
 
@@ -515,10 +514,9 @@ export default function WebAppKinds() {
         })}
       </div>
 
-      <Script
+      <script
         id="ld-webappkinds-list"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
       />
 

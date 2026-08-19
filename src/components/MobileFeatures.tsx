@@ -3,7 +3,6 @@
 import { serif } from "@/lib/fonts";
 
 import React from "react";
-import Script from "next/script";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Smartphone, Bell, WifiOff, MapPin, Camera,
@@ -109,10 +108,9 @@ export default function MobileFeatures() {
         </div>
       </div>
 
-      <Script
+      <script
         id="ld-mobile-features"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
     </section>

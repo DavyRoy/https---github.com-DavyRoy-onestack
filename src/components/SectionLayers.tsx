@@ -125,15 +125,21 @@ export default function SectionLayers({
         </div>
       </section>
 
-      {active && (
-        <FullScreenDialog
-          title={isEn ? active.en.title : active.ru.title}
-          closeLabel={isEn ? "Close" : "Закрыть"}
-          onClose={close}
-        >
-          {active.render()}
-        </FullScreenDialog>
-      )}
+      {/* Все разделы всегда присутствуют в разметке — иначе поисковый робот
+          при обходе видит пустую страницу: он не кликает по слоям. Показан
+          только открытый, остальные скрыты, как во вкладках или аккордеоне. */}
+      <FullScreenDialog
+        open={!!active}
+        title={active ? (isEn ? active.en.title : active.ru.title) : ""}
+        closeLabel={isEn ? "Close" : "Закрыть"}
+        onClose={close}
+      >
+        {layers.map(l => (
+          <div key={l.key} hidden={l.key !== open}>
+            {l.render()}
+          </div>
+        ))}
+      </FullScreenDialog>
     </>
   );
 }

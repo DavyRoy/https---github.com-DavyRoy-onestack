@@ -4,7 +4,6 @@ import { serif } from "@/lib/fonts";
 
 import React, { memo, useMemo, useId, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import Script from "next/script";
 import {
   Users2, ShieldCheck, BarChart3, Bell, Database,
   LockKeyhole, Cloud, PlugZap, Cog, Play,
@@ -77,7 +76,7 @@ export default function WebAppModules() {
 
   return (
     <>
-      <Script id="ld-webapps-modules" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-webapps-modules" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

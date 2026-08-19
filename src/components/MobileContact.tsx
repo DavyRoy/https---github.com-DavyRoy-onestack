@@ -4,7 +4,6 @@ import { serif } from "@/lib/fonts";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion, AnimatePresence } from "framer-motion";
-import Script from "next/script";
 import {
   Mail, Phone, Building2, Paperclip, CheckCircle2, X,
   ArrowRight, MessageCircle, Clock3, User, Calendar, FileText, Calculator,
@@ -268,7 +267,7 @@ export default function MobileContact({ inDialog = false }: { inDialog?: boolean
 
   return (
     <>
-      <Script id="ld-mobile-contact" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-mobile-contact" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

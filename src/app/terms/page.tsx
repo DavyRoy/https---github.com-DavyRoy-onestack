@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import TermsContent from "@/components/TermsContent";
 import { canonical, siteName, siteUrl } from "@/app/seo.config";
 
@@ -45,9 +44,9 @@ const LD_BREADCRUMBS = {
 export default function TermsPage() {
   return (
     <>
-      <Script id="ld-webpage-terms" type="application/ld+json"
+      <script id="ld-webpage-terms" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(LD_WEBPAGE) }} />
-      <Script id="ld-breadcrumbs-terms" type="application/ld+json"
+      <script id="ld-breadcrumbs-terms" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(LD_BREADCRUMBS) }} />
       <TermsContent />
     </>

@@ -19,12 +19,18 @@ const srOnly: React.CSSProperties = {
  * нулевой прозрачностью.
  */
 export default function FullScreenDialog({
-  title, onClose, closeLabel, children,
+  title, onClose, closeLabel, children, open = true,
 }: {
   title: string;
   onClose: () => void;
   closeLabel: string;
   children: React.ReactNode;
+  /**
+   * Когда false, содержимое остаётся в разметке, но скрыто. Это важно для
+   * поиска: если разделы монтировать только по клику, робот при обходе
+   * видит пустую страницу.
+   */
+  open?: boolean;
 }) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -32,13 +38,15 @@ export default function FullScreenDialog({
 
   /* Esc закрывает */
   useEffect(() => {
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, open]);
 
   /* Блокировка прокрутки страницы под окном (безопасно для iOS) */
   useEffect(() => {
+    if (!open) return;
     const y = window.scrollY;
     const { style } = document.body;
     style.position = "fixed";
@@ -49,14 +57,18 @@ export default function FullScreenDialog({
       style.position = ""; style.top = ""; style.width = ""; style.overflow = "";
       window.scrollTo(0, y);
     };
-  }, []);
+  }, [open]);
 
   /* Фокус на кнопку закрытия, при закрытии — обратно на то, что его открыло */
   useEffect(() => {
+    if (!open) return;
     returnFocusRef.current = document.activeElement as HTMLElement;
     closeRef.current?.focus();
     return () => returnFocusRef.current?.focus();
-  }, []);
+  }, [open]);
+
+  // Скрытая разметка не должна быть доступна с клавиатуры и скринридерам.
+  if (!open) return <div hidden>{children}</div>;
 
   return (
     <div

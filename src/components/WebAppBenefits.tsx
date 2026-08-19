@@ -8,7 +8,6 @@ import {
   ShieldCheck, KeyRound, Gauge, ServerCog, PlugZap,
   Rocket, Activity, BugPlay, CloudCog,
 } from "lucide-react";
-import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
 import { siteUrl } from "@/app/seo.config";
 
@@ -140,7 +139,7 @@ export default function WebAppBenefits() {
       aria-labelledby={titleId}
       style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
     >
-      <Script id="ld-webapp-benefits" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-webapp-benefits" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Ambient glow */}

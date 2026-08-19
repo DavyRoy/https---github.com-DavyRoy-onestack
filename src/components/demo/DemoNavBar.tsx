@@ -261,7 +261,7 @@ export default function DemoNavBar() {
       </AnimatePresence>
 
       {/* SEO JSON-LD */}
-      <Script
+      <script
         id="ld-demo-navbar"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(navLd) }}

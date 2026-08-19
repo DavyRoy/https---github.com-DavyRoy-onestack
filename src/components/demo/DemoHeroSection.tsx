@@ -58,10 +58,9 @@ export default function DemoHeroSection() {
       style={{ background: "#07100e" }}
     >
       {/* SEO structured data */}
-      <Script
+      <script
         id="ld-demo-hero"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 

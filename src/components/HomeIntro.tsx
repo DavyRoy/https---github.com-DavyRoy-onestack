@@ -6,7 +6,6 @@ import {
   useMotionValue, useSpring,
 } from "framer-motion";
 import Link from "next/link";
-import Script from "next/script";
 import { useRef, useMemo, useId, useEffect, useState, useCallback } from "react";
 import { siteName, siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -120,9 +119,9 @@ export default function HomeIntro() {
 
   return (
     <>
-      <Script id="ld-hi-org" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-hi-org" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }} />
-      <Script id="ld-hi-svc" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-hi-svc" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSvc) }} />
 
       <section

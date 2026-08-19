@@ -11,7 +11,6 @@ import {
   useSpring,
 } from "framer-motion";
 import Link from "next/link";
-import Script from "next/script";
 import { useRef, useMemo, useId, useEffect, useCallback, useState } from "react";
 import { siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -165,9 +164,9 @@ export default function WebAppIntro() {
 
   return (
     <>
-      <Script id="ld-webapp-svc" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-webapp-svc" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSvc) }} />
-      <Script id="ld-webapp-bc" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-webapp-bc" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdBreadcrumb) }} />
 
       <section

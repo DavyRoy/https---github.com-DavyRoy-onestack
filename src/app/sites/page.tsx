@@ -1,48 +1,60 @@
 // src/app/sites/page.tsx
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Suspense } from "react";
 import { QuoteProvider } from "@/app/context/QuoteContext";
 import { canonical, siteName, siteUrl } from "@/app/seo.config";
+import { getRequestLocale, buildCanonical, buildLanguageAlternates, buildOpenGraphLocale } from "@/i18n/server";
 
 import NavBar from "@/components/NavBar";
 import SiteLayers from "@/components/SiteLayers";
 import HomeFooter from "@/components/HomeFooter";
 
 /* ───────────────── SEO constants ───────────────── */
-const title = "Разработка сайтов под ключ — лендинги, порталы, e-commerce | OneStack";
+const title =
+  "Разработка сайтов под ключ — лендинги и e-commerce";
 const description =
   "Делаем быстрые SEO-готовые сайты: лендинги от 1–2 нед., корпоративные порталы и интернет-магазины. Прозрачная смета, Core Web Vitals, поддержка после запуска. 150+ проектов.";
+
+// Английская версия индексируется отдельно, поэтому у неё свои title и description.
+const TITLE_EN = "Website development: landing pages, portals, e-commerce";
+const DESC_EN =
+  "Fast, SEO-ready websites: landing pages in 1–2 weeks, corporate portals and online stores. Transparent quote, Core Web Vitals, post-launch support.";
 const url = canonical("/sites");
 
 /* ───────────────── Metadata (App Router) ───────────────── */
-export const metadata: Metadata = {
-  title,
-  description,
-  alternates: {
-    canonical: url,
-    languages: {
-      "ru": url,
-      "en": canonical("/sites"),
-      "x-default": url,
+export async function generateMetadata(): Promise<Metadata> {
+  // Локаль берём из запроса: без этого canonical английской страницы указывал
+  // на русскую, и вся /en-версия выпадала из индекса как дубль.
+  const locale = await getRequestLocale();
+  const pageUrl = buildCanonical("/sites", locale);
+
+  const isEn = locale === "en";
+  const pageTitle = isEn ? TITLE_EN : title;
+  const pageDesc = isEn ? DESC_EN : description;
+
+  return {
+    title: pageTitle,
+    description: pageDesc,
+    alternates: {
+      canonical: pageUrl,
+      languages: {
+        ...buildLanguageAlternates("/sites"),
+        "x-default": canonical("/sites"),
+      },
     },
-  },
-  openGraph: {
-    type: "website",
-    url,
-    title,
-    description,
-    siteName,
-    locale: "ru_RU",
-    images: [{ url: `${siteUrl}/og/sites.svg`, width: 1200, height: 630, alt: title }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title,
-    description,
-    images: [`${siteUrl}/og/sites.svg`],
-  },
-};
+    openGraph: {
+      type: "website",
+      url: pageUrl,
+      title: pageTitle,
+      description: pageDesc,
+      siteName,
+      locale: buildOpenGraphLocale(locale),
+      // og:image не задаём: Next возьмёт его из opengraph-image.tsx и отдаст
+      // PNG. Прежние SVG соцсети не показывали вовсе.
+    },
+    twitter: { card: "summary_large_image", title: pageTitle, description: pageDesc },
+  };
+}
 
 /* ───────────────── Client subtree (hooks allowed) ───────────────── */
 function SitesClientTree() {
@@ -130,17 +142,17 @@ export default function SitesPage() {
         }}
       />
       {/* JSON-LD для SEO (серверный рендер через Script) */}
-      <Script
+      <script
         id="ld-service-sites"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(LD_SERVICE) }}
       />
-      <Script
+      <script
         id="ld-breadcrumbs-sites"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(LD_BREADCRUMBS) }}
       />
-      <Script
+      <script
         id="ld-organization-sites"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(LD_ORG) }}

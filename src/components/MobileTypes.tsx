@@ -7,7 +7,6 @@ import NextImage from "next/image";
 import { X, ArrowRight, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import Script from "next/script";
 import { useI18n } from "@/i18n/I18nProvider";
 
 
@@ -503,10 +502,9 @@ export default function MobileTypes() {
       {/* Modal */}
       <MobileModal openKey={openKey} onClose={closeAndClean} payload={openKey ? TYPES[openKey] : null} isEn={isEn} />
 
-      <Script
+      <script
         id="ld-mobile-types-list"
         type="application/ld+json"
-        strategy="afterInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }}
       />
     </section>

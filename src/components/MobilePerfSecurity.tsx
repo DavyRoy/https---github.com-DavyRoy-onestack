@@ -3,7 +3,6 @@
 import { serif } from "@/lib/fonts";
 
 import React, { memo, useMemo, useId, useState } from "react";
-import Script from "next/script";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Timer, Activity, Boxes, ShieldCheck, KeyRound, Database,
@@ -263,7 +262,7 @@ export default function MobilePerfSecurity() {
 
   return (
     <>
-      <Script id="ld-mobile-perf" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-mobile-perf" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

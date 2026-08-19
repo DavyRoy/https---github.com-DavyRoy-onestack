@@ -2,7 +2,6 @@
 import { serif } from "@/lib/fonts";
 
 import Link from "next/link";
-import Script from "next/script";
 import { useCallback, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
 import FullScreenDialog from "@/components/FullScreenDialog";
@@ -126,7 +125,7 @@ export default function HomeFooter() {
 
   return (
     <>
-      <Script id="ld-home-footer" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-home-footer" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <footer id="footer" role="contentinfo" aria-label={c.footerAria}

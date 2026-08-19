@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import PrivacyContent from "@/components/PrivacyContent";
 import { canonical, siteName, siteUrl } from "@/app/seo.config";
 
@@ -45,9 +44,9 @@ const LD_BREADCRUMBS = {
 export default function PrivacyPage() {
   return (
     <>
-      <Script id="ld-webpage-privacy" type="application/ld+json"
+      <script id="ld-webpage-privacy" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(LD_WEBPAGE) }} />
-      <Script id="ld-breadcrumbs-privacy" type="application/ld+json"
+      <script id="ld-breadcrumbs-privacy" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(LD_BREADCRUMBS) }} />
       <PrivacyContent />
     </>

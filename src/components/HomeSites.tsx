@@ -4,7 +4,6 @@ import { serif } from "@/lib/fonts";
 import { motion, useReducedMotion } from "framer-motion";
 import type { ReactElement } from "react";
 import Link from "next/link";
-import Script from "next/script";
 import { useEffect, useId, useMemo, useState } from "react";
 import { siteName, siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -301,7 +300,7 @@ export default function HomeSites() {
 
   return (
     <>
-      <Script id="ld-home-sites" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-home-sites" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section

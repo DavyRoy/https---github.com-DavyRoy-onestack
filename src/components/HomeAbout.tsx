@@ -3,7 +3,6 @@ import { serif } from "@/lib/fonts";
 
 import { useId, useMemo } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import Script from "next/script";
 import { siteName, siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
 
@@ -90,7 +89,7 @@ export default function HomeAbout() {
 
   return (
     <>
-      <Script id="ld-home-about" type="application/ld+json" strategy="afterInteractive"
+      <script id="ld-home-about" type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section id="about" aria-labelledby={titleId}

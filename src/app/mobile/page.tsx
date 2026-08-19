@@ -1,7 +1,6 @@
 // src/app/mobile/page.tsx
 import { Suspense } from "react";
 import type { Metadata } from "next";
-import Script from "next/script";
 
 import NavBar from "@/components/NavBar";
 import MobileLayers from "@/components/MobileLayers";
@@ -9,14 +8,20 @@ import HomeFooter from "@/components/HomeFooter";
 
 import { QuoteProvider } from "@/app/context/QuoteContext";
 import { canonical, siteName, siteUrl } from "@/app/seo.config";
+import { getRequestLocale, buildCanonical, buildLanguageAlternates, buildOpenGraphLocale } from "@/i18n/server";
 
 /* ──────────────────────────── constants & SEO ───────────────────────────── */
 
 const SITE_URL = siteUrl;
 
-const TITLE = "Разработка мобильных приложений — iOS и Android | OneStack";
+const TITLE = "Разработка мобильных приложений: iOS и Android";
 const DESC =
   "Кроссплатформенная разработка под iOS и Android: оффлайн, пуши, карты, платежи, аналитика. Единый бэкенд и CI/CD. Рассчитайте стоимость онлайн.";
+
+// Английская версия индексируется отдельно, поэтому у неё свои title и description.
+const TITLE_EN = "Mobile app development for iOS and Android";
+const DESC_EN =
+  "Cross-platform iOS and Android development: offline mode, push, maps, payments, analytics. Shared backend and CI/CD. Estimate the cost online.";
 const CANONICAL = canonical("/mobile");
 // Контакты
 const ORG_NAME = siteName;
@@ -26,33 +31,39 @@ const ORG_SAME_AS = [SITE_URL];
 
 /* ──────────────────────────── App Router metadata ───────────────────────── */
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESC,
-  alternates: {
-    canonical: CANONICAL,
-    languages: {
-      "ru": CANONICAL,
-      "en": canonical("/mobile"),
-      "x-default": CANONICAL,
+export async function generateMetadata(): Promise<Metadata> {
+  // Локаль берём из запроса: без этого canonical английской страницы указывал
+  // на русскую, и вся /en-версия выпадала из индекса как дубль.
+  const locale = await getRequestLocale();
+  const pageUrl = buildCanonical("/mobile", locale);
+
+  const isEn = locale === "en";
+  const pageTitle = isEn ? TITLE_EN : TITLE;
+  const pageDesc = isEn ? DESC_EN : DESC;
+
+  return {
+    title: pageTitle,
+    description: pageDesc,
+    alternates: {
+      canonical: pageUrl,
+      languages: {
+        ...buildLanguageAlternates("/mobile"),
+        "x-default": canonical("/mobile"),
+      },
     },
-  },
-  openGraph: {
-    type: "website",
-    url: CANONICAL,
-    title: TITLE,
-    description: DESC,
-    siteName: ORG_NAME,
-    locale: "ru_RU",
-    images: [{ url: `${SITE_URL}/og/mobile.svg`, width: 1200, height: 630, alt: TITLE }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESC,
-    images: [`${SITE_URL}/og/mobile.svg`],
-  },
-};
+    openGraph: {
+      type: "website",
+      url: pageUrl,
+      title: pageTitle,
+      description: pageDesc,
+      siteName,
+      locale: buildOpenGraphLocale(locale),
+      // og:image не задаём: Next возьмёт его из opengraph-image.tsx и отдаст
+      // PNG. Прежние SVG соцсети не показывали вовсе.
+    },
+    twitter: { card: "summary_large_image", title: pageTitle, description: pageDesc },
+  };
+}
 
 /**
  * Важно: отключаем статическую генерацию этой страницы,
@@ -145,22 +156,19 @@ export default function MobilePage() {
       <Suspense fallback={null}>
         <main style={{ background: "#07100e" }} className="text-white">
           {/* JSON-LD */}
-          <Script
+          <script
             id="ld-service-mobile"
             type="application/ld+json"
-            strategy="afterInteractive"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ldService()) }}
           />
-          <Script
+          <script
             id="ld-breadcrumbs-mobile"
             type="application/ld+json"
-            strategy="afterInteractive"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumbs()) }}
           />
-          <Script
+          <script
             id="ld-organization-mobile"
             type="application/ld+json"
-            strategy="afterInteractive"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrganization()) }}
           />
 

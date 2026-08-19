@@ -25,6 +25,8 @@ export default function robots(): MetadataRoute.Robots {
           "/healthz",
           "/modal/",
           "/tg",
+          "/test",   // тестовая страница, в выдаче ей не место
+          "/crm",    // вход во внутреннюю CRM
         ],
       },
     ],
