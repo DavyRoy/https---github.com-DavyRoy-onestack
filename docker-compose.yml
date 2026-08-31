@@ -41,7 +41,11 @@ services:
       MARIADB_PASSWORD: ${SUITECRM_DB_PASSWORD}
       MARIADB_EXTRA_FLAGS: "--character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     ports:
-      - "3307:3306"
+      # Только localhost: приложение, SuiteCRM и бэкапы ходят к базе по
+      # внутренней сети Docker, наружу порт не нужен. Открытым он собирал
+      # перебор пароля root с чужих адресов. Для доступа с ноутбука —
+      # ssh -L 3307:127.0.0.1:3307 root@<сервер>
+      - "127.0.0.1:3307:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
     networks: [web]
