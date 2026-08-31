@@ -95,10 +95,18 @@ services:
     environment:
       MYSQL_HOST: mariadb
       MYSQL_PORT: 3306
-      MYSQL_USER: ${SUITECRM_DB_USER}
-      MYSQL_PASSWORD: ${SUITECRM_DB_PASSWORD}
-      MYSQL_DATABASE: ${SUITECRM_DB}
+      # Отдельная учётка только для чтения — бэкапу не нужны права на запись,
+      # а root-пароль в этом контейнере не нужен тем более.
+      MYSQL_USER: backup
+      MYSQL_PASSWORD: ${BACKUP_DB_PASSWORD}
+      # Обе рабочие базы. Раньше копировалась только CRM, а база сайта
+      # с заявками не резервировалась вовсе. Перечисляем явно, чтобы в дамп
+      # не попадали служебные схемы MariaDB.
+      MYSQL_DATABASE: "onestack_app suitecrm"
       CRON_TIME: "0 2 * * *"
+      # Без ограничения дампы копились бы бессрочно. Диск на этом сервере уже
+      # переполнялся, и сайт из-за этого лежал.
+      MAX_BACKUPS: "14"
       MYSQLDUMP_OPTS: "--single-transaction --quick --lock-tables=false --hex-blob"
       GZIP_LEVEL: "6"
       TZ: "Europe/Moscow"
