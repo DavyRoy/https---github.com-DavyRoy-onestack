@@ -139,33 +139,41 @@ type Deploy      = "none" | "cloud" | "onprem";
 type HourlyMode  = "budget" | "standard" | "premium" | "custom";
 type SLAPlan     = "none" | "lite" | "pro" | "enterprise";
 
-const BASE_HOURS: Record<ProjectType, number> = { site: 80, webapp: 160, mobile: 180 };
-const PAGE_HOURS: Record<ProjectType, number> = { site: 10, webapp: 16,  mobile: 18  };
-const INTEGRATION_HOURS = 20;
+/* Трудозатраты калиброваны по калькулятору на /sites: раньше эта модель
+   давала за ту же задачу в 2.6–4.4 раза больше, потому что у неё был высокий
+   «пол» — лендинг из одной страницы получал 164 часа за счёт базы, фикса на
+   дизайн и развёртывания. */
+const BASE_HOURS: Record<ProjectType, number> = { site: 28, webapp: 70, mobile: 85 };
+const PAGE_HOURS: Record<ProjectType, number> = { site: 5,  webapp: 9,  mobile: 11 };
+const INTEGRATION_HOURS = 10;
 const COMPLEXITY_K = { 1: 0.9, 2: 1.0, 3: 1.25 } as const;
 const RUSH_MULTIPLIER = 1.35;
 const CONTINGENCY = 0.12;
-const DEPLOY_HOURS: Record<Deploy, number> = { none: 0, cloud: 24, onprem: 48 };
+const DEPLOY_HOURS: Record<Deploy, number> = { none: 0, cloud: 8, onprem: 16 };
+/* Часы на дизайн, добавляются к любому проекту. */
+const DESIGN_HOURS = 14;
 
 const MODULES = [
-  { key: "auth",          hours: 24, icon: Lock          },
-  { key: "payments",      hours: 28, icon: CreditCard     },
-  { key: "analytics",     hours: 12, icon: BarChart3      },
-  { key: "notifications", hours: 14, icon: Bell           },
-  { key: "search",        hours: 16, icon: Search         },
-  { key: "chat",          hours: 20, icon: MessageSquare  },
-  { key: "files",         hours: 18, icon: Files          },
-  { key: "admin",         hours: 26, icon: PanelsTopLeft  },
-  { key: "i18n",          hours: 12, icon: Languages      },
-  { key: "cms",           hours: 22, icon: Settings2      },
-  { key: "db",            hours: 12, icon: Database       },
+  { key: "auth",          hours: 12, icon: Lock          },
+  { key: "payments",      hours: 14, icon: CreditCard     },
+  { key: "analytics",     hours: 6, icon: BarChart3      },
+  { key: "notifications", hours: 7, icon: Bell           },
+  { key: "search",        hours: 8, icon: Search         },
+  { key: "chat",          hours: 10, icon: MessageSquare  },
+  { key: "files",         hours: 9, icon: Files          },
+  { key: "admin",         hours: 13, icon: PanelsTopLeft  },
+  { key: "i18n",          hours: 6, icon: Languages      },
+  { key: "cms",           hours: 11, icon: Settings2      },
+  { key: "db",            hours: 6, icon: Database       },
 ] as const;
 
 type ModuleKey = (typeof MODULES)[number]["key"];
 
-const SLA_HOURS: Record<SLAPlan, number>    = { none: 0,    lite: 10,   pro: 20,  enterprise: 40  };
+/* Часы поддержки в месяц. Тоже выровнены по /sites: там Basic стоит 18 тыс,
+   Pro — 44 тыс, а здесь те же планы выходили в 52 и 99 тыс. */
+const SLA_HOURS: Record<SLAPlan, number>    = { none: 0,    lite: 4,    pro: 9,   enterprise: 16  };
 const SLA_DISCOUNT: Record<SLAPlan, number> = { none: 1,    lite: 0.95, pro: 0.9, enterprise: 0.85 };
-const SUPPORT_MIN = 62500;
+const SUPPORT_MIN = 15000;
 
 /* ─── Shared styles ─────────────────────────────────────────────────────── */
 const card = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" };
@@ -218,7 +226,7 @@ export default function HomeCalculator() {
     for (const t of safe) hours += BASE_HOURS[t] * COMPLEXITY_K[complexity[t]] + pages[t] * PAGE_HOURS[t];
     hours += integrations * INTEGRATION_HOURS;
     for (const m of MODULES) if (mods[m.key]) hours += m.hours;
-    hours += 40; // design
+    hours += DESIGN_HOURS;
     hours += DEPLOY_HOURS[deploy];
     hours *= 1 + CONTINGENCY;
     const rushK = timeline === "rush" ? RUSH_MULTIPLIER : 1;
