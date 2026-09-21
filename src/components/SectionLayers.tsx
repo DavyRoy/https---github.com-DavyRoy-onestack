@@ -4,13 +4,8 @@ import { serif } from "@/lib/fonts";
 import { useI18n } from "@/i18n/I18nProvider";
 import FullScreenDialog from "@/components/FullScreenDialog";
 
-const BG = "#07100e";
-
-/** Скрыто визуально, но доступно поиску и скринридерам. */
-const srOnly: React.CSSProperties = {
-  position: "absolute", width: 1, height: 1, padding: 0, margin: -1,
-  overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0,
-};
+import ServiceHero, { type ServiceKind } from "@/components/ServiceHero";
+import ServiceContact from "@/components/ServiceContact";
 
 export type LayerDef = {
   key: string;
@@ -22,18 +17,14 @@ export type LayerDef = {
 };
 
 /**
- * Разделы страницы в виде вложенных цветных слоёв; по клику раздел
- * раскрывается на весь экран.
- *
- * Геометрия слоёв — в globals.css (.site-layers/.site-layer): на чистом CSS,
- * чтобы раскладка была верной ещё до гидратации.
+ * Полноэкранный первый экран, компактная навигация и видимые контакты.
+ * Калькуляторы и подробные разделы сохраняют полноэкранные окна.
  */
 export default function SectionLayers({
-  layers, h1Ru, h1En, ariaLabelRu, ariaLabelEn, calcKey = "calculator",
+  layers, service, ariaLabelRu, ariaLabelEn, calcKey = "calculator",
 }: {
   layers: LayerDef[];
-  h1Ru: string;
-  h1En: string;
+  service: ServiceKind;
   ariaLabelRu: string;
   ariaLabelEn: string;
   /** Ключ слоя с калькулятором — в него ведёт кнопка «Рассчитать стоимость». */
@@ -42,6 +33,19 @@ export default function SectionLayers({
   const { locale } = useI18n();
   const isEn = locale === "en";
   const [open, setOpen] = useState<string | null>(null);
+
+  const [contactVisit, setContactVisit] = useState(0);
+
+  useEffect(() => {
+    if (!contactVisit) return;
+    const frame = requestAnimationFrame(() => {
+      const contact = document.getElementById("contact");
+      contact?.focus({ preventScroll: true });
+      contact?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+      history.replaceState(null, "", "#contact");
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [contactVisit]);
 
   const close = useCallback(() => setOpen(null), []);
 
@@ -60,6 +64,12 @@ export default function SectionLayers({
     };
     const onGoto = (e: Event) => {
       const key = (e as CustomEvent).detail as string;
+      if (key === "contact") {
+        setOpen(null);
+        setContactVisit(value => value + 1);
+        e.preventDefault();
+        return;
+      }
       if (!layers.some(l => l.key === key)) return;
       setOpen(key);
       // Сообщаем отправителю (например, футеру), что раздел открыт здесь
@@ -92,18 +102,17 @@ export default function SectionLayers({
 
   return (
     <>
-      <section aria-label={isEn ? ariaLabelEn : ariaLabelRu} style={{ background: BG }}>
-        {/* Единственный h1 страницы: заголовки разделов живут внутри окон. */}
-        <h1 style={srOnly}>{isEn ? h1En : h1Ru}</h1>
+      <ServiceHero service={service} onCalculate={() => setOpen(calcKey)} />
+      <section id="service-sections" className="service-navigation" aria-label={isEn ? ariaLabelEn : ariaLabelRu}>
 
-        <div className="site-layers" style={{ "--n": layers.length } as React.CSSProperties}>
+        <div className="service-sections" style={{ "--n": layers.length } as React.CSSProperties}>
           {layers.map((l, i) => {
             const copy = isEn ? l.en : l.ru;
             return (
               <button
                 key={l.key}
                 type="button"
-                className="site-layer"
+                className="service-section-link"
                 style={{ "--i": i, background: l.bg, color: l.fg } as React.CSSProperties}
                 onClick={() => setOpen(l.key)}
                 aria-haspopup="dialog"
@@ -124,6 +133,8 @@ export default function SectionLayers({
           })}
         </div>
       </section>
+
+      <ServiceContact service={service} />
 
       {/* Все разделы всегда присутствуют в разметке — иначе поисковый робот
           при обходе видит пустую страницу: он не кликает по слоям. Показан
