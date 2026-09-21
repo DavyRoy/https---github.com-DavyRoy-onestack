@@ -343,7 +343,7 @@ export default function HomeCalculator() {
 
   return (
     <section ref={_ref} id="calculator" aria-labelledby={titleId}
-      style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}>
+      style={{ background: "transparent", position: "relative", overflow: "hidden" }}>
 
       {/* Grain */}
       <div aria-hidden style={{ pointerEvents: "none", position: "absolute", inset: 0, opacity: 0.025, backgroundImage: GRAIN, backgroundSize: "180px 180px" }} />
