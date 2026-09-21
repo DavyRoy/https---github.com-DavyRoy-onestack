@@ -424,7 +424,7 @@ export default function HomeWebApp() {
       <section
         id="webapp"
         aria-labelledby={titleId}
-        style={{ background: BG, position: "relative", overflow: "hidden" }}>
+        style={{ background: "transparent", position: "relative", overflow: "hidden" }}>
 
         <div aria-hidden="true" style={{
           pointerEvents: "none", position: "absolute", inset: 0,
