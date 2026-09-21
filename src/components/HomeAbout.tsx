@@ -7,7 +7,6 @@ import { siteName, siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
 
 
-const BG    = "#07100e";
 const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
 const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
@@ -93,7 +92,7 @@ export default function HomeAbout() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section id="about" aria-labelledby={titleId}
-        className="relative overflow-hidden" style={{ background: BG }}>
+        className="relative overflow-hidden" style={{ background: "transparent" }}>
 
         <div className="pointer-events-none absolute inset-0 opacity-[0.025]"
           style={{ backgroundImage: GRAIN, backgroundSize: "180px 180px" }} aria-hidden />
