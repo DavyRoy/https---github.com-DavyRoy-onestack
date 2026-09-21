@@ -5,10 +5,7 @@ import MobileTypes from "@/components/MobileTypes";
 import MobileFeatures from "@/components/MobileFeatures";
 import MobileCalculator from "@/components/MobileCalculator";
 import MobilePerfSecurity from "@/components/MobilePerfSecurity";
-import MobileContact from "@/components/MobileContact";
 
-const BG    = "#07100e";
-const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
 
 /* Та же серия, что на /sites и /webapp, но разделов пять — палитра растянута
@@ -40,20 +37,13 @@ const LAYERS: LayerDef[] = [
     en: { eyebrow: "Load and security", title: "Speed & safety" },
     render: () => <MobilePerfSecurity />,
   },
-  {
-    key: "contact", bg: TEAL, fg: BG,
-    ru: { eyebrow: "Бриф и контакты", title: "Обсудить проект" },
-    en: { eyebrow: "Brief & contacts", title: "Start a project" },
-    render: () => <MobileContact />,
-  },
 ];
 
 export default function MobileLayers() {
   return (
     <SectionLayers
       layers={LAYERS}
-      h1Ru="Разработка мобильных приложений для iOS и Android под ключ"
-      h1En="Mobile app development for iOS and Android"
+      service="mobile"
       ariaLabelRu="Разделы по мобильным приложениям"
       ariaLabelEn="Mobile app services"
     />
