@@ -4,10 +4,7 @@ import SectionLayers, { type LayerDef } from "@/components/SectionLayers";
 import SiteTypes from "@/components/SiteTypes";
 import SiteConfigurator from "@/components/SiteConfigurator";
 import SiteCalculator from "@/components/SiteCalculator";
-import SiteContact from "@/components/SiteContact";
 
-const BG    = "#07100e";
-const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
 
 /* Слои идут от почти чёрного к акцентному бирюзовому — тот же приём
@@ -31,20 +28,13 @@ const LAYERS: LayerDef[] = [
     en: { eyebrow: "Budget estimate", title: "Calculator" },
     render: () => <SiteCalculator />,
   },
-  {
-    key: "contact", bg: TEAL, fg: BG,
-    ru: { eyebrow: "Бриф и контакты", title: "Обсудить проект" },
-    en: { eyebrow: "Brief & contacts", title: "Start a project" },
-    render: () => <SiteContact />,
-  },
 ];
 
 export default function SiteLayers() {
   return (
     <SectionLayers
       layers={LAYERS}
-      h1Ru="Разработка сайтов под ключ: лендинги, корпоративные сайты, интернет-магазины"
-      h1En="Website development: landing pages, corporate sites, e-commerce"
+      service="sites"
       ariaLabelRu="Разделы по сайтам"
       ariaLabelEn="Website services"
     />
