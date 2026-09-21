@@ -4,10 +4,7 @@ import SectionLayers, { type LayerDef } from "@/components/SectionLayers";
 import WebAppKinds from "@/components/WebAppKinds";
 import WebAppModules from "@/components/WebAppModules";
 import WebAppCalculator from "@/components/WebAppCalculator";
-import WebAppContact from "@/components/WebAppContact";
 
-const BG    = "#07100e";
-const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
 
 /* Та же палитра слоёв, что на /sites, — страницы должны читаться как одна серия. */
@@ -30,20 +27,13 @@ const LAYERS: LayerDef[] = [
     en: { eyebrow: "Budget estimate", title: "Calculator" },
     render: () => <WebAppCalculator />,
   },
-  {
-    key: "contact", bg: TEAL, fg: BG,
-    ru: { eyebrow: "Бриф и контакты", title: "Обсудить проект" },
-    en: { eyebrow: "Brief & contacts", title: "Start a project" },
-    render: () => <WebAppContact />,
-  },
 ];
 
 export default function WebAppLayers() {
   return (
     <SectionLayers
       layers={LAYERS}
-      h1Ru="Разработка веб-приложений: CRM и ERP, личные кабинеты, SaaS-платформы"
-      h1En="Web application development: CRM and ERP, client portals, SaaS platforms"
+      service="webapp"
       ariaLabelRu="Разделы по веб-приложениям"
       ariaLabelEn="Web application services"
     />
