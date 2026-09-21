@@ -100,7 +100,7 @@ export default function HomeBenefits() {
       <section
         id="benefits"
         aria-labelledby={titleId}
-        style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
+        style={{ background: "transparent", position: "relative", overflow: "hidden" }}
       >
         {/* Ambient glow */}
         <div aria-hidden style={{
