@@ -387,7 +387,7 @@ export default function HomeMobile() {
       <section
         id="mobile"
         aria-labelledby={titleId}
-        style={{ background: BG, position: "relative", overflow: "hidden" }}>
+        style={{ background: "transparent", position: "relative", overflow: "hidden" }}>
 
         <div aria-hidden="true" style={{
           pointerEvents: "none", position: "absolute", inset: 0,
