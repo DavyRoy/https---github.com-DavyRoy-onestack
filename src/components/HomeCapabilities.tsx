@@ -4,7 +4,7 @@ import { serif } from "@/lib/fonts";
 import { useEffect, useId, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Globe, LayoutGrid, Smartphone, Sparkles, type LucideIcon } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 
 const TEAL  = "#2dd4bf";
@@ -12,9 +12,10 @@ const WHITE = "#f4faf8";
 
 type TabKey = "sites" | "webapp" | "mobile" | "ai";
 const TAB_KEYS: TabKey[] = ["sites", "webapp", "mobile", "ai"];
+const TAB_ICONS: Record<TabKey, LucideIcon> = { sites: Globe, webapp: LayoutGrid, mobile: Smartphone, ai: Sparkles };
 
 type Lang = "ru" | "en";
-type TypeItem = { num: string; title: string; desc: string };
+type TypeItem = { num: string; title: string; desc: string; price?: string; timeline?: string };
 type TabCopy = {
   fig: string;
   label: string;
@@ -39,12 +40,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "CRM, онлайн-оплата, мультиязычность и перенос данных — под вашу задачу.",
         types: [
-          { num: "01", title: "Лендинг", desc: "Один экран — одна цель. Конверсия трафика в заявки." },
-          { num: "02", title: "Корпоративный сайт", desc: "Услуги, команда, кейсы и блог под одной CMS." },
-          { num: "03", title: "Интернет-магазин", desc: "Каталог, быстрый чекаут, оплаты и склад." },
-          { num: "04", title: "Сайт-визитка", desc: "Быстрый старт за 1–2 недели, форма заявки." },
-          { num: "05", title: "Инфо-портал", desc: "SEO-контент, редактор, подписки, рекомендации." },
-          { num: "06", title: "Портфолио", desc: "Кейсы, галерея работ и отзывы клиентов." },
+          { num: "01", title: "Лендинг", desc: "Один экран — одна цель. Конверсия трафика в заявки.", price: "от 150 000 ₽", timeline: "1–2 нед" },
+          { num: "02", title: "Корпоративный сайт", desc: "Услуги, команда, кейсы и блог под одной CMS.", price: "от 420 000 ₽", timeline: "3–6 нед" },
+          { num: "03", title: "Интернет-магазин", desc: "Каталог, быстрый чекаут, оплаты и склад.", price: "от 720 000 ₽", timeline: "4–8 нед" },
+          { num: "04", title: "Сайт-визитка", desc: "Быстрый старт за 1–2 недели, форма заявки.", price: "от 80 000 ₽", timeline: "1–2 нед" },
+          { num: "05", title: "Инфо-портал", desc: "SEO-контент, редактор, подписки, рекомендации.", price: "от 280 000 ₽", timeline: "2–4 нед" },
+          { num: "06", title: "Портфолио", desc: "Кейсы, галерея работ и отзывы клиентов.", price: "от 120 000 ₽", timeline: "1–3 нед" },
         ],
         href: "/sites",
       },
@@ -55,12 +56,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "Интеграции с 1С, платежами и внешними сервисами. Состав согласуем до разработки.",
         types: [
-          { num: "01", title: "CRM системы", desc: "Воронки, задачи, клиенты и аналитика в одном месте." },
-          { num: "02", title: "Корпоративные порталы", desc: "Задачи, документы, коммуникации и права доступа." },
-          { num: "03", title: "Личные кабинеты", desc: "Клиент сам платит и получает поддержку без звонков." },
-          { num: "04", title: "Аналитические панели", desc: "KPI, воронки и отчёты в реальном времени." },
-          { num: "05", title: "B2B платформы", desc: "Каталог с прайсами, заказы, интеграция с ERP." },
-          { num: "06", title: "SaaS сервисы", desc: "Подписки, мультитенантность, рост без границ." },
+          { num: "01", title: "CRM системы", desc: "Воронки, задачи, клиенты и аналитика в одном месте.", price: "от 700 000 ₽", timeline: "8–16 нед" },
+          { num: "02", title: "Корпоративные порталы", desc: "Задачи, документы, коммуникации и права доступа.", price: "от 900 000 ₽", timeline: "10–20 нед" },
+          { num: "03", title: "Личные кабинеты", desc: "Клиент сам платит и получает поддержку без звонков.", price: "от 500 000 ₽", timeline: "6–12 нед" },
+          { num: "04", title: "Аналитические панели", desc: "KPI, воронки и отчёты в реальном времени.", price: "от 600 000 ₽", timeline: "6–10 нед" },
+          { num: "05", title: "B2B платформы", desc: "Каталог с прайсами, заказы, интеграция с ERP.", price: "от 1 000 000 ₽", timeline: "10–18 нед" },
+          { num: "06", title: "SaaS сервисы", desc: "Подписки, мультитенантность, рост без границ.", price: "от 1 500 000 ₽", timeline: "12–24 нед" },
         ],
         href: "/webapp",
       },
@@ -71,12 +72,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "Push-уведомления, офлайн-режим и публикация в сторах — под вашу задачу.",
         types: [
-          { num: "01", title: "CRM / ERP (мобильное)", desc: "Продажи и управление на ходу, работает офлайн." },
-          { num: "02", title: "Внутренний портал", desc: "Новости, заявки и база знаний в одном приложении." },
-          { num: "03", title: "Кабинет клиента", desc: "Заказы, оплата и поддержка без звонков в офис." },
-          { num: "04", title: "Аналитическая панель", desc: "Бизнес-метрики и алерты в любой точке мира." },
-          { num: "05", title: "B2B-витрина", desc: "Каталог с ценами, сканер, синхронизация с 1С." },
-          { num: "06", title: "SaaS-сервис", desc: "Подписки, пэйволлы и онбординг в сторах." },
+          { num: "01", title: "CRM / ERP (мобильное)", desc: "Продажи и управление на ходу, работает офлайн.", price: "от 480 000 ₽", timeline: "6–10 нед" },
+          { num: "02", title: "Внутренний портал", desc: "Новости, заявки и база знаний в одном приложении.", price: "от 550 000 ₽", timeline: "8–12 нед" },
+          { num: "03", title: "Кабинет клиента", desc: "Заказы, оплата и поддержка без звонков в офис.", price: "от 600 000 ₽", timeline: "8–14 нед" },
+          { num: "04", title: "Аналитическая панель", desc: "Бизнес-метрики и алерты в любой точке мира.", price: "от 420 000 ₽", timeline: "5–9 нед" },
+          { num: "05", title: "B2B-витрина", desc: "Каталог с ценами, сканер, синхронизация с 1С.", price: "от 650 000 ₽", timeline: "8–14 нед" },
+          { num: "06", title: "SaaS-сервис", desc: "Подписки, пэйволлы и онбординг в сторах.", price: "от 700 000 ₽", timeline: "10–16 нед" },
         ],
         href: "/mobile",
       },
@@ -87,9 +88,9 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "Подключение к вашим данным и системам, обучение под задачу — обсуждаем индивидуально.",
         types: [
-          { num: "01", title: "AI-чат-боты и ассистенты", desc: "От простых FAQ-ботов до ассистентов на базе LLM." },
-          { num: "02", title: "Автоматизация процессов", desc: "Авто-обработка заявок, документы, скоринг лидов." },
-          { num: "03", title: "Интеграция ИИ в продукты", desc: "Умный поиск, рекомендации и аналитика в вашем продукте." },
+          { num: "01", title: "AI-чат-боты и ассистенты", desc: "От простых FAQ-ботов до ассистентов на базе LLM.", price: "по запросу" },
+          { num: "02", title: "Автоматизация процессов", desc: "Авто-обработка заявок, документы, скоринг лидов.", price: "по запросу" },
+          { num: "03", title: "Интеграция ИИ в продукты", desc: "Умный поиск, рекомендации и аналитика в вашем продукте.", price: "по запросу" },
         ],
         href: "/ai",
       },
@@ -107,12 +108,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Additional capabilities",
         more: "CRM, online payments, multi-language and data migration — scoped to your task.",
         types: [
-          { num: "01", title: "Landing page", desc: "One page, one goal — conversion of traffic into leads." },
-          { num: "02", title: "Corporate website", desc: "Services, team, cases and blog under one CMS." },
-          { num: "03", title: "Online store", desc: "Catalog, fast checkout, payments and warehouse sync." },
-          { num: "04", title: "Business card site", desc: "Online in 1–2 weeks, with an inquiry form." },
-          { num: "05", title: "Info portal", desc: "SEO content, easy editor, subscriptions, recommendations." },
-          { num: "06", title: "Portfolio", desc: "Case studies, work gallery and client testimonials." },
+          { num: "01", title: "Landing page", desc: "One page, one goal — conversion of traffic into leads.", price: "from $1,700", timeline: "1–2 wks" },
+          { num: "02", title: "Corporate website", desc: "Services, team, cases and blog under one CMS.", price: "from $4,700", timeline: "3–6 wks" },
+          { num: "03", title: "Online store", desc: "Catalog, fast checkout, payments and warehouse sync.", price: "from $8,000", timeline: "4–8 wks" },
+          { num: "04", title: "Business card site", desc: "Online in 1–2 weeks, with an inquiry form.", price: "from $900", timeline: "1–2 wks" },
+          { num: "05", title: "Info portal", desc: "SEO content, easy editor, subscriptions, recommendations.", price: "from $3,100", timeline: "2–4 wks" },
+          { num: "06", title: "Portfolio", desc: "Case studies, work gallery and client testimonials.", price: "from $1,300", timeline: "1–3 wks" },
         ],
         href: "/sites",
       },
@@ -123,12 +124,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Additional capabilities",
         more: "Integrations with 1C, payments and external services. Scope agreed before development.",
         types: [
-          { num: "01", title: "CRM systems", desc: "Pipelines, tasks, clients and analytics in one place." },
-          { num: "02", title: "Corporate portals", desc: "Tasks, documents, communication and access rights." },
-          { num: "03", title: "User portals", desc: "Clients pay and get support themselves, no calls needed." },
-          { num: "04", title: "Analytics dashboards", desc: "KPIs, funnels and real-time reports." },
-          { num: "05", title: "B2B platforms", desc: "Catalog with pricing, orders, ERP integration." },
-          { num: "06", title: "SaaS services", desc: "Subscriptions, multi-tenancy, room to grow." },
+          { num: "01", title: "CRM systems", desc: "Pipelines, tasks, clients and analytics in one place.", price: "from $7,800", timeline: "8–16 wks" },
+          { num: "02", title: "Corporate portals", desc: "Tasks, documents, communication and access rights.", price: "from $10,000", timeline: "10–20 wks" },
+          { num: "03", title: "User portals", desc: "Clients pay and get support themselves, no calls needed.", price: "from $5,600", timeline: "6–12 wks" },
+          { num: "04", title: "Analytics dashboards", desc: "KPIs, funnels and real-time reports.", price: "from $6,700", timeline: "6–10 wks" },
+          { num: "05", title: "B2B platforms", desc: "Catalog with pricing, orders, ERP integration.", price: "from $11,100", timeline: "10–18 wks" },
+          { num: "06", title: "SaaS services", desc: "Subscriptions, multi-tenancy, room to grow.", price: "from $16,700", timeline: "12–24 wks" },
         ],
         href: "/webapp",
       },
@@ -139,12 +140,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Additional capabilities",
         more: "Push notifications, offline mode and store publishing — scoped to your task.",
         types: [
-          { num: "01", title: "CRM / ERP (mobile)", desc: "Sell and manage on the go, works offline." },
-          { num: "02", title: "Internal portal", desc: "News, requests and a knowledge base in one app." },
-          { num: "03", title: "Customer account", desc: "Orders, payment and support without calling in." },
-          { num: "04", title: "Analytics dashboard", desc: "Business metrics and alerts, anywhere in the world." },
-          { num: "05", title: "B2B storefront", desc: "Priced catalog, scanner, sync with 1C." },
-          { num: "06", title: "SaaS mobile app", desc: "Subscriptions, paywalls and onboarding in the stores." },
+          { num: "01", title: "CRM / ERP (mobile)", desc: "Sell and manage on the go, works offline.", price: "from $5,300", timeline: "6–10 wks" },
+          { num: "02", title: "Internal portal", desc: "News, requests and a knowledge base in one app.", price: "from $6,100", timeline: "8–12 wks" },
+          { num: "03", title: "Customer account", desc: "Orders, payment and support without calling in.", price: "from $6,700", timeline: "8–14 wks" },
+          { num: "04", title: "Analytics dashboard", desc: "Business metrics and alerts, anywhere in the world.", price: "from $4,700", timeline: "5–9 wks" },
+          { num: "05", title: "B2B storefront", desc: "Priced catalog, scanner, sync with 1C.", price: "from $7,200", timeline: "8–14 wks" },
+          { num: "06", title: "SaaS mobile app", desc: "Subscriptions, paywalls and onboarding in the stores.", price: "from $7,800", timeline: "10–16 wks" },
         ],
         href: "/mobile",
       },
@@ -155,9 +156,9 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Additional capabilities",
         more: "Connected to your own data and systems, tuned to the task — scoped individually.",
         types: [
-          { num: "01", title: "AI chatbots & assistants", desc: "From simple FAQ bots to LLM-based assistants." },
-          { num: "02", title: "Process automation", desc: "Auto-handling requests, documents, lead scoring." },
-          { num: "03", title: "AI in existing products", desc: "Smart search, recommendations and analytics, built in." },
+          { num: "01", title: "AI chatbots & assistants", desc: "From simple FAQ bots to LLM-based assistants.", price: "on request" },
+          { num: "02", title: "Process automation", desc: "Auto-handling requests, documents, lead scoring.", price: "on request" },
+          { num: "03", title: "AI in existing products", desc: "Smart search, recommendations and analytics, built in.", price: "on request" },
         ],
         href: "/ai",
       },
@@ -228,20 +229,25 @@ export default function HomeCapabilities() {
           {TAB_KEYS.map((key) => {
             const t = c.tabs[key];
             const isActive = key === active;
+            const Icon = TAB_ICONS[key];
             return (
-              <button key={key} onClick={() => selectTab(key)}
+              <button key={key} onClick={() => selectTab(key)} className="group"
                 style={{ textAlign: "left", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
                 <p style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(244,250,248,0.3)", marginBottom: 8 }}>
                   {t.fig}
                 </p>
                 <p style={{
+                  display: "flex", alignItems: "center", gap: 8,
                   fontSize: 15, fontWeight: 600,
                   color: isActive ? WHITE : "rgba(244,250,248,0.5)",
                   marginBottom: 12, transition: "color 0.2s",
                 }}>
+                  <Icon size={15} className="transition-colors duration-200"
+                    style={{ color: isActive ? TEAL : "rgba(244,250,248,0.3)" }} />
                   {t.label}
                 </p>
-                <div style={{ height: 2, borderRadius: 2, background: isActive ? TEAL : "rgba(255,255,255,0.1)", transition: "background 0.2s" }} />
+                <div style={{ height: 2, borderRadius: 2, background: isActive ? TEAL : "rgba(255,255,255,0.1)", transition: "background 0.2s" }}
+                  className={isActive ? undefined : "group-hover:!bg-white/25"} />
               </button>
             );
           })}
@@ -301,16 +307,35 @@ export default function HomeCapabilities() {
               alignContent: "start",
             }}>
               {tab.types.map((item) => (
-                <li key={item.title} style={{ padding: "14px 4px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                <li key={item.title} className="hover:bg-white/[0.035]"
+                  style={{
+                    padding: "14px 12px", margin: "0 -12px", borderRadius: 10,
+                    borderBottom: "1px solid rgba(255,255,255,0.07)",
+                    transition: "background 0.2s",
+                  }}>
                   <p style={{ display: "flex", alignItems: "baseline", gap: 8, fontSize: 14, fontWeight: 600, color: WHITE, margin: "0 0 4px" }}>
                     <span style={{ fontFamily: "monospace", fontSize: 10, color: TEAL, opacity: 0.6, flexShrink: 0 }}>
                       {item.num}
                     </span>
                     {item.title}
                   </p>
-                  <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "rgba(244,250,248,0.45)", margin: 0, paddingLeft: 24 }}>
+                  <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "rgba(244,250,248,0.45)", margin: "0 0 8px", paddingLeft: 24 }}>
                     {item.desc}
                   </p>
+                  {item.price && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 24 }}>
+                      <span style={{
+                        fontSize: 11, fontWeight: 600, color: TEAL,
+                        background: "rgba(45,212,191,0.08)", border: "1px solid rgba(45,212,191,0.2)",
+                        borderRadius: 6, padding: "2px 8px",
+                      }}>
+                        {item.price}
+                      </span>
+                      {item.timeline && (
+                        <span style={{ fontSize: 11, color: "rgba(244,250,248,0.35)" }}>{item.timeline}</span>
+                      )}
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
