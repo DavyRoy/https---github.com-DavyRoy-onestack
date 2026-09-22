@@ -306,7 +306,7 @@ export default function HomeSites() {
       <section
         id="sites"
         aria-labelledby={titleId}
-        style={{ background: BG, position: "relative", overflow: "hidden", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        style={{ background: "transparent", position: "relative", overflow: "hidden" }}>
 
         <div aria-hidden="true" style={{
           pointerEvents: "none", position: "absolute", inset: 0,

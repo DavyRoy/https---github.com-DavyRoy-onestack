@@ -313,7 +313,7 @@ export default function HomeContact() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section id="contact" aria-labelledby={titleId}
-        style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}>
+        style={{ background: "transparent", position: "relative", overflow: "hidden" }}>
 
         <div aria-hidden style={{ pointerEvents: "none", position: "absolute", inset: 0, opacity: 0.025, backgroundImage: GRAIN, backgroundSize: "180px 180px" }} />
         <div aria-hidden style={{ pointerEvents: "none", position: "absolute", top: "-10%", left: "-10%", width: 700, height: 700, borderRadius: "50%", willChange: "transform", transform: "translateZ(0)", filter: "blur(280px)", background: TEAL, opacity: 0.055 }} />

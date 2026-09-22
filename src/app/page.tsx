@@ -152,7 +152,7 @@ export default async function HomePage() {
   };
 
   return (
-    <main style={{ background: "#07100e" }} className="text-white">
+    <main style={{ backgroundColor: "#07100e" }} className="text-white home-seamless">
       {/* ─── JSON-LD для SEO ─── */}
       <script
         id="ld-website-home"

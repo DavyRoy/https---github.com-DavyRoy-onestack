@@ -129,7 +129,7 @@ export default function HomeIntro() {
         id="intro"
         aria-labelledby={titleId}
         className="relative flex min-h-[100svh] flex-col overflow-hidden"
-        style={{ background: BG }}
+        style={{ background: "transparent" }}
       >
         {/* ── Decorative rotating ring ── */}
         <motion.div
