@@ -7,7 +7,6 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 
-const BG    = "#07100e";
 const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
 
@@ -15,6 +14,7 @@ type TabKey = "sites" | "webapp" | "mobile" | "ai";
 const TAB_KEYS: TabKey[] = ["sites", "webapp", "mobile", "ai"];
 
 type Lang = "ru" | "en";
+type TypeItem = { num: string; title: string; desc: string; href: string };
 type TabCopy = {
   fig: string;
   label: string;
@@ -22,7 +22,7 @@ type TabCopy = {
   desc: string;
   moreLabel: string;
   more: string;
-  scope: [string, string, string, string];
+  types: [TypeItem, TypeItem, TypeItem];
   href: string;
 };
 
@@ -38,7 +38,11 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         desc: "Представить компанию, получать обращения или продавать онлайн.",
         moreLabel: "Дополнительные возможности",
         more: "CRM, онлайн-оплата, мультиязычность и перенос данных — под вашу задачу.",
-        scope: ["Структура и дизайн", "Разработка и управление контентом", "Формы и базовая аналитика", "Проверка и запуск"],
+        types: [
+          { num: "01", title: "Лендинги", desc: "Одностраничный сайт с максимальной конверсией — для запусков, промо-кампаний и сбора заявок.", href: "/sites#landing" },
+          { num: "02", title: "Корпоративные", desc: "Многостраничный сайт с CMS, блогом, вакансиями и полным управлением контентом без программиста.", href: "/sites#corporate" },
+          { num: "03", title: "Интернет-магазины", desc: "Полноценная e-commerce платформа: каталог, онлайн-оплата, личный кабинет, управление заказами.", href: "/sites#ecommerce" },
+        ],
         href: "/sites",
       },
       webapp: {
@@ -47,7 +51,11 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         desc: "Объедините данные, клиентов и работу команды.",
         moreLabel: "Дополнительные возможности",
         more: "Интеграции с 1С, платежами и внешними сервисами. Состав согласуем до разработки.",
-        scope: ["Сценарии и прототип", "Интерфейс и бизнес-логика", "Роли и права доступа", "Тестирование и развёртывание"],
+        types: [
+          { num: "01", title: "CRM / ERP системы", desc: "Автоматизация продаж, управления клиентами и бизнес-процессами с аналитикой в реальном времени.", href: "/webapp#crm" },
+          { num: "02", title: "SaaS платформы", desc: "Облачные сервисы с мультитенантностью, биллингом и масштабируемой архитектурой под любую нагрузку.", href: "/webapp#saas" },
+          { num: "03", title: "Корпоративные порталы", desc: "Централизованные платформы для сотрудников: задачи, база знаний, внутренние коммуникации.", href: "/webapp#portal" },
+        ],
         href: "/webapp",
       },
       mobile: {
@@ -56,7 +64,11 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         desc: "Приложение для клиентов или сотрудников на iOS и Android.",
         moreLabel: "Дополнительные возможности",
         more: "Push-уведомления, офлайн-режим и публикация в сторах — под вашу задачу.",
-        scope: ["Сценарии и дизайн экранов", "Мобильное приложение", "Подключение к серверу", "Подготовка к публикации"],
+        types: [
+          { num: "01", title: "Нативные приложения", desc: "iOS на Swift и Android на Kotlin — максимальная производительность и доступ к нативным API.", href: "/mobile#native" },
+          { num: "02", title: "Кроссплатформенные", desc: "Единая кодовая база для iOS и Android на Flutter или React Native: быстрый выход на рынок.", href: "/mobile#cross" },
+          { num: "03", title: "Маркетплейсы и сервисы", desc: "Мобильные продукты с онбордингом, in-app платежами, подписками и аналитикой.", href: "/mobile#product" },
+        ],
         href: "/mobile",
       },
       ai: {
@@ -65,7 +77,11 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         desc: "Чат-боты, автоматизация процессов и интеграция ИИ в ваши продукты.",
         moreLabel: "Дополнительные возможности",
         more: "Подключение к вашим данным и системам, обучение под задачу — обсуждаем индивидуально.",
-        scope: ["Сценарий и архитектура", "AI-ассистенты и чат-боты", "Автоматизация процессов", "Тестирование и запуск"],
+        types: [
+          { num: "01", title: "AI-чат-боты и ассистенты", desc: "Диалоговые боты на сайт, в Telegram или мессенджеры — от простых FAQ до ассистентов на базе LLM.", href: "/ai#chatbots" },
+          { num: "02", title: "Автоматизация процессов", desc: "Связка с CRM/ERP: авто-обработка заявок, генерация документов, скоринг лидов без ручной рутины.", href: "/ai#automation" },
+          { num: "03", title: "Интеграция ИИ в продукты", desc: "Встраивание AI-функций в уже разработанные сайты и приложения: умный поиск, рекомендации, аналитика.", href: "/ai#integration" },
+        ],
         href: "/ai",
       },
     },
@@ -81,7 +97,11 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         desc: "Present your company, capture leads, or sell online.",
         moreLabel: "Additional capabilities",
         more: "CRM, online payments, multi-language and data migration — scoped to your task.",
-        scope: ["Structure and design", "Build and content management", "Forms and basic analytics", "QA and launch"],
+        types: [
+          { num: "01", title: "Landing pages", desc: "Single-page site with maximum conversion — for launches, promo campaigns and lead generation.", href: "/sites#landing" },
+          { num: "02", title: "Corporate", desc: "Multi-page site with CMS, blog, vacancies and full content management without a developer.", href: "/sites#corporate" },
+          { num: "03", title: "Online stores", desc: "Full e-commerce platform: catalog, online payments, user accounts, order management.", href: "/sites#ecommerce" },
+        ],
         href: "/sites",
       },
       webapp: {
@@ -90,7 +110,11 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         desc: "Bring your data, customers and team workflow together.",
         moreLabel: "Additional capabilities",
         more: "Integrations with 1C, payments and external services. Scope agreed before development.",
-        scope: ["Scenarios and prototype", "Interface and business logic", "Roles and access rights", "Testing and deployment"],
+        types: [
+          { num: "01", title: "CRM / ERP systems", desc: "Sales automation, customer management and business processes with real-time analytics.", href: "/webapp#crm" },
+          { num: "02", title: "SaaS platforms", desc: "Cloud services with multi-tenancy, billing and scalable architecture for any load.", href: "/webapp#saas" },
+          { num: "03", title: "Corporate portals", desc: "Centralized platforms for employees: tasks, knowledge base, internal communications.", href: "/webapp#portal" },
+        ],
         href: "/webapp",
       },
       mobile: {
@@ -99,7 +123,11 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         desc: "An app for customers or staff, on iOS and Android.",
         moreLabel: "Additional capabilities",
         more: "Push notifications, offline mode and store publishing — scoped to your task.",
-        scope: ["Scenarios and screen design", "Mobile app", "Server connection", "Store submission"],
+        types: [
+          { num: "01", title: "Native apps", desc: "iOS on Swift and Android on Kotlin — top performance and full access to native APIs.", href: "/mobile#native" },
+          { num: "02", title: "Cross-platform", desc: "One codebase for iOS and Android with Flutter or React Native: fast time-to-market.", href: "/mobile#cross" },
+          { num: "03", title: "Marketplaces & services", desc: "Mobile products with onboarding, in-app payments, subscriptions and analytics.", href: "/mobile#product" },
+        ],
         href: "/mobile",
       },
       ai: {
@@ -108,7 +136,11 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         desc: "Chatbots, process automation and AI built into your products.",
         moreLabel: "Additional capabilities",
         more: "Connected to your own data and systems, tuned to the task — scoped individually.",
-        scope: ["Scenario and architecture", "AI assistants and chatbots", "Process automation", "Testing and launch"],
+        types: [
+          { num: "01", title: "AI chatbots & assistants", desc: "Conversational bots for your site, Telegram or messengers — from simple FAQ to LLM-based assistants.", href: "/ai#chatbots" },
+          { num: "02", title: "Process automation", desc: "Connected to CRM/ERP: auto-handling requests, generating documents, scoring leads without manual work.", href: "/ai#automation" },
+          { num: "03", title: "AI in existing products", desc: "Adding AI features to websites and apps you already have: smart search, recommendations, analytics.", href: "/ai#integration" },
+        ],
         href: "/ai",
       },
     },
@@ -152,7 +184,7 @@ export default function HomeCapabilities() {
 
   return (
     <section id="sites" ref={sectionRef} aria-labelledby={titleId}
-      style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+      style={{ background: "transparent" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(72px,10svh,110px) clamp(20px,5vw,56px)" }}>
 
         {/* Header */}
@@ -244,15 +276,31 @@ export default function HomeCapabilities() {
               </Link>
             </div>
 
-            {/* Right: scope checklist */}
+            {/* Right: what we build — real types, not a generic process list */}
             <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }}>
-              {tab.scope.map((item, i) => (
-                <li key={i} style={{
-                  display: "flex", alignItems: "center", gap: 14, padding: "16px 0",
-                  borderBottom: i < tab.scope.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none",
+              {tab.types.map((item, i) => (
+                <li key={item.title} style={{
+                  borderBottom: i < tab.types.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none",
                 }}>
-                  <ArrowUpRight size={15} style={{ color: TEAL, flexShrink: 0 }} />
-                  <span style={{ fontSize: 14, color: "rgba(244,250,248,0.75)" }}>{item}</span>
+                  <Link href={item.href} className="group"
+                    style={{
+                      display: "flex", alignItems: "flex-start", gap: 16, padding: "18px 4px",
+                      textDecoration: "none", borderRadius: 10, transition: "background 0.2s",
+                    }}>
+                    <span style={{ fontFamily: "monospace", fontSize: 11, color: TEAL, opacity: 0.6, paddingTop: 3, flexShrink: 0 }}>
+                      {item.num}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15, fontWeight: 600, color: WHITE, margin: "0 0 4px" }}>
+                        {item.title}
+                        <ArrowUpRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                          style={{ color: TEAL, flexShrink: 0 }} />
+                      </p>
+                      <p style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(244,250,248,0.45)", margin: 0 }}>
+                        {item.desc}
+                      </p>
+                    </div>
+                  </Link>
                 </li>
               ))}
             </ul>
