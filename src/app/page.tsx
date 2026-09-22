@@ -12,9 +12,7 @@ import {
 
 import NavBar from "@/components/NavBar";
 import HomeIntro from "@/components/HomeIntro";
-import HomeSites from "@/components/HomeSites";
-import HomeWebApp from "@/components/HomeWebApp";
-import HomeMobile from "@/components/HomeMobile";
+import HomeCapabilities from "@/components/HomeCapabilities";
 import HomeBenefits from "@/components/HomeBenefits";
 import HomeCalculator from "@/components/HomeCalculator";
 import HomeContact from "@/components/HomeContact";
@@ -66,9 +64,7 @@ function HomeClientTree() {
     <QuoteProvider>
       <NavBar />
       <HomeIntro />
-      <HomeSites />
-      <HomeWebApp />
-      <HomeMobile />
+      <HomeCapabilities />
       <HomeBenefits />
       <HomeCalculator />
       <HomeContact />
