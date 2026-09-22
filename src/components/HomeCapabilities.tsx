@@ -14,7 +14,7 @@ type TabKey = "sites" | "webapp" | "mobile" | "ai";
 const TAB_KEYS: TabKey[] = ["sites", "webapp", "mobile", "ai"];
 
 type Lang = "ru" | "en";
-type TypeItem = { num: string; title: string; desc: string; href: string };
+type TypeItem = { num: string; title: string; desc: string };
 type TabCopy = {
   fig: string;
   label: string;
@@ -22,7 +22,7 @@ type TabCopy = {
   desc: string;
   moreLabel: string;
   more: string;
-  types: [TypeItem, TypeItem, TypeItem];
+  types: TypeItem[];
   href: string;
 };
 
@@ -39,9 +39,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "CRM, онлайн-оплата, мультиязычность и перенос данных — под вашу задачу.",
         types: [
-          { num: "01", title: "Лендинги", desc: "Одностраничный сайт с максимальной конверсией — для запусков, промо-кампаний и сбора заявок.", href: "/sites#landing" },
-          { num: "02", title: "Корпоративные", desc: "Многостраничный сайт с CMS, блогом, вакансиями и полным управлением контентом без программиста.", href: "/sites#corporate" },
-          { num: "03", title: "Интернет-магазины", desc: "Полноценная e-commerce платформа: каталог, онлайн-оплата, личный кабинет, управление заказами.", href: "/sites#ecommerce" },
+          { num: "01", title: "Лендинг", desc: "Один экран — одна цель. Конверсия трафика в заявки." },
+          { num: "02", title: "Корпоративный сайт", desc: "Услуги, команда, кейсы и блог под одной CMS." },
+          { num: "03", title: "Интернет-магазин", desc: "Каталог, быстрый чекаут, оплаты и склад." },
+          { num: "04", title: "Сайт-визитка", desc: "Быстрый старт за 1–2 недели, форма заявки." },
+          { num: "05", title: "Инфо-портал", desc: "SEO-контент, редактор, подписки, рекомендации." },
+          { num: "06", title: "Портфолио", desc: "Кейсы, галерея работ и отзывы клиентов." },
         ],
         href: "/sites",
       },
@@ -52,9 +55,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "Интеграции с 1С, платежами и внешними сервисами. Состав согласуем до разработки.",
         types: [
-          { num: "01", title: "CRM / ERP системы", desc: "Автоматизация продаж, управления клиентами и бизнес-процессами с аналитикой в реальном времени.", href: "/webapp#crm" },
-          { num: "02", title: "SaaS платформы", desc: "Облачные сервисы с мультитенантностью, биллингом и масштабируемой архитектурой под любую нагрузку.", href: "/webapp#saas" },
-          { num: "03", title: "Корпоративные порталы", desc: "Централизованные платформы для сотрудников: задачи, база знаний, внутренние коммуникации.", href: "/webapp#portal" },
+          { num: "01", title: "CRM системы", desc: "Воронки, задачи, клиенты и аналитика в одном месте." },
+          { num: "02", title: "Корпоративные порталы", desc: "Задачи, документы, коммуникации и права доступа." },
+          { num: "03", title: "Личные кабинеты", desc: "Клиент сам платит и получает поддержку без звонков." },
+          { num: "04", title: "Аналитические панели", desc: "KPI, воронки и отчёты в реальном времени." },
+          { num: "05", title: "B2B платформы", desc: "Каталог с прайсами, заказы, интеграция с ERP." },
+          { num: "06", title: "SaaS сервисы", desc: "Подписки, мультитенантность, рост без границ." },
         ],
         href: "/webapp",
       },
@@ -65,9 +71,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "Push-уведомления, офлайн-режим и публикация в сторах — под вашу задачу.",
         types: [
-          { num: "01", title: "Нативные приложения", desc: "iOS на Swift и Android на Kotlin — максимальная производительность и доступ к нативным API.", href: "/mobile#native" },
-          { num: "02", title: "Кроссплатформенные", desc: "Единая кодовая база для iOS и Android на Flutter или React Native: быстрый выход на рынок.", href: "/mobile#cross" },
-          { num: "03", title: "Маркетплейсы и сервисы", desc: "Мобильные продукты с онбордингом, in-app платежами, подписками и аналитикой.", href: "/mobile#product" },
+          { num: "01", title: "CRM / ERP (мобильное)", desc: "Продажи и управление на ходу, работает офлайн." },
+          { num: "02", title: "Внутренний портал", desc: "Новости, заявки и база знаний в одном приложении." },
+          { num: "03", title: "Кабинет клиента", desc: "Заказы, оплата и поддержка без звонков в офис." },
+          { num: "04", title: "Аналитическая панель", desc: "Бизнес-метрики и алерты в любой точке мира." },
+          { num: "05", title: "B2B-витрина", desc: "Каталог с ценами, сканер, синхронизация с 1С." },
+          { num: "06", title: "SaaS-сервис", desc: "Подписки, пэйволлы и онбординг в сторах." },
         ],
         href: "/mobile",
       },
@@ -78,9 +87,9 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "Подключение к вашим данным и системам, обучение под задачу — обсуждаем индивидуально.",
         types: [
-          { num: "01", title: "AI-чат-боты и ассистенты", desc: "Диалоговые боты на сайт, в Telegram или мессенджеры — от простых FAQ до ассистентов на базе LLM.", href: "/ai#chatbots" },
-          { num: "02", title: "Автоматизация процессов", desc: "Связка с CRM/ERP: авто-обработка заявок, генерация документов, скоринг лидов без ручной рутины.", href: "/ai#automation" },
-          { num: "03", title: "Интеграция ИИ в продукты", desc: "Встраивание AI-функций в уже разработанные сайты и приложения: умный поиск, рекомендации, аналитика.", href: "/ai#integration" },
+          { num: "01", title: "AI-чат-боты и ассистенты", desc: "От простых FAQ-ботов до ассистентов на базе LLM." },
+          { num: "02", title: "Автоматизация процессов", desc: "Авто-обработка заявок, документы, скоринг лидов." },
+          { num: "03", title: "Интеграция ИИ в продукты", desc: "Умный поиск, рекомендации и аналитика в вашем продукте." },
         ],
         href: "/ai",
       },
@@ -98,9 +107,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Additional capabilities",
         more: "CRM, online payments, multi-language and data migration — scoped to your task.",
         types: [
-          { num: "01", title: "Landing pages", desc: "Single-page site with maximum conversion — for launches, promo campaigns and lead generation.", href: "/sites#landing" },
-          { num: "02", title: "Corporate", desc: "Multi-page site with CMS, blog, vacancies and full content management without a developer.", href: "/sites#corporate" },
-          { num: "03", title: "Online stores", desc: "Full e-commerce platform: catalog, online payments, user accounts, order management.", href: "/sites#ecommerce" },
+          { num: "01", title: "Landing page", desc: "One page, one goal — conversion of traffic into leads." },
+          { num: "02", title: "Corporate website", desc: "Services, team, cases and blog under one CMS." },
+          { num: "03", title: "Online store", desc: "Catalog, fast checkout, payments and warehouse sync." },
+          { num: "04", title: "Business card site", desc: "Online in 1–2 weeks, with an inquiry form." },
+          { num: "05", title: "Info portal", desc: "SEO content, easy editor, subscriptions, recommendations." },
+          { num: "06", title: "Portfolio", desc: "Case studies, work gallery and client testimonials." },
         ],
         href: "/sites",
       },
@@ -111,9 +123,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Additional capabilities",
         more: "Integrations with 1C, payments and external services. Scope agreed before development.",
         types: [
-          { num: "01", title: "CRM / ERP systems", desc: "Sales automation, customer management and business processes with real-time analytics.", href: "/webapp#crm" },
-          { num: "02", title: "SaaS platforms", desc: "Cloud services with multi-tenancy, billing and scalable architecture for any load.", href: "/webapp#saas" },
-          { num: "03", title: "Corporate portals", desc: "Centralized platforms for employees: tasks, knowledge base, internal communications.", href: "/webapp#portal" },
+          { num: "01", title: "CRM systems", desc: "Pipelines, tasks, clients and analytics in one place." },
+          { num: "02", title: "Corporate portals", desc: "Tasks, documents, communication and access rights." },
+          { num: "03", title: "User portals", desc: "Clients pay and get support themselves, no calls needed." },
+          { num: "04", title: "Analytics dashboards", desc: "KPIs, funnels and real-time reports." },
+          { num: "05", title: "B2B platforms", desc: "Catalog with pricing, orders, ERP integration." },
+          { num: "06", title: "SaaS services", desc: "Subscriptions, multi-tenancy, room to grow." },
         ],
         href: "/webapp",
       },
@@ -124,9 +139,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Additional capabilities",
         more: "Push notifications, offline mode and store publishing — scoped to your task.",
         types: [
-          { num: "01", title: "Native apps", desc: "iOS on Swift and Android on Kotlin — top performance and full access to native APIs.", href: "/mobile#native" },
-          { num: "02", title: "Cross-platform", desc: "One codebase for iOS and Android with Flutter or React Native: fast time-to-market.", href: "/mobile#cross" },
-          { num: "03", title: "Marketplaces & services", desc: "Mobile products with onboarding, in-app payments, subscriptions and analytics.", href: "/mobile#product" },
+          { num: "01", title: "CRM / ERP (mobile)", desc: "Sell and manage on the go, works offline." },
+          { num: "02", title: "Internal portal", desc: "News, requests and a knowledge base in one app." },
+          { num: "03", title: "Customer account", desc: "Orders, payment and support without calling in." },
+          { num: "04", title: "Analytics dashboard", desc: "Business metrics and alerts, anywhere in the world." },
+          { num: "05", title: "B2B storefront", desc: "Priced catalog, scanner, sync with 1C." },
+          { num: "06", title: "SaaS mobile app", desc: "Subscriptions, paywalls and onboarding in the stores." },
         ],
         href: "/mobile",
       },
@@ -137,9 +155,9 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Additional capabilities",
         more: "Connected to your own data and systems, tuned to the task — scoped individually.",
         types: [
-          { num: "01", title: "AI chatbots & assistants", desc: "Conversational bots for your site, Telegram or messengers — from simple FAQ to LLM-based assistants.", href: "/ai#chatbots" },
-          { num: "02", title: "Process automation", desc: "Connected to CRM/ERP: auto-handling requests, generating documents, scoring leads without manual work.", href: "/ai#automation" },
-          { num: "03", title: "AI in existing products", desc: "Adding AI features to websites and apps you already have: smart search, recommendations, analytics.", href: "/ai#integration" },
+          { num: "01", title: "AI chatbots & assistants", desc: "From simple FAQ bots to LLM-based assistants." },
+          { num: "02", title: "Process automation", desc: "Auto-handling requests, documents, lead scoring." },
+          { num: "03", title: "AI in existing products", desc: "Smart search, recommendations and analytics, built in." },
         ],
         href: "/ai",
       },
@@ -277,30 +295,22 @@ export default function HomeCapabilities() {
             </div>
 
             {/* Right: what we build — real types, not a generic process list */}
-            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }}>
-              {tab.types.map((item, i) => (
-                <li key={item.title} style={{
-                  borderBottom: i < tab.types.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none",
-                }}>
-                  <Link href={item.href} className="group"
-                    style={{
-                      display: "flex", alignItems: "flex-start", gap: 16, padding: "18px 4px",
-                      textDecoration: "none", borderRadius: 10, transition: "background 0.2s",
-                    }}>
-                    <span style={{ fontFamily: "monospace", fontSize: 11, color: TEAL, opacity: 0.6, paddingTop: 3, flexShrink: 0 }}>
+            <ul style={{
+              listStyle: "none", margin: 0, padding: 0,
+              display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "4px 20px",
+              alignContent: "start",
+            }}>
+              {tab.types.map((item) => (
+                <li key={item.title} style={{ padding: "14px 4px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                  <p style={{ display: "flex", alignItems: "baseline", gap: 8, fontSize: 14, fontWeight: 600, color: WHITE, margin: "0 0 4px" }}>
+                    <span style={{ fontFamily: "monospace", fontSize: 10, color: TEAL, opacity: 0.6, flexShrink: 0 }}>
                       {item.num}
                     </span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 15, fontWeight: 600, color: WHITE, margin: "0 0 4px" }}>
-                        {item.title}
-                        <ArrowUpRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                          style={{ color: TEAL, flexShrink: 0 }} />
-                      </p>
-                      <p style={{ fontSize: 13, lineHeight: 1.55, color: "rgba(244,250,248,0.45)", margin: 0 }}>
-                        {item.desc}
-                      </p>
-                    </div>
-                  </Link>
+                    {item.title}
+                  </p>
+                  <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "rgba(244,250,248,0.45)", margin: 0, paddingLeft: 24 }}>
+                    {item.desc}
+                  </p>
                 </li>
               ))}
             </ul>
