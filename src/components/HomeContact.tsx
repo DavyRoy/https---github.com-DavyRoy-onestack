@@ -40,7 +40,7 @@ const TIMELINE_KEYS: Timeline[] = ["2-4", "4-8", "8-12", "12+"];
 /* ─── Copy ───────────────────────────────────────────────────────────────── */
 const COPY = {
   ru: {
-    eyebrow: "Обратная связь",
+    eyebrow: "04 / Обратная связь",
     titleLine1: "Обсудим",
     titleLine2: "проект",
     description: "Отвечаем в течение 2 часов в рабочее время. Подпишем NDA, сделаем экспресс-оценку и предложим оптимальное решение.",
@@ -90,7 +90,7 @@ const COPY = {
     errStatus: (n: number) => `Ошибка ${n}`,
   },
   en: {
-    eyebrow: "Get in touch",
+    eyebrow: "04 / Get in touch",
     titleLine1: "Let's discuss",
     titleLine2: "your project",
     description: "We reply within 2 business hours. We'll sign an NDA, give you a quick estimate and suggest the best approach.",
@@ -318,7 +318,7 @@ export default function HomeContact() {
         <div aria-hidden style={{ pointerEvents: "none", position: "absolute", inset: 0, opacity: 0.025, backgroundImage: GRAIN, backgroundSize: "180px 180px" }} />
         <div aria-hidden style={{ pointerEvents: "none", position: "absolute", top: "-10%", left: "-10%", width: 700, height: 700, borderRadius: "50%", willChange: "transform", transform: "translateZ(0)", filter: "blur(280px)", background: TEAL, opacity: 0.055 }} />
 
-        <div style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto", padding: isMobile ? "60px 20px 72px" : "80px 40px 110px" }}>
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto", padding: `clamp(72px,10svh,110px) ${isMobile ? "20px" : "40px"} ${isMobile ? "72px" : "110px"}` }}>
 
           {/* 2-col layout: info | form */}
           {/* Колонка заголовка фиксирована на 440px, поэтому ниже ~1100px форме
@@ -329,28 +329,21 @@ export default function HomeContact() {
 
             {/* ── LEFT ── */}
             <div>
-              <motion.div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }} {...(fadeUp(0) as object)}>
+              <motion.div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }} {...(fadeUp(0) as object)}>
                 <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
-                <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
+                <span style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL }}>
                   {c.eyebrow}
                 </span>
               </motion.div>
 
-              <div style={{ marginBottom: 28 }}>
-                {[c.titleLine1, c.titleLine2].map((text, i) => (
-                  <motion.div key={i}
-                    className={serif.className}
-                    style={i === 0
-                      ? { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.2rem, 4vw, 4.6rem)", overflowWrap: "anywhere", color: TEAL }
-                      : { display: "block", fontWeight: 400, lineHeight: 1, letterSpacing: "-0.04em", fontSize: "clamp(2.2rem, 4vw, 4.6rem)", overflowWrap: "anywhere", color: WHITE }}
-                    initial={reduced ? undefined : { opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.05 + i * 0.07 }}>
-                    {text}
-                  </motion.div>
-                ))}
-              </div>
+              <motion.h2 id={titleId} className={serif.className}
+                style={{ fontSize: "clamp(2rem,4.4vw,3.4rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: "0 0 28px", overflowWrap: "anywhere" }}
+                initial={reduced ? undefined : { opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}>
+                {c.titleLine1} {c.titleLine2}
+              </motion.h2>
 
               <motion.p style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 36, color: "rgba(244,250,248,0.45)" }} {...(fadeUp(0.2) as object)}>
                 {c.description}
