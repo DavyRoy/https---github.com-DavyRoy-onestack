@@ -446,8 +446,12 @@ tbody tr + tr td{ border-top: 1px solid var(--color-border); }
 
 /* Marketing pages: full-height sections share a continuous backdrop. */
 .home-seamless {
+  /* Three stops spread across the page so later sections (contact, about,
+     footer) don't fall into a dead zone past the first two gradients and
+     read as a harder-edged, flatter block than the ones above them. */
   background-image: radial-gradient(ellipse at 90% 12%, #12372d66, transparent 42%),
-    radial-gradient(ellipse at 0% 60%, #10302966, transparent 40%);
+    radial-gradient(ellipse at 0% 45%, #10302966, transparent 38%),
+    radial-gradient(ellipse at 95% 78%, #12372d5c, transparent 40%);
 }
 .home-seamless > section {
   min-height: 100svh;
