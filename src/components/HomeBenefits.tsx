@@ -39,8 +39,8 @@ const PROCESS_STEPS = [
 ];
 
 const COPY = {
-  ru: { eyebrow: "Четыре принципа", h1: "Правила,", h2: "которые мы не нарушаем", sub: "Фиксированная смета — цена не растёт в процессе. Срок — сдаём по договору. Стек — только проверенные технологии. Поддержка — на связи после запуска.", process: "КАК МЫ РАБОТАЕМ", clients: "НАМ ДОВЕРЯЮТ", cta: "Обсудить проект", promise: { title: "Прозрачный процесс", desc: "Демо каждые 1–2 недели, доступ к задачам в реальном времени." } },
-  en: { eyebrow: "Four principles", h1: "Rules", h2: "we never break", sub: "Fixed price — the quote does not grow mid-project. Deadline — we deliver per contract. Stack — only proven technologies. Support — available after launch.", process: "HOW WE WORK", clients: "TRUSTED BY", cta: "Discuss project", promise: { title: "Transparent process", desc: "Demos every 1–2 weeks, real-time task access." } },
+  ru: { eyebrow: "02 / Принципы", h1: "Правила,", h2: "которые мы не нарушаем", sub: "Фиксированная смета — цена не растёт в процессе. Срок — сдаём по договору. Стек — только проверенные технологии. Поддержка — на связи после запуска.", process: "КАК МЫ РАБОТАЕМ", clients: "НАМ ДОВЕРЯЮТ", cta: "Обсудить проект", promise: { title: "Прозрачный процесс", desc: "Демо каждые 1–2 недели, доступ к задачам в реальном времени." } },
+  en: { eyebrow: "02 / Principles", h1: "Rules", h2: "we never break", sub: "Fixed price — the quote does not grow mid-project. Deadline — we deliver per contract. Stack — only proven technologies. Support — available after launch.", process: "HOW WE WORK", clients: "TRUSTED BY", cta: "Discuss project", promise: { title: "Transparent process", desc: "Demos every 1–2 weeks, real-time task access." } },
 } as const;
 
 /* ─── Counter hook ───────────────────────────────────────────────────────── */
@@ -109,37 +109,28 @@ export default function HomeBenefits() {
           background: TEAL, opacity: 0.05, willChange: "transform", transform: "translateZ(0)", filter: "blur(200px)",
         }} />
 
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px", position: "relative", zIndex: 1 }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(72px,10svh,110px) clamp(20px,5vw,56px) 0", position: "relative", zIndex: 1 }}>
 
-          {/* ── Header ── */}
+          {/* ── Header — matches the Capabilities block's header treatment ── */}
           <motion.div
             {...(fadeUp(0) as object)}
-            style={{ padding: isMobile ? "80px 0 56px" : "110px 0 72px" }}
+            style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap", marginBottom: 48 }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-              <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
-              <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
+            <div>
+              <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 16 }}>
                 {c.eyebrow}
-              </span>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "flex-end", justifyContent: "space-between", gap: 24 }}>
+              </p>
               <h2
                 id={titleId}
                 className={serif.className}
-                style={{ margin: 0, fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}
+                style={{ fontSize: "clamp(2rem,4.4vw,3.4rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}
               >
-                <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: TEAL }}>
-                  {c.h1}
-                </span>
-                <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
-                  {c.h2}
-                </span>
+                {c.h1}<br />{c.h2}
               </h2>
-              <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(244,250,248,0.4)", maxWidth: 340, textAlign: isMobile ? "left" : "right" }}>
-                {c.sub}
-              </p>
             </div>
+            <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(244,250,248,0.45)", maxWidth: 300 }}>
+              {c.sub}
+            </p>
           </motion.div>
 
           {/* ── Stats strip ── */}
