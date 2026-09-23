@@ -316,7 +316,7 @@ export default function HomeContact() {
         style={{ background: "transparent", position: "relative", overflow: "hidden" }}>
 
         <div aria-hidden style={{ pointerEvents: "none", position: "absolute", inset: 0, opacity: 0.025, backgroundImage: GRAIN, backgroundSize: "180px 180px" }} />
-        <div aria-hidden style={{ pointerEvents: "none", position: "absolute", top: "-10%", left: "-10%", width: 700, height: 700, borderRadius: "50%", willChange: "transform", transform: "translateZ(0)", filter: "blur(280px)", background: TEAL, opacity: 0.055 }} />
+        <div aria-hidden style={{ pointerEvents: "none", position: "absolute", top: "-10%", right: "-10%", width: 700, height: 700, borderRadius: "50%", willChange: "transform", transform: "translateZ(0)", filter: "blur(280px)", background: TEAL, opacity: 0.055 }} />
 
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto", padding: `clamp(72px,10svh,110px) ${isMobile ? "20px" : "40px"} ${isMobile ? "72px" : "110px"}` }}>
 
