@@ -15,7 +15,7 @@ import {
 /* ─── Copy ───────────────────────────────────────────────────────────────── */
 const COPY = {
   ru: {
-    eyebrow: "Калькулятор стоимости",
+    eyebrow: "03 / Калькулятор",
     titleLine1: "Рассчитай",
     titleLine2: "стоимость проекта",
     description: "Оцените бюджет за 2 минуты. Выберите тип проекта, настройте параметры — получите ориентировочную смету.",
@@ -70,7 +70,7 @@ const COPY = {
     },
   },
   en: {
-    eyebrow: "Cost calculator",
+    eyebrow: "03 / Calculator",
     titleLine1: "Calculate",
     titleLine2: "your project cost",
     description: "Estimate your budget in 2 minutes. Pick a project type, tune the parameters — get a ballpark quote.",
@@ -352,27 +352,21 @@ export default function HomeCalculator() {
 
       <div style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px" }}>
 
-        {/* Header */}
-        <motion.div {...(fadeUp(0) as object)} style={{ padding: isMobile ? "72px 0 48px" : "110px 0 72px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-            <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
-            <span style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
+        {/* Header — matches the Capabilities/Benefits header treatment */}
+        <motion.div {...(fadeUp(0) as object)}
+          style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap", padding: "clamp(72px,10svh,110px) 0 48px" }}>
+          <div>
+            <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 16 }}>
               {c.eyebrow}
-            </span>
-          </div>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
-            <h2 id={titleId} className={serif.className} style={{ margin: 0, fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}>
-              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: TEAL }}>
-                {c.titleLine1}
-              </span>
-              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
-                {c.titleLine2}
-              </span>
-            </h2>
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(244,250,248,0.4)", maxWidth: 340, textAlign: "right" }}>
-              {c.description}
             </p>
+            <h2 id={titleId} className={serif.className}
+              style={{ fontSize: "clamp(2rem,4.4vw,3.4rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}>
+              {c.titleLine1} {c.titleLine2}
+            </h2>
           </div>
+          <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(244,250,248,0.45)", maxWidth: 300 }}>
+            {c.description}
+          </p>
         </motion.div>
 
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "5fr 4fr", gap: isMobile ? 32 : 56, alignItems: "start", paddingBottom: isMobile ? 72 : 110 }}>
