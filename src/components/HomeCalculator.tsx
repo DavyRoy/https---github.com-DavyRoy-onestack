@@ -173,7 +173,7 @@ type ModuleKey = (typeof MODULES)[number]["key"];
    Pro — 44 тыс, а здесь те же планы выходили в 52 и 99 тыс. */
 const SLA_HOURS: Record<SLAPlan, number>    = { none: 0,    lite: 4,    pro: 9,   enterprise: 16  };
 const SLA_DISCOUNT: Record<SLAPlan, number> = { none: 1,    lite: 0.95, pro: 0.9, enterprise: 0.85 };
-const SUPPORT_MIN = 15000;
+const SUPPORT_MIN = 12000;
 
 /* ─── Shared styles ─────────────────────────────────────────────────────── */
 const card = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" };
@@ -207,15 +207,15 @@ export default function HomeCalculator() {
     i18n: false, cms: false, db: false,
   });
   const [hourlyMode]                  = useState<HourlyMode>("premium");
-  const [hourlyCustom]                = useState<number>(5500);
+  const [hourlyCustom]                = useState<number>(4400);
 
-  /* calc */
+  /* calc — 2026 rates, -20% to bring pricing current and lower the bar to inquire */
   const hourly = useMemo(() => {
     switch (hourlyMode) {
-      case "budget":   return 1800;
-      case "standard": return 3200;
-      case "premium":  return 5500;
-      case "custom":   return Math.max(800, Math.min(30000, Number.isFinite(hourlyCustom) ? hourlyCustom : 5500));
+      case "budget":   return 1440;
+      case "standard": return 2560;
+      case "premium":  return 4400;
+      case "custom":   return Math.max(800, Math.min(30000, Number.isFinite(hourlyCustom) ? hourlyCustom : 4400));
     }
   }, [hourlyMode, hourlyCustom]);
 
