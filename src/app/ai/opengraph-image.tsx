@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "OneStack — веб-приложения";
+export const alt = "OneStack — AI и автоматизация";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -21,12 +21,12 @@ export default function Image() {
           <span style={{ color: WHITE, fontSize: 22, fontWeight: 600 }}>OneStack</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginTop: 60 }}>
-          <span style={{ fontSize: 96, color: TEAL, lineHeight: 0.9, letterSpacing: "-4px", display: "flex" }}>Веб-</span>
-          <span style={{ fontSize: 96, color: WHITE, lineHeight: 0.9, letterSpacing: "-4px", marginTop: 8, display: "flex" }}>приложения</span>
+          <span style={{ fontSize: 88, color: TEAL, lineHeight: 0.9, letterSpacing: "-4px", display: "flex" }}>AI и</span>
+          <span style={{ fontSize: 88, color: WHITE, lineHeight: 0.9, letterSpacing: "-4px", marginTop: 8, display: "flex" }}>автоматизация</span>
         </div>
         <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 8 }}>
-          <span style={{ fontSize: 24, color: `${WHITE}70` }}>CRM · Личные кабинеты · Аналитика · SaaS · MVP за 4–8 нед</span>
-          <span style={{ fontSize: 20, color: TEAL }}>onestack24.ru/webapp</span>
+          <span style={{ fontSize: 24, color: `${WHITE}70` }}>Ассистенты · Автоматизация · Аналитика · Старт с пилота</span>
+          <span style={{ fontSize: 20, color: TEAL }}>onestack24.ru/ai</span>
         </div>
         <div style={{ position: "absolute", right: -80, top: "50%", width: 560, height: 560, borderRadius: "50%", border: `1px dashed ${TEAL}22`, display: "flex", transform: "translateY(-50%)" }} />
       </div>

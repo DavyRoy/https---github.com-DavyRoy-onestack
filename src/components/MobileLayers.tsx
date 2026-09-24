@@ -8,34 +8,34 @@ import MobilePerfSecurity from "@/components/MobilePerfSecurity";
 
 const WHITE = "#f4faf8";
 
-/* Та же серия, что на /sites и /webapp, но разделов пять — палитра растянута
-   на один шаг, чтобы переход от тёмного к бирюзовому остался ровным. */
 const LAYERS: LayerDef[] = [
   {
     key: "types", bg: "#0c1a17", fg: WHITE,
     ru: { eyebrow: "Форматы приложений", title: "Типы приложений" },
     en: { eyebrow: "App formats", title: "App types" },
     render: () => <MobileTypes />,
+    inline: true,
   },
   {
-    key: "features", bg: "#103029", fg: WHITE,
+    key: "capabilities", bg: "#103029", fg: WHITE,
     ru: { eyebrow: "Что умеет приложение", title: "Возможности" },
     en: { eyebrow: "What the app can do", title: "Capabilities" },
     render: () => <MobileFeatures />,
+    inline: true,
   },
   {
-    key: "calculator", bg: "#17493f", fg: WHITE,
-    ru: { eyebrow: "Оценка бюджета", title: "Калькулятор" },
-    en: { eyebrow: "Budget estimate", title: "Calculator" },
-    render: () => <MobileCalculator />,
-  },
-  {
-    key: "perf", bg: "#1f7a69", fg: WHITE,
-    // «Производительность» — 18 букв одним словом, на телефоне не помещалось
-    // в строку и наезжало на стрелку. Двусловный заголовок переносится.
+    key: "perf-security", bg: "#17493f", fg: WHITE,
     ru: { eyebrow: "Нагрузки и безопасность", title: "Скорость и защита" },
     en: { eyebrow: "Load and security", title: "Speed & safety" },
     render: () => <MobilePerfSecurity />,
+    inline: true,
+  },
+  {
+    key: "calculator", bg: "#1f7a69", fg: WHITE,
+    ru: { eyebrow: "Оценка бюджета", title: "Калькулятор" },
+    en: { eyebrow: "Budget estimate", title: "Calculator" },
+    render: () => <MobileCalculator />,
+    inline: true,
   },
 ];
 

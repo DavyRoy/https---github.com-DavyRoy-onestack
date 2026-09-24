@@ -5,7 +5,7 @@ import { canonical, siteName, siteUrl } from "@/app/seo.config";
 const CANONICAL = canonical("/privacy");
 
 export const metadata: Metadata = {
-  title: "Политика конфиденциальности / Privacy Policy — OneStack",
+  title: "Политика конфиденциальности / Privacy Policy",
   description: "Политика обработки персональных данных OneStack. Соответствие ФЗ-152 (Россия) и GDPR (ЕС). Personal data processing policy compliant with Russian Law 152-FZ and EU GDPR.",
   alternates: {
     canonical: CANONICAL,

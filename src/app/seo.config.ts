@@ -11,13 +11,29 @@ export const siteUrl = rawSiteUrl.replace(/\/+$/, "");
 export const siteName = "OneStack";
 
 export const siteDescription =
-  "OneStack — технологический партнёр для бизнеса любого масштаба. Разрабатываем сайты, веб-сервисы и мобильные приложения. 150+ проектов, 5 лет на рынке, фиксированные сроки.";
+  "OneStack — команда разработки из Тулы: сайты, веб-сервисы, мобильные приложения и внедрение ИИ для бизнеса в России, СНГ и других странах. 30 специалистов, с 2020 года, 150+ проектов.";
+
+/* Факты о компании — единый источник для разметки, llms.txt и текстов. */
+export const COMPANY = {
+  city: "Тула",
+  cityEn: "Tula",
+  foundingYear: 2020,
+  teamSize: 30,
+  // Работаем удалённо по всему миру, основной рынок — Россия и СНГ.
+  areaServed: [
+    { "@type": "Country", name: "Россия" },
+    { "@type": "Place", name: "СНГ" },
+    { "@type": "Place", name: "Весь мир" },
+  ],
+} as const;
 
 export const canonical = (path = "/", locale: Locale = defaultLocale): string => {
   const normalized = path.startsWith("/") ? path : `/${path}`;
   const trimmed = normalized === "/" ? "/" : normalized.replace(/\/+$/, "");
+  // Главная английской версии — /en, а не "/": иначе она ссылалась на русскую
+  // как на основную и выпадала из индекса.
   const withLocale =
-    locale === defaultLocale || trimmed === "/"
+    locale === defaultLocale
       ? trimmed
       : `/${locale}${trimmed === "/" ? "" : trimmed}`;
 

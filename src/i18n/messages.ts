@@ -70,9 +70,9 @@ export const messages: Record<Locale, Messages> = {
   ru: {
     seo: {
       siteDescription:
-        "OneStack — разрабатываем сайты, веб-сервисы и мобильные приложения для бизнеса. Более 150 проектов, 4 года на рынке, спринты 1–2 недели.",
-      homeTitle: "OneStack — сайты, веб-сервисы и мобильные приложения",
-      homeDescription: "Разрабатываем сайты, веб-приложения и мобильные продукты для малого, среднего и крупного бизнеса. Фиксированные сроки, прозрачная смета, поддержка после запуска.",
+        "OneStack — команда разработки из Тулы: сайты, веб-сервисы, мобильные приложения и внедрение ИИ для бизнеса и частных клиентов по всей России и СНГ. С 2020 года, 150+ проектов.",
+      homeTitle: "OneStack — сайты, приложения и внедрение ИИ под ключ",
+      homeDescription: "Сайты от 64 000 ₽, веб- и мобильные приложения, внедрение ИИ. Команда из 30 специалистов, работаем с 2020 года по всей России и СНГ. Фиксированная смета.",
     },
     nav: {
       brandAria: "На главную OneStack",
@@ -88,7 +88,7 @@ export const messages: Record<Locale, Messages> = {
     },
     hero: {
       aria: "Приветственный экран OneStack",
-      badge: "Технологический партнёр · с 2021",
+      badge: "Технологический партнёр · с 2020",
       headline: "Цифровые продукты в срок и по смете",
       subline: "Сайты, веб- и мобильные приложения с фиксированной ценой, спринтами 1–2 недели и поддержкой после запуска.",
       detailsCta: "Смотреть услуги",
@@ -137,9 +137,9 @@ export const messages: Record<Locale, Messages> = {
   en: {
     seo: {
       siteDescription:
-        "OneStack — we build websites, web services and mobile apps for businesses of any size. 150+ projects, 4 years on the market, 1–2 week sprints.",
-      homeTitle: "OneStack — websites, web services and mobile apps",
-      homeDescription: "We build websites, web applications and mobile products for small, mid-size and enterprise clients. Fixed timelines, transparent estimates, post-launch support.",
+        "OneStack — a development team from Tula, Russia: websites, web services, mobile apps and AI for businesses and individuals across Russia, the CIS and worldwide. Since 2020, 150+ projects.",
+      homeTitle: "OneStack — websites, apps and AI, turnkey",
+      homeDescription: "Websites from $720, web and mobile apps, AI implementation. A team of 30 working since 2020 across Russia, the CIS and worldwide. Fixed quotes.",
     },
     nav: {
       brandAria: "Back to OneStack home",
@@ -155,7 +155,7 @@ export const messages: Record<Locale, Messages> = {
     },
     hero: {
       aria: "OneStack hero screen",
-      badge: "Technology partner · since 2021",
+      badge: "Technology partner · since 2020",
       headline: "Digital products on time, on budget",
       subline: "Websites, web & mobile apps with fixed price, 1–2 week sprints and post-launch support.",
       detailsCta: "Our services",

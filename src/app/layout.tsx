@@ -18,6 +18,7 @@ import {
   canonical,
   siteName,
   siteUrl,
+  COMPANY,
 } from "@/app/seo.config";
 
 import {
@@ -33,7 +34,7 @@ import {
 ===================================================================================== */
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = getRequestLocale();
+  const locale = await getRequestLocale();
   const dict = getMessages(locale);
 
   const description = dict.seo.siteDescription;
@@ -175,8 +176,29 @@ export default async function RootLayout({
                 logo: `${siteUrl}/logo.png`,
                 email: "info@onestack24.ru",
                 telephone: "+79109486106",
-                foundingDate: "2021",
-                areaServed: ["RU", "KZ", "BY"],
+                foundingDate: String(COMPANY.foundingYear),
+                numberOfEmployees: { "@type": "QuantitativeValue", value: COMPANY.teamSize },
+                address: { "@type": "PostalAddress", addressLocality: COMPANY.city, addressCountry: "RU" },
+                description: "OneStack — команда разработки полного цикла из Тулы (30 специалистов, с 2020 года): сайты, веб-приложения, мобильные приложения для iOS и Android, внедрение ИИ и автоматизация бизнес-процессов. Работаем с компаниями и частными лицами по всей России, в СНГ и других странах. Фиксированная смета, прозрачные сроки, поддержка после запуска.",
+                slogan: "Одна экосистема для вашего бизнеса",
+                knowsAbout: [
+                  "Разработка сайтов", "Лендинги", "Корпоративные сайты", "Интернет-магазины",
+                  "Веб-приложения", "CRM-системы", "Личные кабинеты", "SaaS",
+                  "Мобильные приложения iOS и Android", "React Native",
+                  "Искусственный интеллект", "AI-ассистенты", "Автоматизация бизнес-процессов",
+                  "Next.js", "React", "TypeScript", "Node.js", "Python", "PostgreSQL",
+                ],
+                hasOfferCatalog: {
+                  "@type": "OfferCatalog",
+                  name: "Услуги OneStack",
+                  itemListElement: [
+                    { "@type": "Offer", itemOffered: { "@type": "Service", name: "Разработка сайтов", url: `${siteUrl}/sites` }, priceSpecification: { "@type": "PriceSpecification", minPrice: 64000, priceCurrency: "RUB" } },
+                    { "@type": "Offer", itemOffered: { "@type": "Service", name: "Разработка веб-приложений", url: `${siteUrl}/webapp` }, priceSpecification: { "@type": "PriceSpecification", minPrice: 400000, priceCurrency: "RUB" } },
+                    { "@type": "Offer", itemOffered: { "@type": "Service", name: "Разработка мобильных приложений", url: `${siteUrl}/mobile` }, priceSpecification: { "@type": "PriceSpecification", minPrice: 336000, priceCurrency: "RUB" } },
+                    { "@type": "Offer", itemOffered: { "@type": "Service", name: "Внедрение ИИ и автоматизация", url: `${siteUrl}/ai` } },
+                  ],
+                },
+                areaServed: COMPANY.areaServed,
                 sameAs: [
                   "https://t.me/onestack_assistant_bot",
                 ],

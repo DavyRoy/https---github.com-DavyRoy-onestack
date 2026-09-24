@@ -4,13 +4,12 @@ import { serif } from "@/lib/fonts";
 
 import { useEffect, useMemo, useState, useId } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "framer-motion";
-import { Sparkles, Server, Percent, MessageCircle, ArrowRight } from "lucide-react";
+import { ArrowUpRight, Sparkles, Server, Percent } from "lucide-react";
 import { useQuote } from "@/app/context/QuoteContext";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useMoney } from "@/lib/useMoney";
 
 
-const BG    = "#07100e";
 const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
 
@@ -22,29 +21,31 @@ type Hosting     = "none" | "cloud" | "vps";
 type Support     = "none" | "basic" | "pro";
 
 /* ─── Pricing ────────────────────────────────────────────────────────────── */
+// Тарифы 2026: −20% к прежним ставкам.
 const PRICING = {
-  base: { client: 600_000, loyalty: 650_000, field: 810_000, marketplace: 1_375_000, fintech: 1_625_000, saasMobile: 975_000 } as Record<AppKind, number>,
-  scope: { included: 8, perUnit: 38_000 },
+  // База совпадает с ценами «от» в блоке «Типы приложений»: полевое = CRM, маркетплейс = B2B-витрина.
+  base: { client: 480_000, loyalty: 520_000, field: 384_000, marketplace: 520_000, fintech: 1_300_000, saasMobile: 560_000 } as Record<AppKind, number>,
+  scope: { included: 8, perUnit: 30_500 },
   design: { basic: 1.0, pro: 1.2, brand: 1.4 } as Record<DesignLevel, number>,
   features: {
-    auth: 88_000, push: 56_000, offline: 105_000, payments: 140_000, subscriptions: 110_000,
-    maps: 81_000, geofencing: 69_000, chat: 100_000, cameraMedia: 62_000,
-    analytics: 31_000, abtests: 44_000, deeplinks: 31_000, extIntegr: 75_000, i18n: 56_000,
+    auth: 70_500, push: 45_000, offline: 84_000, payments: 112_000, subscriptions: 88_000,
+    maps: 65_000, geofencing: 55_000, chat: 80_000, cameraMedia: 49_500,
+    analytics: 25_000, abtests: 35_000, deeplinks: 25_000, extIntegr: 60_000, i18n: 45_000,
   },
   infra: {
     hosting: {
       none:  { monthly: 0,      setup: 0      },
-      cloud: { monthly: 12_000, setup: 25_000 },
-      vps:   { monthly: 10_000,  setup: 35_000 },
+      cloud: { monthly: 9_500, setup: 20_000 },
+      vps:   { monthly: 8_000,  setup: 28_000 },
     } as Record<Hosting, { monthly: number; setup: number }>,
-    notifications: { monthly: 2_500, setup: 5_000 },
-    ota:           { monthly: 2_000, setup: 5_000 },
-    crashlytics:   { monthly: 1_000, setup: 2_500 },
-    observ:        { monthly: 3_000, setup: 7_500 },
-    ci:            { monthly: 4_000, setup: 15_000 },
-    domains:       { monthly: 600,   setup: 3_000  },
+    notifications: { monthly: 2_000, setup: 4_000 },
+    ota:           { monthly: 1_500, setup: 4_000 },
+    crashlytics:   { monthly: 1_000, setup: 2_000 },
+    observ:        { monthly: 2_500, setup: 6_000 },
+    ci:            { monthly: 3_000, setup: 12_000 },
+    domains:       { monthly: 600,   setup: 2_500  },
   },
-  support: { none: 0, basic: 38_000, pro: 88_000 } as Record<Support, number>,
+  support: { none: 0, basic: 30_500, pro: 70_500 } as Record<Support, number>,
   speed:   { normal: 1.0, fast: 1.22 } as Record<Speed, number>,
   discounts: { loyaltyPack: 0.92, marketPack: 0.93 },
 };
@@ -78,13 +79,6 @@ export default function MobileCalculator() {
   const { money, amount } = useMoney(isEn ? "en" : "ru");
   const titleId = useId();
 
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   const [kind, setKind]     = useState<AppKind>("client");
   const [scope, setScope]   = useState(8);
@@ -113,6 +107,7 @@ export default function MobileCalculator() {
   const [useObserv, setUseObserv]   = useState(true);
   const [useCI, setUseCI]           = useState(true);
   const [support, setSupport]       = useState<Support>("basic");
+  const [ai, setAi]                 = useState(false);
 
   /* restore/save */
   useEffect(() => {
@@ -139,7 +134,7 @@ export default function MobileCalculator() {
       setExtIntegr(!!s.extIntegr); setI18n(!!s.i18n);
       setHosting(s.hosting ?? "cloud"); setUseNotif(s.useNotif ?? true);
       setUseOTA(s.useOTA ?? true); setUseObserv(s.useObserv ?? true);
-      setUseCI(s.useCI ?? true); setSupport(s.support ?? "basic");
+      setUseCI(s.useCI ?? true); setSupport(s.support ?? "basic"); setAi(!!s.ai);
     } catch { /* ignore */ }
   }, []);
 
@@ -149,10 +144,10 @@ export default function MobileCalculator() {
         kind, scope, design, speed,
         auth, push, offline, payments, subscriptions, maps, geofencing, chat, cameraMedia,
         analytics, abtests, deeplinks, extIntegr, i18n,
-        hosting, useNotif, useOTA, useCrashlytics, useObserv, useCI, support,
+        hosting, useNotif, useOTA, useCrashlytics, useObserv, useCI, support, ai,
       }));
     } catch { /* ignore */ }
-  }, [kind, scope, design, speed, auth, push, offline, payments, subscriptions, maps, geofencing, chat, cameraMedia, analytics, abtests, deeplinks, extIntegr, i18n, hosting, useNotif, useOTA, useCrashlytics, useObserv, useCI, support]);
+  }, [kind, scope, design, speed, auth, push, offline, payments, subscriptions, maps, geofencing, chat, cameraMedia, analytics, abtests, deeplinks, extIntegr, i18n, hosting, useNotif, useOTA, useCrashlytics, useObserv, useCI, support, ai]);
 
   /* calc */
   const result = useMemo(() => {
@@ -220,12 +215,13 @@ export default function MobileCalculator() {
     deeplinks    && "Deep-links",
     extIntegr    && (isEn ? "Integrations" : "Интеграции"),
     i18n         && "i18n",
+    ai           && "AI",
   ].filter(Boolean) as string[];
 
   const goToContact = () => {
     setQuote?.({
       source: "other", createdAt: new Date().toISOString(),
-      kind, scope, design, speed, hosting, support,
+      kind, scope, design, speed, hosting, support, ai,
       oneOff: result.oneOff, monthly: result.monthly,
       modules: { auth, push, offline, payments, subscriptions, maps, geofencing, chat, cameraMedia, analytics, abtests, deeplinks, extIntegr, i18n },
       infra: { useObserv, useCI },
@@ -236,16 +232,6 @@ export default function MobileCalculator() {
     else // Раздел «Обсудить проект» теперь открывается окном (MobileLayers).
     window.dispatchEvent(new CustomEvent("site-open-section", { detail: "contact" }));
   };
-
-  const jsonLd = useMemo(() => ({
-    "@context": "https://schema.org", "@type": "Service",
-    name: "Калькулятор стоимости мобильного приложения",
-    provider: { "@type": "Organization", name: "OneStack24" },
-    offers: [
-      { "@type": "Offer", priceCurrency: "RUB", price: result.oneOff, category: "Разработка" },
-      { "@type": "Offer", priceCurrency: "RUB", price: result.monthly, category: "Обслуживание" },
-    ],
-  }), [result.oneOff, result.monthly]);
 
   const fadeUp = (d = 0) => reduced ? {} : {
     initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 },
@@ -259,71 +245,39 @@ export default function MobileCalculator() {
 
   return (
     <>
-      <script id="ld-mobile-calc" type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <section
-        id="calculator"
-        aria-labelledby={titleId}
-        style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
-      >
-        <div aria-hidden style={{
-          pointerEvents: "none", position: "absolute", bottom: -160, right: -160,
-          width: 500, height: 500, borderRadius: "50%",
-          background: TEAL, opacity: 0.06, willChange: "transform", transform: "translateZ(0)", filter: "blur(160px)",
-        }} />
+      <section id="calculator" aria-labelledby={titleId} className="site-types">
+        <div className="site-types__inner">
 
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px", position: "relative", zIndex: 1 }}>
-
-          {/* ── Header ── */}
-          <motion.div {...(fadeUp(0) as object)} style={{ padding: isMobile ? "80px 0 48px" : "110px 0 72px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-              <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
-              <span style={{ fontSize: 13, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
-                {isEn ? "Cost calculator" : "Калькулятор стоимости"}
-              </span>
+          <motion.div {...(fadeUp(0) as object)} className="site-types__head">
+            <div>
+              <p className="service-eyebrow">{isEn ? "05 / Calculator" : "05 / Калькулятор"}</p>
+              <h2 id={titleId} className={`${serif.className} site-types__title`}>
+                {isEn ? <>Cost estimate<br />for your app</> : <>Расчёт стоимости<br />вашего приложения</>}
+              </h2>
             </div>
-            <h2
-              id={titleId}
-              className={serif.className}
-              style={{ margin: "0 0 16px", fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}
-            >
-              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: TEAL }}>
-                {isEn ? "Calculate" : "Рассчитайте"}
-              </span>
-              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
-                {isEn ? "your app" : "ваше приложение"}
-              </span>
-            </h2>
-            <p style={{ margin: 0, fontSize: 16, lineHeight: 1.7, color: "rgba(244,250,248,0.4)", maxWidth: 520 }}>
+            <p className="site-types__sub">
               {isEn
-                ? "Configure the parameters for your task — get a preliminary estimate. Final cost is determined after a brief."
-                : "Настройте параметры под вашу задачу — получите предварительную смету. Точную стоимость финализируем после брифа."}
+                ? "Configure the parameters — get a preliminary estimate. The exact cost is fixed after the brief."
+                : "Настройте параметры — получите предварительную смету. Точную стоимость зафиксируем после брифа."}
             </p>
           </motion.div>
 
           {/* ── Main grid ── */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1fr 300px",
-            gap: isMobile ? 0 : 40,
-            alignItems: "start",
+          <div className="calc-grid" style={{
             borderTop: "1px solid rgba(255,255,255,0.06)",
           }}>
 
             {/* Left: controls */}
             <motion.div
               {...(fadeUp(0.05) as object)}
-              style={{
-                borderRight: isMobile ? "none" : "1px solid rgba(255,255,255,0.06)",
-                paddingRight: isMobile ? 0 : 40,
-              }}
+              className="calc-controls"
             >
 
               {/* 01 App type */}
               <div style={{ paddingTop: 36, paddingBottom: 36 }}>
                 <FigLabel num="01" label={isEn ? "App type" : "Тип приложения"} />
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 8 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 10 }}>
                   {((isEn ? [
                     ["client",      "Client app",    "Customer service"],
                     ["loyalty",     "Loyalty",       "Cards & bonuses"],
@@ -347,7 +301,7 @@ export default function MobileCalculator() {
               {/* 02 Scope + Design */}
               <div style={sectionRow}>
                 <FigLabel num="02" label={isEn ? "Scope & design" : "Объём и дизайн"} />
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: isMobile ? 20 : 28 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 28 }}>
                   <div>
                     <SubLabel label={isEn ? `Modules: ${scope} (base ${PRICING.scope.included})` : `Модулей: ${scope} (базовых ${PRICING.scope.included})`} />
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 10 }}>
@@ -380,26 +334,27 @@ export default function MobileCalculator() {
               <div style={sectionRow}>
                 <FigLabel num="03" label={isEn ? "Feature modules" : "Функциональные модули"} />
                 <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                  <ToggleSect cols={isMobile ? 1 : 2} label={isEn ? "Security & access" : "Безопасность и доступ"}>
+                  <ToggleSect cols={2} label={isEn ? "Security & access" : "Безопасность и доступ"}>
                     <CalcToggle label={isEn ? "Auth / biometrics" : "Auth / биометрия"} value={auth}      onChange={setAuth}      desc="OAuth/OIDC, Face/Touch ID" />
                     <CalcToggle label="Deep-links"                                        value={deeplinks}  onChange={setDeeplinks} desc={isEn ? "Universal links" : "Универсальные ссылки"} />
                     <CalcToggle label={isEn ? "Multilanguage" : "Мультиязычность"}       value={i18n}       onChange={setI18n}      desc="EN / RU" />
+                    <CalcToggle label={isEn ? "AI assistant" : "AI-ассистент"} value={ai} onChange={setAi} desc={isEn ? "Priced on request" : "По запросу"} />
                   </ToggleSect>
-                  <ToggleSect cols={isMobile ? 1 : 2} label={isEn ? "Communication" : "Коммуникации"}>
+                  <ToggleSect cols={2} label={isEn ? "Communication" : "Коммуникации"}>
                     <CalcToggle label={isEn ? "Push notifications" : "Push-уведомления"} value={push}    onChange={setPush}    desc="FCM / APNs" />
                     <CalcToggle label={isEn ? "Offline mode" : "Оффлайн-режим"}          value={offline} onChange={setOffline} desc={isEn ? "Local cache & sync" : "Кэш и синхронизация"} />
                     <CalcToggle label={isEn ? "Chat / support" : "Чат / поддержка"}      value={chat}    onChange={setChat}    desc="WebSocket" />
                   </ToggleSect>
-                  <ToggleSect cols={isMobile ? 1 : 2} label={isEn ? "Payments & monetisation" : "Платежи и монетизация"}>
+                  <ToggleSect cols={2} label={isEn ? "Payments & monetisation" : "Платежи и монетизация"}>
                     <CalcToggle label={isEn ? "Payment systems" : "Платёжные системы"}  value={payments}      onChange={setPayments}      desc={isEn ? "YooKassa, Stripe" : "ЮKassa, Stripe"} />
                     <CalcToggle label={isEn ? "Subscriptions" : "Подписки"}             value={subscriptions} onChange={setSubscriptions} desc={isEn ? "IAP, recurring" : "IAP, биллинг"} />
                   </ToggleSect>
-                  <ToggleSect cols={isMobile ? 1 : 2} label={isEn ? "Geo & media" : "Геолокация и медиа"}>
+                  <ToggleSect cols={2} label={isEn ? "Geo & media" : "Геолокация и медиа"}>
                     <CalcToggle label={isEn ? "Maps & routing" : "Карты и маршруты"} value={maps}        onChange={setMaps}        desc="MapKit / Google Maps" />
                     <CalcToggle label="Geofencing"                                    value={geofencing}  onChange={setGeofencing}  desc={isEn ? "Zone triggers" : "Зоны и триггеры"} />
                     <CalcToggle label={isEn ? "Camera & media" : "Камера и медиа"}   value={cameraMedia} onChange={setCameraMedia} desc={isEn ? "Photo / video" : "Фото / видео"} />
                   </ToggleSect>
-                  <ToggleSect cols={isMobile ? 1 : 2} label={isEn ? "Analytics & integrations" : "Аналитика и интеграции"}>
+                  <ToggleSect cols={2} label={isEn ? "Analytics & integrations" : "Аналитика и интеграции"}>
                     <CalcToggle label={isEn ? "Event analytics" : "Аналитика событий"}  value={analytics} onChange={setAnalytics} desc="Firebase / Amplitude" />
                     <CalcToggle label={isEn ? "A/B tests" : "A/B-тесты"}                value={abtests}   onChange={setAbtests}   desc={isEn ? "Experiments" : "Эксперименты"} />
                     <CalcToggle label={isEn ? "Ext. integrations" : "Внешние интеграции"} value={extIntegr} onChange={setExtIntegr} desc="API, CRM, 1С" />
@@ -410,7 +365,7 @@ export default function MobileCalculator() {
               {/* 04 Infrastructure */}
               <div style={{ ...sectionRow, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                 <FigLabel num="04" label={isEn ? "Infrastructure" : "Инфраструктура"} />
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: isMobile ? 12 : 20 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 20 }}>
                   <div>
                     <SubLabel label={isEn ? "Hosting" : "Хостинг"} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
@@ -460,13 +415,7 @@ export default function MobileCalculator() {
             {/* Right: result panel */}
             <motion.div
               {...(fadeUp(0.1) as object)}
-              style={{
-                position: isMobile ? "static" : "sticky",
-                top: isMobile ? undefined : 88,
-                paddingTop: 36,
-                paddingBottom: 36,
-                borderTop: isMobile ? "1px solid rgba(255,255,255,0.06)" : "none",
-              }}
+              className="calc-panel"
             >
               <FigLabel num="EST" label={isEn ? "Estimate" : "Смета"} />
 
@@ -552,6 +501,11 @@ export default function MobileCalculator() {
                     <div className={serif.className} style={{ fontSize: "clamp(1.8rem, 3vw, 2.4rem)", color: TEAL, lineHeight: 1 }}>
                       <CountUp value={amount(result.oneOff)} lang={isEn ? "en" : "ru"} />
                     </div>
+                    {ai && (
+                      <div style={{ fontSize: 13, color: "rgba(244,250,248,0.55)", marginTop: 8 }}>
+                        {isEn ? "+ AI assistant — priced on request" : "+ AI-ассистент — по запросу"}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
@@ -566,19 +520,9 @@ export default function MobileCalculator() {
 
                 {/* CTA */}
                 <div style={{ padding: "16px 18px 18px" }}>
-                  <button onClick={goToContact} type="button"
-                    style={{
-                      width: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-                      gap: 8, borderRadius: 99, padding: "12px 20px", fontSize: 15, fontWeight: 600,
-                      cursor: "pointer", border: "none", background: TEAL, color: BG,
-                      transition: "opacity 0.15s",
-                    }}
-                    onMouseEnter={e => (e.currentTarget.style.opacity = "0.88")}
-                    onMouseLeave={e => (e.currentTarget.style.opacity = "1")}
-                  >
-                    <MessageCircle size={14} />
+                  <button type="button" onClick={goToContact} className="service-button service-button--primary" style={{ width: "100%" }}>
                     {isEn ? "Discuss the project" : "Обсудить проект"}
-                    <ArrowRight size={13} />
+                    <ArrowUpRight size={18} aria-hidden="true" />
                   </button>
                   <p style={{ margin: "10px 0 0", fontSize: 11, lineHeight: 1.5, color: "rgba(244,250,248,0.22)", textAlign: "center" }}>
                     * {isEn ? "Estimate is preliminary." : "Расчёт предварительный."}
@@ -589,7 +533,6 @@ export default function MobileCalculator() {
 
           </div>
 
-          <div style={{ height: isMobile ? 72 : 110 }} />
         </div>
       </section>
     </>
@@ -600,8 +543,8 @@ export default function MobileCalculator() {
 function FigLabel({ num, label }: { num: string; label: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-      <span style={{ fontFamily: "monospace", fontSize: 12, color: TEAL, opacity: 0.7, letterSpacing: "0.06em" }}>{num}</span>
-      <span style={{ fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.32)", fontWeight: 500 }}>{label}</span>
+      <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 13, color: TEAL, opacity: 0.7, letterSpacing: "0.06em" }}>{num}</span>
+      <span style={{ fontSize: 13, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.4)", fontWeight: 500 }}>{label}</span>
     </div>
   );
 }
@@ -618,15 +561,15 @@ function CalcChip({ active, onClick, title, desc }: { active: boolean; onClick: 
   return (
     <button onClick={onClick} type="button"
       style={{
-        textAlign: "left", borderRadius: 8, padding: "9px 11px", cursor: "pointer",
+        textAlign: "left", borderRadius: 10, padding: "12px 14px", cursor: "pointer",
         border: "none", transition: "all 0.15s", width: "100%",
         background: active ? `${TEAL}15` : "rgba(255,255,255,0.02)",
         outline: active ? `1px solid ${TEAL}` : "1px solid rgba(255,255,255,0.07)",
         color: active ? WHITE : "rgba(244,250,248,0.55)",
       }}
     >
-      <div style={{ fontSize: 13, fontWeight: 600 }}>{title}</div>
-      {desc && <div style={{ fontSize: 12, opacity: 0.5, marginTop: 1 }}>{desc}</div>}
+      <div style={{ fontSize: 15, fontWeight: 600 }}>{title}</div>
+      {desc && <div style={{ fontSize: 13, opacity: 0.55, marginTop: 2 }}>{desc}</div>}
     </button>
   );
 }
@@ -637,7 +580,7 @@ function ToggleSect({ label, children, cols = 2 }: { label: string; children: Re
       <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.28)", marginBottom: 8 }}>
         {label}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 6 }}>
+      <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit, minmax(${cols > 2 ? 170 : 200}px, 1fr))`, gap: 8 }}>
         {children}
       </div>
     </div>
@@ -649,7 +592,7 @@ function CalcToggle({ label, value, onChange, desc }: { label: string; value: bo
     <button onClick={() => onChange(!value)} type="button"
       style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderRadius: 8, padding: "9px 11px", cursor: "pointer",
+        borderRadius: 10, padding: "12px 14px", cursor: "pointer",
         border: "none", transition: "all 0.15s",
         background: value ? `${TEAL}12` : "rgba(255,255,255,0.02)",
         outline: value ? `1px solid ${TEAL}45` : "1px solid rgba(255,255,255,0.07)",
@@ -657,8 +600,8 @@ function CalcToggle({ label, value, onChange, desc }: { label: string; value: bo
       }}
     >
       <div style={{ textAlign: "left" }}>
-        <div style={{ fontSize: 13, fontWeight: 500 }}>{label}</div>
-        {desc && <div style={{ fontSize: 12, opacity: 0.5, marginTop: 1 }}>{desc}</div>}
+        <div style={{ fontSize: 15, fontWeight: 500 }}>{label}</div>
+        {desc && <div style={{ fontSize: 13, opacity: 0.55, marginTop: 2 }}>{desc}</div>}
       </div>
       <span style={{
         display: "inline-flex", alignItems: "center",

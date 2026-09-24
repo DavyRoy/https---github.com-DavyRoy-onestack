@@ -1,4 +1,4 @@
-// src/app/webapp/page.tsx
+// src/app/ai/page.tsx
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { canonical, siteName, siteUrl, COMPANY } from "@/app/seo.config";
@@ -6,34 +6,28 @@ import { getRequestLocale, buildCanonical, buildLanguageAlternates, buildOpenGra
 import { QuoteProvider } from "@/app/context/QuoteContext";
 
 import NavBar from "@/components/NavBar";
-import WebAppLayers from "@/components/WebAppLayers";
+import AiLayers from "@/components/AiLayers";
 import HomeFooter from "@/components/HomeFooter";
 
 /* ==================== SEO / CONFIG ==================== */
 
-
-const title =
-  "Разработка веб-приложений: CRM, ERP, кабинеты";
+const title = "Внедрение ИИ в бизнес: ассистенты и автоматизация";
 const description =
-  "CRM от 560 000 ₽, личные кабинеты, корпоративные порталы и SaaS под ключ. Роли и доступы, интеграции с 1С и оплатами, фиксированная смета.";
+  "AI-чат-боты, автоматизация заявок и документов, ИИ в ваших продуктах и прогнозная аналитика. Начинаем с пилота на ваших данных, работаем по NDA.";
 
 // Английская версия индексируется отдельно, поэтому у неё свои title и description.
-const TITLE_EN = "Web application development: CRM, ERP, client portals";
+const TITLE_EN = "AI for business: assistants and process automation";
 const DESC_EN =
-  "CRM from $6,240, client portals, corporate portals and SaaS, turnkey. Roles and access, integrations with ERP and payments, fixed quote.";
-const url = canonical("/webapp");
+  "AI chatbots, automated request and document handling, AI inside your products and predictive analytics. We start with a pilot on your data, NDA from day one.";
+const url = canonical("/ai");
 
-/* Цены «от» по тарифам 2026 — те же, что в блоке «Типы систем». */
-const APP_OFFERS: [string, number][] = [
-  ["CRM системы", 560000], ["Корпоративные порталы", 720000], ["Личные кабинеты", 400000],
-  ["Аналитические панели", 480000], ["B2B платформы", 800000], ["SaaS сервисы", 1200000],
-];
+const AI_SERVICES = ["AI-чат-боты и ассистенты", "Автоматизация процессов", "Интеграция ИИ в продукты", "AI-аналитика и прогнозирование"];
 
 export async function generateMetadata(): Promise<Metadata> {
   // Локаль берём из запроса: без этого canonical английской страницы указывал
   // на русскую, и вся /en-версия выпадала из индекса как дубль.
   const locale = await getRequestLocale();
-  const pageUrl = buildCanonical("/webapp", locale);
+  const pageUrl = buildCanonical("/ai", locale);
 
   const isEn = locale === "en";
   const pageTitle = isEn ? TITLE_EN : title;
@@ -45,8 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: pageUrl,
       languages: {
-        ...buildLanguageAlternates("/webapp"),
-        "x-default": canonical("/webapp"),
+        ...buildLanguageAlternates("/ai"),
+        "x-default": canonical("/ai"),
       },
     },
     openGraph: {
@@ -68,25 +62,20 @@ export const dynamic = "force-dynamic";
 
 /* ==================== PAGE ==================== */
 
-export default function WebAppPage() {
+export default function AiPage() {
   const ldJson = {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: "Разработка веб-приложений",
+    name: "Внедрение искусственного интеллекта",
     provider: { "@type": "Organization", "@id": `${siteUrl}/#organization`, name: siteName, url: siteUrl },
     areaServed: COMPANY.areaServed,
-    serviceType: "Web application development",
+    serviceType: "AI implementation and automation",
     description,
     url,
     hasOfferCatalog: {
       "@type": "OfferCatalog",
-      name: "Типы систем",
-      itemListElement: APP_OFFERS.map(([name, price]) => ({
-        "@type": "Offer",
-        itemOffered: { "@type": "Service", name },
-        priceCurrency: "RUB",
-        priceSpecification: { "@type": "PriceSpecification", minPrice: price, priceCurrency: "RUB" },
-      })),
+      name: "AI-решения",
+      itemListElement: AI_SERVICES.map(name => ({ "@type": "Offer", itemOffered: { "@type": "Service", name } })),
     },
   };
 
@@ -95,7 +84,7 @@ export default function WebAppPage() {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Главная", item: siteUrl },
-      { "@type": "ListItem", position: 2, name: "Разработка веб-приложений", item: url },
+      { "@type": "ListItem", position: 2, name: "AI и автоматизация", item: url },
     ],
   };
 
@@ -113,12 +102,12 @@ export default function WebAppPage() {
       />
       {/* ==================== JSON-LD ==================== */}
       <script
-        id="ld-service-webapp"
+        id="ld-service-ai"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldJson) }}
       />
       <script
-        id="ld-breadcrumbs-webapp"
+        id="ld-breadcrumbs-ai"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(ldBreadcrumbs) }}
       />
@@ -127,10 +116,7 @@ export default function WebAppPage() {
       <Suspense fallback={null}>
         <QuoteProvider>
           <NavBar />
-          {/* Разделы открываются во весь экран из WebAppLayers. Со страницы
-              убраны первый блок, «Преимущества», «Производительность и
-              безопасность» и «Вопросы и ответы». */}
-          <WebAppLayers />
+          <AiLayers />
           <HomeFooter />
         </QuoteProvider>
       </Suspense>

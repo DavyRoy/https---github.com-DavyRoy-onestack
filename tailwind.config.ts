@@ -7,7 +7,7 @@ const config: Config = {
     "./src/components/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
-  darkMode: ["class"],
+  darkMode: "class",
   theme: {
     extend: {},
   },

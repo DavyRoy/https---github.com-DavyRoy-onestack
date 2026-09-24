@@ -1,10 +1,10 @@
 "use client";
 import { serif } from "@/lib/fonts";
 
-import React, { useEffect, useRef, useState, useMemo, useId } from "react";
+import React, { useEffect, useRef, useState, useId } from "react";
 import { motion, useReducedMotion, useInView } from "framer-motion";
 import Link from "next/link";
-import { siteName, siteUrl } from "@/app/seo.config";
+import { ArrowUpRight } from "lucide-react";
 import { useI18n } from "@/i18n/I18nProvider";
 
 
@@ -16,17 +16,17 @@ const WHITE = "#f4faf8";
 const STATS: { target: number; suffix: string; label: { ru: string; en: string } }[] = [
   { target: 150, suffix: "+", label: { ru: "проектов сдано",    en: "projects delivered" } },
   { target: 98,  suffix: "%", label: { ru: "сдаём в срок",      en: "on time"            } },
-  { target: 5,   suffix: "",  label: { ru: "лет на рынке",      en: "years in market"    } },
+  { target: 6,   suffix: "",  label: { ru: "лет на рынке",      en: "years in market"    } },
   { target: 98,  suffix: "%", label: { ru: "клиентов довольны", en: "clients satisfied"  } },
 ];
 
 const BENEFITS = [
-  { title: { ru: "Скорость и производительность", en: "Speed & performance"  }, desc: { ru: "Оптимизируем LCP, CLS и INP — сайт грузится быстро на любых устройствах и соединениях.", en: "We optimize LCP, CLS and INP — fast loading on any device and connection." }, tags: ["LCP < 2.5s", "CLS < 0.1", "TTFB < 100ms"] },
-  { title: { ru: "Безопасность",                  en: "Security"             }, desc: { ru: "OWASP-практики, RBAC, шифрование, аудит и регулярные бэкапы — защита на каждом уровне.", en: "OWASP practices, RBAC, encryption, audit logs and backups — protection at every layer." }, tags: ["OWASP", "RBAC", "Encryption", "Backups"] },
-  { title: { ru: "Масштабируемость",              en: "Scalability"          }, desc: { ru: "Микросервисная архитектура, кэш и CDN — продукт выдержит любой рост нагрузки.", en: "Microservice architecture, caching and CDN — your product scales to any load." }, tags: ["Microservices", "Redis", "CDN"] },
-  { title: { ru: "Интеграции",                    en: "Integrations"         }, desc: { ru: "CRM, ERP, платёжные системы, аналитика и любые сторонние сервисы через REST / GraphQL.", en: "CRM, ERP, payment systems, analytics and any third-party services via REST / GraphQL." }, tags: ["REST / GraphQL", "CRM / ERP", "Payments"] },
-  { title: { ru: "CI/CD и DevOps",                en: "CI/CD & DevOps"       }, desc: { ru: "Автотесты, preview-окружения и безопасные откаты — быстрые надёжные релизы без рисков.", en: "Auto-tests, preview environments and safe rollbacks — fast, reliable releases." }, tags: ["GitHub Actions", "Docker", "Preview envs"] },
-  { title: { ru: "Поддержка и развитие",          en: "Support & growth"     }, desc: { ru: "Мониторинг 24/7, SLA 99.9%, обновления и дорожная карта развития продукта.", en: "24/7 monitoring, SLA 99.9%, updates and product roadmap for continuous growth." }, tags: ["24/7", "SLA 99.9%", "Roadmap"] },
+  { title: { ru: "Скорость и производительность", en: "Speed & performance"  }, desc: { ru: "Страницы открываются меньше чем за 2,5 секунды даже на мобильном интернете — клиенты не уходят, а поисковики поднимают сайт выше.", en: "Pages load in under 2.5 seconds even on mobile data — visitors stay, and search engines rank you higher." }, tags: ["LCP < 2.5s", "CLS < 0.1", "TTFB < 100ms"] },
+  { title: { ru: "Безопасность",                  en: "Security"             }, desc: { ru: "Данные клиентов зашифрованы, доступы разграничены по ролям, резервные копии делаются каждый день. Утечка или потеря данных вам не грозят.", en: "Customer data is encrypted, access is role-based and backups run daily. No leaks, no lost data." }, tags: ["OWASP", "RBAC", "Encryption", "Backups"] },
+  { title: { ru: "Масштабируемость",              en: "Scalability"          }, desc: { ru: "Закладываем запас на рост с первого дня: рекламная кампания или сезонный пик не положат сайт, а новые функции не потребуют переписывать всё заново.", en: "Built for growth from day one: an ad campaign or seasonal peak will not take you down, and new features never mean a rewrite." }, tags: ["Microservices", "Redis", "CDN"] },
+  { title: { ru: "Интеграции",                    en: "Integrations"         }, desc: { ru: "Подключаем 1С, amoCRM, Битрикс24, оплаты, доставку и аналитику. Заявки и заказы сами попадают куда нужно — без ручного переноса.", en: "We connect your ERP, CRM, payments, delivery and analytics. Leads and orders land where they should, with no manual copying." }, tags: ["REST / GraphQL", "CRM / ERP", "Payments"] },
+  { title: { ru: "CI/CD и DevOps",                en: "CI/CD & DevOps"       }, desc: { ru: "Каждое изменение проходит автотесты и сначала проверяется на копии сайта. Обновления выходят без простоев, а при ошибке откатываются за минуты.", en: "Every change passes automated tests and is checked on a staging copy first. Updates ship with no downtime and roll back in minutes." }, tags: ["GitHub Actions", "Docker", "Preview envs"] },
+  { title: { ru: "Поддержка и развитие",          en: "Support & growth"     }, desc: { ru: "После запуска не пропадаем: следим за работой 24/7, гарантируем доступность 99,9% по SLA и помогаем развивать продукт дальше.", en: "We stay after launch: 24/7 monitoring, 99.9% uptime under SLA and a roadmap to keep your product growing." }, tags: ["24/7", "SLA 99.9%", "Roadmap"] },
 ];
 
 const PROCESS_STEPS = [
@@ -39,8 +39,8 @@ const PROCESS_STEPS = [
 ];
 
 const COPY = {
-  ru: { eyebrow: "02 / Принципы", h1: "Правила,", h2: "которые мы не нарушаем", sub: "Фиксированная смета — цена не растёт в процессе. Срок — сдаём по договору. Стек — только проверенные технологии. Поддержка — на связи после запуска.", process: "КАК МЫ РАБОТАЕМ", clients: "НАМ ДОВЕРЯЮТ", cta: "Обсудить проект", promise: { title: "Прозрачный процесс", desc: "Демо каждые 1–2 недели, доступ к задачам в реальном времени." } },
-  en: { eyebrow: "02 / Principles", h1: "Rules", h2: "we never break", sub: "Fixed price — the quote does not grow mid-project. Deadline — we deliver per contract. Stack — only proven technologies. Support — available after launch.", process: "HOW WE WORK", clients: "TRUSTED BY", cta: "Discuss project", promise: { title: "Transparent process", desc: "Demos every 1–2 weeks, real-time task access." } },
+  ru: { eyebrow: "02 / Принципы", h1: "Правила,", h2: "которые мы не нарушаем", sub: "Фиксированная смета — цена не растёт в процессе. Срок — сдаём по договору. Стек — только проверенные технологии. Поддержка — на связи после запуска.", process: "КАК МЫ РАБОТАЕМ", clients: "НАМ ДОВЕРЯЮТ", cta: "Обсудить проект", promise: { title: "Вы всегда видите, где проект", desc: "Демо каждые 1–2 недели и доступ к задачам в реальном времени — без сюрпризов в конце." } },
+  en: { eyebrow: "02 / Principles", h1: "Rules", h2: "we never break", sub: "Fixed price — the quote does not grow mid-project. Deadline — we deliver per contract. Stack — only proven technologies. Support — available after launch.", process: "HOW WE WORK", clients: "TRUSTED BY", cta: "Discuss project", promise: { title: "You always know where things stand", desc: "Demos every 1–2 weeks and live access to tasks — no surprises at the end." } },
 } as const;
 
 /* ─── Counter hook ───────────────────────────────────────────────────────── */
@@ -67,25 +67,12 @@ function useCounter(target: number, duration = 1600) {
    MAIN
 ═══════════════════════════════════════════════════════════════════════════ */
 export default function HomeBenefits() {
-  const { locale, localizePath } = useI18n();
+  const { locale } = useI18n();
   const lang    = locale === "ru" ? "ru" : "en";
   const c       = COPY[lang];
   const reduced = useReducedMotion();
   const titleId = useId();
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  const jsonLd = useMemo(() => ({
-    "@context": "https://schema.org", "@type": "Organization",
-    name: siteName, url: siteUrl,
-    knowsAbout: BENEFITS.map(b => b.title.ru),
-  }), []);
 
   const fadeUp = (d = 0) => reduced ? {} : {
     initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 },
@@ -94,22 +81,14 @@ export default function HomeBenefits() {
 
   return (
     <>
-      <script id="ld-home-benefits" type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <section
         id="benefits"
         aria-labelledby={titleId}
         style={{ background: "transparent", position: "relative", overflow: "hidden" }}
       >
-        {/* Ambient glow */}
-        <div aria-hidden style={{
-          pointerEvents: "none", position: "absolute", top: "20%", right: "-8%",
-          width: 560, height: 560, borderRadius: "50%",
-          background: TEAL, opacity: 0.05, willChange: "transform", transform: "translateZ(0)", filter: "blur(200px)",
-        }} />
 
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(72px,10svh,110px) clamp(20px,5vw,56px) 0", position: "relative", zIndex: 1 }}>
+        <div className="px-5 md:px-10" style={{ maxWidth: 1280, margin: "0 auto", paddingTop: "clamp(72px,10svh,110px)", position: "relative", zIndex: 1 }}>
 
           {/* ── Header — matches the Capabilities block's header treatment ── */}
           <motion.div
@@ -117,18 +96,18 @@ export default function HomeBenefits() {
             style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap", marginBottom: 48 }}
           >
             <div>
-              <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 16 }}>
+              <p style={{ fontSize: 14, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 16 }}>
                 {c.eyebrow}
               </p>
               <h2
                 id={titleId}
                 className={serif.className}
-                style={{ fontSize: "clamp(2rem,4.4vw,3.4rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}
+                style={{ fontSize: "clamp(2.3rem, 5.06vw, 3.91rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}
               >
                 {c.h1}<br />{c.h2}
               </h2>
             </div>
-            <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(244,250,248,0.45)", maxWidth: 300 }}>
+            <p style={{ fontSize: 18, lineHeight: 1.6, color: "rgba(244,250,248,0.45)", maxWidth: 300 }}>
               {c.sub}
             </p>
           </motion.div>
@@ -136,30 +115,11 @@ export default function HomeBenefits() {
           {/* ── Stats strip ── */}
           <motion.div
             {...(fadeUp(0.08) as object)}
-            style={{
-              display: "grid", gridTemplateColumns: "repeat(4, 1fr)",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 14, overflow: "hidden", marginBottom: isMobile ? 48 : 64,
-            }}
+            className="stats-strip"
           >
-            {STATS.map((s, i) => {
-              const { ref, value } = useCounter(s.target);
-              return (
-                <div key={i} ref={ref} style={{
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                  padding: isMobile ? "20px 8px" : "28px 20px", textAlign: "center",
-                  background: "rgba(255,255,255,0.02)",
-                  borderRight: i < 3 ? "1px solid rgba(255,255,255,0.07)" : "none",
-                }}>
-                  <div className={serif.className} style={{ fontSize: isMobile ? "1.6rem" : "clamp(1.8rem, 3vw, 2.8rem)", color: TEAL, lineHeight: 1, marginBottom: 6 }}>
-                    {value}{s.suffix}
-                  </div>
-                  <div style={{ fontSize: isMobile ? 10 : 12, color: "rgba(244,250,248,0.45)" }}>
-                    {s.label[lang]}
-                  </div>
-                </div>
-              );
-            })}
+            {STATS.map((s, i) => (
+              <StatCell key={i} target={s.target} suffix={s.suffix} label={s.label[lang]} />
+            ))}
           </motion.div>
 
           {/* Client logos intentionally hidden until real clients can be shown */}
@@ -169,44 +129,27 @@ export default function HomeBenefits() {
             {BENEFITS.map((b, i) => (
               <BenefitRow key={i} index={i}
                 title={b.title[lang]} desc={b.desc[lang]} tags={b.tags}
-                delay={Math.min(0.05 * i, 0.2)} reduced={!!reduced} isMobile={isMobile}
+                delay={Math.min(0.05 * i, 0.2)} reduced={!!reduced}
               />
             ))}
           </div>
 
           {/* ── Process timeline ── */}
-          <ProcessTimeline lang={lang} label={c.process} reduced={!!reduced} isMobile={isMobile} />
+          <ProcessTimeline lang={lang} label={c.process} reduced={!!reduced} />
 
           {/* ── Bottom CTA ── */}
           <motion.div
             {...(fadeUp(0.1) as object)}
-            style={{
-              display: "flex", flexDirection: isMobile ? "column" : "row",
-              alignItems: isMobile ? "flex-start" : "center",
-              justifyContent: "space-between", gap: 24,
-              marginTop: 56, paddingTop: 36,
-              borderTop: "1px solid rgba(255,255,255,0.07)",
-              marginBottom: isMobile ? 80 : 110,
-            }}
+            className="benefits-cta"
           >
             <div>
-              <p className={serif.className} style={{ fontSize: isMobile ? 20 : 24, fontWeight: 400, margin: "0 0 6px", color: WHITE }}>
+              <p className={serif.className} style={{ fontSize: "clamp(23px, 2.4vw, 28px)", fontWeight: 400, margin: "0 0 6px", color: WHITE }}>
                 {c.promise.title}
               </p>
-              <p style={{ margin: 0, fontSize: 13, color: "rgba(244,250,248,0.38)" }}>{c.promise.desc}</p>
+              <p style={{ margin: 0, fontSize: 17, color: "rgba(244,250,248,0.38)" }}>{c.promise.desc}</p>
             </div>
-            <Link
-              href={localizePath("/home#contact")}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 10,
-                borderRadius: 99, padding: "14px 28px",
-                background: TEAL, color: BG, fontSize: 14, fontWeight: 600,
-                textDecoration: "none", flexShrink: 0, transition: "opacity 0.15s",
-              }}
-              onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.opacity = "0.88")}
-              onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.opacity = "1")}
-            >
-              {c.cta}
+            <Link href="#contact" className="service-button service-button--primary" style={{ flexShrink: 0 }}>
+              {c.cta}<ArrowUpRight size={18} aria-hidden="true" />
             </Link>
           </motion.div>
 
@@ -216,10 +159,25 @@ export default function HomeBenefits() {
   );
 }
 
+/* ── StatCell ─────────────────────────────────────────────────────────────── */
+function StatCell({ target, suffix, label }: { target: number; suffix: string; label: string }) {
+  const { ref, value } = useCounter(target);
+  return (
+    <div ref={ref} className="stat-cell">
+      <div className={serif.className} style={{ fontSize: "clamp(1.84rem, 3.45vw, 3.22rem)", color: TEAL, lineHeight: 1, marginBottom: 6 }}>
+        {value}{suffix}
+      </div>
+      <div style={{ fontSize: "clamp(13px, 1.2vw, 16px)", color: "rgba(244,250,248,0.45)" }}>
+        {label}
+      </div>
+    </div>
+  );
+}
+
 /* ── BenefitRow ──────────────────────────────────────────────────────────── */
-function BenefitRow({ index, title, desc, tags, delay, reduced, isMobile }: {
+function BenefitRow({ index, title, desc, tags, delay, reduced }: {
   index: number; title: string; desc: string; tags: string[];
-  delay: number; reduced: boolean; isMobile: boolean;
+  delay: number; reduced: boolean;
 }) {
   const [hovered, setHovered] = useState(false);
 
@@ -231,14 +189,9 @@ function BenefitRow({ index, title, desc, tags, delay, reduced, isMobile }: {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
       transition={{ delay, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      className="benefit-row"
       style={{
         position: "relative",
-        display: "grid",
-        gridTemplateColumns: isMobile ? "40px 1fr" : "64px 280px 1fr",
-        gap: isMobile ? "12px 16px" : "0 32px",
-        alignItems: "center",
-        padding: isMobile ? "22px 0 22px 16px" : "30px 0 30px 20px",
-        borderBottom: "1px solid rgba(255,255,255,0.06)",
         cursor: "default",
         background: hovered ? "rgba(45,212,191,0.02)" : "transparent",
         transition: "background 0.25s",
@@ -254,7 +207,7 @@ function BenefitRow({ index, title, desc, tags, delay, reduced, isMobile }: {
 
       {/* Index */}
       <span style={{
-        fontFamily: "monospace", fontSize: 10, fontWeight: 600, letterSpacing: "0.04em",
+        fontFamily: "var(--font-geist-mono), monospace", fontSize: 13, fontWeight: 600, letterSpacing: "0.04em",
         color: hovered ? TEAL : "rgba(255,255,255,0.2)", transition: "color 0.2s",
         alignSelf: "start", paddingTop: 4,
       }}>
@@ -263,7 +216,7 @@ function BenefitRow({ index, title, desc, tags, delay, reduced, isMobile }: {
 
       {/* Title */}
       <div className={serif.className} style={{
-        fontSize: isMobile ? 18 : 22, fontWeight: 400, lineHeight: 1.15,
+        fontSize: "clamp(21px, 2vw, 25px)", fontWeight: 400, lineHeight: 1.15,
         letterSpacing: "-0.02em",
         color: hovered ? WHITE : "rgba(244,250,248,0.82)",
         transition: "color 0.2s",
@@ -272,14 +225,14 @@ function BenefitRow({ index, title, desc, tags, delay, reduced, isMobile }: {
       </div>
 
       {/* Desc + tags — on mobile spans full width */}
-      <div style={{ gridColumn: isMobile ? "1 / -1" : "auto" }}>
-        <p style={{ margin: "0 0 10px", fontSize: 13, lineHeight: 1.65, color: "rgba(244,250,248,0.38)" }}>
+      <div className="benefit-row__desc">
+        <p style={{ margin: "0 0 10px", fontSize: 17, lineHeight: 1.65, color: "rgba(244,250,248,0.38)" }}>
           {desc}
         </p>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           {tags.map(tag => (
             <span key={tag} style={{
-              fontSize: 10, fontWeight: 500, letterSpacing: "0.04em",
+              fontSize: 13, fontWeight: 500, letterSpacing: "0.04em",
               padding: "4px 10px", borderRadius: 99,
               background: hovered ? `${TEAL}15` : `${TEAL}0a`,
               color: hovered ? TEAL : `${TEAL}99`,
@@ -296,19 +249,19 @@ function BenefitRow({ index, title, desc, tags, delay, reduced, isMobile }: {
 }
 
 /* ── Process timeline ─────────────────────────────────────────────────────── */
-function ProcessTimeline({ lang, label, reduced, isMobile }: { lang: "ru" | "en"; label: string; reduced: boolean; isMobile: boolean }) {
+function ProcessTimeline({ lang, label, reduced }: { lang: "ru" | "en"; label: string; reduced: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   return (
-    <div style={{ padding: isMobile ? "56px 0" : "72px 0", borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 0 }}>
-      <p style={{ fontSize: 10, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(244,250,248,0.2)", marginBottom: isMobile ? 36 : 48 }}>
+    <div style={{ padding: "clamp(56px, 6vw, 72px) 0", borderTop: "1px solid rgba(255,255,255,0.06)", marginTop: 0 }}>
+      <p style={{ fontSize: 13, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(244,250,248,0.2)", marginBottom: "clamp(36px, 4vw, 48px)" }}>
         {label}
       </p>
       <div ref={ref} style={{ position: "relative" }}>
         {/* Connecting line */}
-        {!isMobile && (
-          <>
+        {/* На телефоне шаги идут в две строки — соединительная линия там не нужна. */}
+        <div className="hidden md:block">
             <div style={{ position: "absolute", top: 22, left: 0, right: 0, height: 1, background: "rgba(255,255,255,0.06)" }} />
             {!reduced && (
               <motion.div style={{ position: "absolute", top: 22, left: 0, height: 1, background: `linear-gradient(to right, ${TEAL}, ${TEAL}80)` }}
@@ -317,12 +270,12 @@ function ProcessTimeline({ lang, label, reduced, isMobile }: { lang: "ru" | "en"
                 transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
               />
             )}
-          </>
-        )}
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(3, 1fr)" : "repeat(6, 1fr)", gap: isMobile ? "24px 16px" : "0 16px" }}>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-x-4 gap-y-6 md:gap-y-0">
           {PROCESS_STEPS.map((step, i) => (
             <motion.div key={step.num}
-              style={{ display: "flex", flexDirection: "column", alignItems: isMobile ? "center" : "flex-start", gap: 12, textAlign: isMobile ? "center" : "left" }}
+              className="flex flex-col items-center text-center md:items-start md:text-left"
+              style={{ gap: 12 }}
               initial={reduced ? undefined : { opacity: 0, y: 12 }}
               animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
               transition={{ delay: 0.15 + i * 0.12, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -332,9 +285,9 @@ function ProcessTimeline({ lang, label, reduced, isMobile }: { lang: "ru" | "en"
                 display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 background: BG, border: `1px solid ${TEAL}40`,
               }}>
-                <span style={{ fontFamily: "monospace", fontSize: 10, color: TEAL }}>{step.num}</span>
+                <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 13, color: TEAL }}>{step.num}</span>
               </div>
-              <span style={{ fontSize: 13, fontWeight: 500, color: "rgba(244,250,248,0.55)" }}>
+              <span style={{ fontSize: 17, fontWeight: 500, color: "rgba(244,250,248,0.55)" }}>
                 {lang === "ru" ? step.ru : step.en}
               </span>
             </motion.div>

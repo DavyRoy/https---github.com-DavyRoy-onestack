@@ -1,7 +1,7 @@
 "use client";
 import { serif } from "@/lib/fonts";
 
-import React, { useRef, useState, useMemo, useId, useCallback, useEffect } from "react";
+import React, { useRef, useState, useMemo, useId, useCallback } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useQuote } from "@/app/context/QuoteContext";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -9,14 +9,14 @@ import { useMoney } from "@/lib/useMoney";
 import {
   Globe, Layers, Smartphone, Lock, CreditCard, BarChart3,
   Bell, Search, MessageSquare, Files, Settings2, PanelsTopLeft,
-  Languages, Database, Undo2, Shield, Zap, ArrowRight,
+  Languages, Database, Undo2, ArrowUpRight,
 } from "lucide-react";
 
 /* ─── Copy ───────────────────────────────────────────────────────────────── */
 const COPY = {
   ru: {
     eyebrow: "03 / Калькулятор",
-    titleLine1: "Рассчитай",
+    titleLine1: "Рассчитайте",
     titleLine2: "стоимость проекта",
     description: "Оцените бюджет за 2 минуты. Выберите тип проекта, настройте параметры — получите ориентировочную смету.",
     types: { site: "Сайт", webapp: "Веб-приложение", mobile: "Мобильное" },
@@ -130,7 +130,6 @@ const COPY = {
 const BG    = "#07100e";
 const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
-const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 /* ─── Types & Constants ─────────────────────────────────────────────────── */
 type ProjectType = "site" | "webapp" | "mobile";
@@ -178,7 +177,6 @@ const SUPPORT_MIN = 12000;
 /* ─── Shared styles ─────────────────────────────────────────────────────── */
 const card = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" };
 const cardActive = { background: "rgba(45,212,191,0.08)", border: `1px solid ${TEAL}` };
-const btnTeal = { background: TEAL, color: BG };
 
 /* ═══════════════════════════════════════════════════════════════════════════
    MAIN COMPONENT
@@ -333,43 +331,31 @@ export default function HomeCalculator() {
       search: false, chat: false, files: false, admin: true, i18n: false, cms: false, db: false });
   };
 
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   return (
     <section ref={_ref} id="calculator" aria-labelledby={titleId}
       style={{ background: "transparent", position: "relative", overflow: "hidden" }}>
 
-      {/* Grain */}
-      <div aria-hidden style={{ pointerEvents: "none", position: "absolute", inset: 0, opacity: 0.025, backgroundImage: GRAIN, backgroundSize: "180px 180px" }} />
-      {/* Glow */}
-      <div aria-hidden style={{ pointerEvents: "none", position: "absolute", bottom: 0, right: "-15%", width: 600, height: 600, borderRadius: "50%", willChange: "transform", transform: "translateZ(0)", filter: "blur(240px)", background: TEAL, opacity: 0.06 }} />
-
-      <div style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px" }}>
+      <div className="px-5 md:px-10" style={{ position: "relative", zIndex: 1, maxWidth: 1280, margin: "0 auto" }}>
 
         {/* Header — matches the Capabilities/Benefits header treatment */}
         <motion.div {...(fadeUp(0) as object)}
           style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap", padding: "clamp(72px,10svh,110px) 0 48px" }}>
           <div>
-            <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 16 }}>
+            <p style={{ fontSize: 14, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 16 }}>
               {c.eyebrow}
             </p>
             <h2 id={titleId} className={serif.className}
-              style={{ fontSize: "clamp(2rem,4.4vw,3.4rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}>
+              style={{ fontSize: "clamp(2.3rem, 5.06vw, 3.91rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}>
               {c.titleLine1} {c.titleLine2}
             </h2>
           </div>
-          <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(244,250,248,0.45)", maxWidth: 300 }}>
+          <p style={{ fontSize: 18, lineHeight: 1.6, color: "rgba(244,250,248,0.45)", maxWidth: 300 }}>
             {c.description}
           </p>
         </motion.div>
 
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "5fr 4fr", gap: isMobile ? 32 : 56, alignItems: "start", paddingBottom: isMobile ? 72 : 110 }}>
+        <div className="home-calc-grid" style={{ display: "grid", alignItems: "start" }}>
 
           {/* ── LEFT: controls ── */}
           <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
@@ -377,7 +363,7 @@ export default function HomeCalculator() {
             {/* Project type */}
             <motion.div {...(fadeUp(0.1) as object)} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 32, paddingBottom: 32 }}>
               <FigLabel num="01" label={c.step1} />
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr 1fr" : "repeat(3,1fr)", gap: 10, marginTop: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginTop: 10 }}>
                 {([
                   { key: "site",    icon: Globe       },
                   { key: "webapp",  icon: Layers      },
@@ -385,9 +371,9 @@ export default function HomeCalculator() {
                 ] as const).map(({ key, icon: Icon }) => (
                   <button key={key}
                     onClick={() => setSelected(p => ({ ...p, [key]: !p[key] }))}
-                    style={{ ...selected[key] ? cardActive : card, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, padding: 16, borderRadius: 12, cursor: "pointer", textAlign: "left", transition: "all 0.2s", background: selected[key] ? "rgba(45,212,191,0.08)" : "rgba(255,255,255,0.03)" }}>
+                    style={{ ...selected[key] ? cardActive : card, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8, padding: "clamp(12px, 2vw, 16px)", minWidth: 0, borderRadius: 12, cursor: "pointer", textAlign: "left", transition: "all 0.2s", background: selected[key] ? "rgba(45,212,191,0.08)" : "rgba(255,255,255,0.03)" }}>
                     <Icon size={15} style={{ color: selected[key] ? TEAL : "rgba(244,250,248,0.3)" }} />
-                    <span style={{ fontSize: 12, fontWeight: 500, color: selected[key] ? WHITE : "rgba(244,250,248,0.45)" }}>
+                    <span style={{ fontSize: 16, fontWeight: 500, overflowWrap: "anywhere", hyphens: "auto", color: selected[key] ? WHITE : "rgba(244,250,248,0.45)" }}>
                       {c.types[key]}
                     </span>
                   </button>
@@ -402,10 +388,10 @@ export default function HomeCalculator() {
                 {(Object.keys(selected) as ProjectType[]).filter(t => selected[t]).map(type => (
                   <div key={type}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span style={{ fontSize: 12, color: "rgba(244,250,248,0.4)" }}>
+                      <span style={{ fontSize: 16, color: "rgba(244,250,248,0.4)" }}>
                         {type === "site" ? c.pagesLabel : c.screensLabel} — {c.types[type]}
                       </span>
-                      <span style={{ fontSize: 12, fontWeight: 500, color: TEAL }}>{pages[type]} {c.unitPcs}</span>
+                      <span style={{ fontSize: 16, fontWeight: 500, color: TEAL }}>{pages[type]} {c.unitPcs}</span>
                     </div>
                     <input type="range" min={1} max={30} value={pages[type]}
                       onChange={e => setPages(p => ({ ...p, [type]: +e.target.value }))}
@@ -414,8 +400,8 @@ export default function HomeCalculator() {
                 ))}
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                    <span style={{ fontSize: 12, color: "rgba(244,250,248,0.4)" }}>{c.integrationsLabel}</span>
-                    <span style={{ fontSize: 12, fontWeight: 500, color: TEAL }}>{integrations} {c.unitPcs}</span>
+                    <span style={{ fontSize: 16, color: "rgba(244,250,248,0.4)" }}>{c.integrationsLabel}</span>
+                    <span style={{ fontSize: 16, fontWeight: 500, color: TEAL }}>{integrations} {c.unitPcs}</span>
                   </div>
                   <input type="range" min={0} max={10} value={integrations}
                     onChange={e => setIntegrations(+e.target.value)}
@@ -427,7 +413,7 @@ export default function HomeCalculator() {
             {/* Complexity */}
             <motion.div {...(fadeUp(0.2) as object)} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 32, paddingBottom: 32 }}>
               <FigLabel num="03" label={c.step3} />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginTop: 10 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8, marginTop: 10 }}>
                 {([1,2,3] as const).map(level => {
                   const activeTypes = (Object.keys(selected) as ProjectType[]).filter(t => selected[t]);
                   const isActive = activeTypes.length > 0 ? activeTypes.every(t => complexity[t] === level) : false;
@@ -438,7 +424,7 @@ export default function HomeCalculator() {
                         activeTypes.forEach(t => { next[t] = level; });
                         setComplexity(next);
                       }}
-                      style={{ ...isActive ? cardActive : card, padding: "10px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", color: isActive ? TEAL : "rgba(244,250,248,0.45)" }}>
+                      style={{ ...isActive ? cardActive : card, padding: "10px 12px", borderRadius: 10, cursor: "pointer", fontSize: 16, fontWeight: 500, transition: "all 0.2s", color: isActive ? TEAL : "rgba(244,250,248,0.45)" }}>
                       {c.complexity[level]}
                     </button>
                   );
@@ -449,18 +435,18 @@ export default function HomeCalculator() {
             {/* Modules */}
             <motion.div {...(fadeUp(0.25) as object)} style={{ borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: 32, paddingBottom: 32 }}>
               <FigLabel num="04" label={c.step4} />
-              <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(3,1fr)", gap: 8 }}>
+              <div className="grid grid-cols-2 md:grid-cols-3" style={{ gap: 8 }}>
                 {MODULES.map(m => (
                   <button key={m.key}
                     onClick={() => setMods(p => ({ ...p, [m.key]: !p[m.key] }))}
-                    style={{ ...mods[m.key] ? cardActive : card, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, padding: isMobile ? "10px 10px" : 12, borderRadius: 10, cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
+                    style={{ ...mods[m.key] ? cardActive : card, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, padding: "clamp(10px, 1.5vw, 12px)", borderRadius: 10, cursor: "pointer", textAlign: "left", transition: "all 0.2s" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
                       <m.icon size={13} style={{ color: mods[m.key] ? TEAL : "rgba(244,250,248,0.25)", flexShrink: 0 }} />
-                      <span style={{ fontSize: isMobile ? 10 : 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: mods[m.key] ? WHITE : "rgba(244,250,248,0.4)" }}>
+                      <span style={{ fontSize: 14, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: mods[m.key] ? WHITE : "rgba(244,250,248,0.4)" }}>
                         {c.modules[m.key]}
                       </span>
                     </div>
-                    <span style={{ fontSize: 9, flexShrink: 0, color: "rgba(244,250,248,0.2)" }}>+{m.hours}{c.hUnit}</span>
+                    <span style={{ fontSize: 13, flexShrink: 0, color: "rgba(244,250,248,0.2)" }}>+{m.hours}{c.hUnit}</span>
                   </button>
                 ))}
               </div>
@@ -469,14 +455,14 @@ export default function HomeCalculator() {
           </div>
 
           {/* ── RIGHT: result panel ── */}
-          <motion.div {...(fadeUp(0.15) as object)} style={{ position: isMobile ? "static" : "sticky", top: 32, display: "flex", flexDirection: "column", gap: 12, borderTop: isMobile ? "1px solid rgba(255,255,255,0.06)" : "none", paddingTop: isMobile ? 32 : 0 }}>
+          <motion.div {...(fadeUp(0.15) as object)} className="home-calc-panel" style={{ top: 32, display: "flex", flexDirection: "column", gap: 12 }}>
 
             {/* Main result */}
             <div style={{ borderRadius: 14, padding: "24px 28px", background: "rgba(45,212,191,0.06)", border: `1px solid rgba(45,212,191,0.18)` }}>
-              <p style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16, color: "rgba(244,250,248,0.3)" }}>
+              <p style={{ fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase", marginBottom: 16, color: "rgba(244,250,248,0.3)" }}>
                 {c.budgetLabel}
               </p>
-              <p className={serif.className} style={{ fontSize: "clamp(1.6rem,4vw,2.4rem)", fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em", color: WHITE, marginBottom: 4 }}>
+              <p className={serif.className} style={{ fontSize: "clamp(1.84rem, 4.6vw, 2.76rem)", fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.02em", color: WHITE, marginBottom: 4 }}>
                 {money(estimate.low)} —<br />
                 {money(estimate.high)}
               </p>
@@ -486,8 +472,8 @@ export default function HomeCalculator() {
                   { val: `${Math.ceil(estimate.hours / 40 / (timeline === "rush" ? RUSH_MULTIPLIER : 1))} ${c.wUnit}`, label: timeline === "rush" ? c.weeksRush : c.weeksNormal },
                 ].map(item => (
                   <div key={item.label} style={{ borderRadius: 10, padding: "12px", textAlign: "center", background: "rgba(255,255,255,0.04)" }}>
-                    <p className={serif.className} style={{ fontSize: "1.2rem", color: WHITE }}>{item.val}</p>
-                    <p style={{ fontSize: 10, marginTop: 2, color: "rgba(244,250,248,0.35)" }}>{item.label}</p>
+                    <p className={serif.className} style={{ fontSize: "1.38rem", color: WHITE }}>{item.val}</p>
+                    <p style={{ fontSize: 13, marginTop: 2, color: "rgba(244,250,248,0.35)" }}>{item.label}</p>
                   </div>
                 ))}
               </div>
@@ -502,7 +488,7 @@ export default function HomeCalculator() {
                   { val: "rush",   label: `${c.timelineRush} ×${RUSH_MULTIPLIER}` },
                 ] as const).map(opt => (
                   <button key={opt.val} onClick={() => setTimeline(opt.val)}
-                    style={{ ...timeline === opt.val ? cardActive : card, padding: "10px 12px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, transition: "all 0.2s", color: timeline === opt.val ? TEAL : "rgba(244,250,248,0.45)" }}>
+                    style={{ ...timeline === opt.val ? cardActive : card, padding: "10px 12px", borderRadius: 10, cursor: "pointer", fontSize: 16, fontWeight: 500, transition: "all 0.2s", color: timeline === opt.val ? TEAL : "rgba(244,250,248,0.45)" }}>
                     {opt.label}
                   </button>
                 ))}
@@ -515,7 +501,7 @@ export default function HomeCalculator() {
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
                 {(["cloud", "onprem", "none"] as const).map(opt => (
                   <button key={opt} onClick={() => setDeploy(opt)}
-                    style={{ ...deploy === opt ? cardActive : card, width: "100%", padding: "10px 16px", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 500, textAlign: "left", transition: "all 0.2s", color: deploy === opt ? TEAL : "rgba(244,250,248,0.45)" }}>
+                    style={{ ...deploy === opt ? cardActive : card, width: "100%", padding: "10px 16px", borderRadius: 10, cursor: "pointer", fontSize: 16, fontWeight: 500, textAlign: "left", transition: "all 0.2s", color: deploy === opt ? TEAL : "rgba(244,250,248,0.45)" }}>
                     {c.deploy[opt]}
                   </button>
                 ))}
@@ -533,19 +519,19 @@ export default function HomeCalculator() {
               </div>
               {maintenance && (
                 <>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3,minmax(0,1fr))", gap: 8 }}>
                     {(["lite","pro","enterprise"] as const).map(plan => (
                       <button key={plan} onClick={() => setSla(plan)}
-                        style={{ ...sla === plan ? cardActive : card, padding: "8px", borderRadius: 10, cursor: "pointer", fontSize: 11, fontWeight: 500, textAlign: "center", transition: "all 0.2s", color: sla === plan ? TEAL : "rgba(244,250,248,0.45)" }}>
+                        style={{ ...sla === plan ? cardActive : card, padding: "8px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 500, textAlign: "center", transition: "all 0.2s", color: sla === plan ? TEAL : "rgba(244,250,248,0.45)" }}>
                         {c.slaPlans[plan]}
                       </button>
                     ))}
                   </div>
                   <div style={{ marginTop: 12, textAlign: "center", borderRadius: 10, padding: "12px", background: "rgba(255,255,255,0.03)" }}>
-                    <p className={serif.className} style={{ fontSize: "1.2rem", color: TEAL }}>
+                    <p className={serif.className} style={{ fontSize: "1.38rem", color: TEAL }}>
                       {moneyPerMonth(estimate.support)}
                     </p>
-                    <p style={{ fontSize: 10, marginTop: 2, color: "rgba(244,250,248,0.3)" }}>{c.supportCaption}</p>
+                    <p style={{ fontSize: 13, marginTop: 2, color: "rgba(244,250,248,0.3)" }}>{c.supportCaption}</p>
                   </div>
                 </>
               )}
@@ -553,10 +539,9 @@ export default function HomeCalculator() {
 
             {/* CTA */}
             <div style={{ display: "flex", gap: 10, paddingTop: 4 }}>
-              <button onClick={handleCTA}
-                style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, padding: "14px 20px", borderRadius: 99, fontSize: 14, fontWeight: 600, cursor: "pointer", border: "none", transition: "opacity 0.2s", ...btnTeal }}>
+              <button type="button" onClick={handleCTA} className="service-button service-button--primary" style={{ flex: 1 }}>
                 {c.ctaDiscuss}
-                <ArrowRight size={15} />
+                <ArrowUpRight size={18} aria-hidden="true" />
               </button>
               <button onClick={reset}
                 style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "14px 16px", borderRadius: 99, cursor: "pointer", border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(244,250,248,0.4)", transition: "all 0.2s" }}>
@@ -575,16 +560,9 @@ export default function HomeCalculator() {
 function FigLabel({ num, label }: { num: string; label: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-      <span style={{ fontFamily: "monospace", fontSize: 10, color: "rgba(244,250,248,0.25)", letterSpacing: "0.05em", flexShrink: 0 }}>{num}</span>
-      <span style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>{label}</span>
+      <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 13, color: "rgba(244,250,248,0.25)", letterSpacing: "0.05em", flexShrink: 0 }}>{num}</span>
+      <span style={{ fontSize: 13, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, color: "rgba(244,250,248,0.35)" }}>{label}</span>
     </div>
   );
 }
 
-function SectionLabel({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return (
-    <p style={{ fontSize: 10, letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, marginBottom: 8, color: "rgba(244,250,248,0.28)", ...style }}>
-      {children}
-    </p>
-  );
-}

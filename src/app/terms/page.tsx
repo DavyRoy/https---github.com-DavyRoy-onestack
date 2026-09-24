@@ -5,7 +5,7 @@ import { canonical, siteName, siteUrl } from "@/app/seo.config";
 const CANONICAL = canonical("/terms");
 
 export const metadata: Metadata = {
-  title: "Пользовательское соглашение / Terms of Use — OneStack",
+  title: "Пользовательское соглашение / Terms of Use",
   description: "Условия использования сайта, демо-окружений и услуг OneStack. Terms of Use for OneStack website, demo environments and services.",
   alternates: {
     canonical: CANONICAL,

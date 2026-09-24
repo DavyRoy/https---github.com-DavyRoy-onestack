@@ -36,7 +36,7 @@ export default function Image() {
 
         {/* Headline */}
         <div style={{ display: "flex", flexDirection: "column", marginTop: 60 }}>
-          <span style={{ fontSize: 96, color: "transparent", WebkitTextStroke: `1.5px ${TEAL}`, lineHeight: 0.9, letterSpacing: "-4px", display: "flex" }}>
+          <span style={{ fontSize: 96, color: TEAL, lineHeight: 0.9, letterSpacing: "-4px", display: "flex" }}>
             Строим
           </span>
           <span style={{ fontSize: 96, color: WHITE, lineHeight: 0.9, letterSpacing: "-4px", marginTop: 8, display: "flex" }}>

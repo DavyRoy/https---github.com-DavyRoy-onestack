@@ -21,7 +21,7 @@ export default function Image() {
           <span style={{ color: WHITE, fontSize: 22, fontWeight: 600 }}>OneStack</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginTop: 60 }}>
-          <span style={{ fontSize: 96, color: "transparent", WebkitTextStroke: `1.5px ${TEAL}`, lineHeight: 0.9, letterSpacing: "-4px", display: "flex" }}>Разработка</span>
+          <span style={{ fontSize: 96, color: TEAL, lineHeight: 0.9, letterSpacing: "-4px", display: "flex" }}>Разработка</span>
           <span style={{ fontSize: 96, color: WHITE, lineHeight: 0.9, letterSpacing: "-4px", marginTop: 8, display: "flex" }}>сайтов</span>
         </div>
         <div style={{ marginTop: 40, display: "flex", flexDirection: "column", gap: 8 }}>

@@ -15,18 +15,21 @@ const LAYERS: LayerDef[] = [
     ru: { eyebrow: "Форматы и примеры", title: "Типы сайтов" },
     en: { eyebrow: "Formats & examples", title: "Site types" },
     render: () => <SiteTypes />,
+    inline: true,
   },
   {
     key: "configurator", bg: "#123b33", fg: WHITE,
     ru: { eyebrow: "Подбор под задачу", title: "Конфигуратор" },
     en: { eyebrow: "Match your goals", title: "Configurator" },
     render: () => <SiteConfigurator />,
+    inline: true,
   },
   {
     key: "calculator", bg: "#1c6b5c", fg: WHITE,
     ru: { eyebrow: "Оценка бюджета", title: "Калькулятор" },
     en: { eyebrow: "Budget estimate", title: "Calculator" },
     render: () => <SiteCalculator />,
+    inline: true,
   },
 ];
 

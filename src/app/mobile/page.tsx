@@ -7,7 +7,7 @@ import MobileLayers from "@/components/MobileLayers";
 import HomeFooter from "@/components/HomeFooter";
 
 import { QuoteProvider } from "@/app/context/QuoteContext";
-import { canonical, siteName, siteUrl } from "@/app/seo.config";
+import { canonical, siteName, siteUrl, COMPANY } from "@/app/seo.config";
 import { getRequestLocale, buildCanonical, buildLanguageAlternates, buildOpenGraphLocale } from "@/i18n/server";
 
 /* ──────────────────────────── constants & SEO ───────────────────────────── */
@@ -16,13 +16,19 @@ const SITE_URL = siteUrl;
 
 const TITLE = "Разработка мобильных приложений: iOS и Android";
 const DESC =
-  "Кроссплатформенная разработка под iOS и Android: оффлайн, пуши, карты, платежи, аналитика. Единый бэкенд и CI/CD. Рассчитайте стоимость онлайн.";
+  "Приложения для iOS и Android от 336 000 ₽: кабинеты клиентов, CRM для выездных команд, B2B и SaaS. Офлайн, пуши, оплаты, публикация в сторах.";
 
 // Английская версия индексируется отдельно, поэтому у неё свои title и description.
 const TITLE_EN = "Mobile app development for iOS and Android";
 const DESC_EN =
-  "Cross-platform iOS and Android development: offline mode, push, maps, payments, analytics. Shared backend and CI/CD. Estimate the cost online.";
+  "iOS and Android apps from $3,760: customer apps, field CRM, B2B and SaaS. Offline mode, push, payments and store publishing.";
 const CANONICAL = canonical("/mobile");
+
+/* Цены «от» по тарифам 2026 — те же, что в блоке «Типы приложений». */
+const APP_OFFERS: [string, number][] = [
+  ["CRM / ERP (мобильное)", 384000], ["Внутренний портал", 440000], ["Кабинет клиента", 480000],
+  ["Аналитическая панель", 336000], ["B2B-витрина", 520000], ["SaaS-сервис", 560000],
+];
 // Контакты
 const ORG_NAME = siteName;
 const ORG_EMAIL = "info@onestack24.ru";
@@ -80,35 +86,17 @@ function ldService() {
     "@type": "Service",
     name: "Разработка мобильных приложений",
     serviceType: "Mobile application development",
-    provider: {
-      "@type": "Organization",
-      name: ORG_NAME,
-      url: SITE_URL,
-      email: ORG_EMAIL,
-      telephone: ORG_PHONE,
-      sameAs: ORG_SAME_AS,
-      contactPoint: [
-        {
-          "@type": "ContactPoint",
-          contactType: "customer support",
-          email: ORG_EMAIL,
-          telephone: ORG_PHONE,
-          areaServed: ["RU", "KZ", "BY", "AM"],
-          availableLanguage: ["ru", "en"],
-        },
-      ],
-    },
-    areaServed: ["RU", "KZ", "BY", "AM"],
-    offers: {
-      "@type": "AggregateOffer",
-      priceCurrency: "RUB",
-      lowPrice: 480000,
-      highPrice: 1300000,
-      offerCount: 2,
-      offers: [
-        { "@type": "Offer", price: 480000, category: "MVP" },
-        { "@type": "Offer", price: 1300000, category: "Full product" },
-      ],
+    provider: { "@type": "Organization", "@id": `${SITE_URL}/#organization`, name: ORG_NAME, url: SITE_URL },
+    areaServed: COMPANY.areaServed,
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Типы приложений",
+      itemListElement: APP_OFFERS.map(([name, price]) => ({
+        "@type": "Offer",
+        itemOffered: { "@type": "Service", name },
+        priceCurrency: "RUB",
+        priceSpecification: { "@type": "PriceSpecification", minPrice: price, priceCurrency: "RUB" },
+      })),
     },
   };
 }
@@ -128,6 +116,7 @@ function ldOrganization() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${SITE_URL}/#organization`,
     name: ORG_NAME,
     url: SITE_URL,
     email: ORG_EMAIL,
@@ -139,7 +128,7 @@ function ldOrganization() {
         contactType: "sales",
         email: ORG_EMAIL,
         telephone: ORG_PHONE,
-        areaServed: ["RU", "KZ", "BY", "AM"],
+        areaServed: COMPANY.areaServed,
         availableLanguage: ["ru", "en"],
       },
     ],

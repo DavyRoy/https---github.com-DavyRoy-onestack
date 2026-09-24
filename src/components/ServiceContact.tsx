@@ -10,6 +10,7 @@ import type { ServiceKind } from "@/components/ServiceHero";
 const LABELS = {
   sites: { ru: "Разработка сайта", en: "Website development", event: "site_contact_submit", form: "site_contact" },
   webapp: { ru: "Разработка веб-приложения", en: "Web application development", event: "webapp_contact_submit", form: "webapp_contact" },
+  ai: { ru: "AI и автоматизация", en: "AI & automation", event: "ai_contact_submit", form: "ai_contact" },
   mobile: { ru: "Разработка мобильного приложения", en: "Mobile app development", event: "mobile_contact_submit", form: "mobile_contact" },
 };
 
@@ -18,7 +19,7 @@ type AnalyticsWindow = Window & {
   ym?: (id: number, command: string, goal: string) => void;
 };
 
-export default function ServiceContact({ service }: { service: ServiceKind }) {
+export default function ServiceContact({ service, num }: { service: ServiceKind; num?: string }) {
   const { locale, localizePath } = useI18n();
   const isEn = locale === "en";
   const { quote, resetQuote } = useQuote();
@@ -72,9 +73,9 @@ export default function ServiceContact({ service }: { service: ServiceKind }) {
     <section id="contact" className="service-contact" aria-labelledby="service-contact-title" tabIndex={-1}>
       <div className="service-contact__inner">
         <div>
-          <p className="service-eyebrow">{isEn ? "Let's build something together" : "Начнём с вашей задачи"}</p>
+          <p className="service-eyebrow">{num && `${num} / `}{isEn ? "Let's build something together" : "Начнём с вашей задачи"}</p>
           <h2 id="service-contact-title" className={`${serif.className} service-contact__title`}>
-            {isEn ? "Get in" : "Связаться"}<br /><span>{isEn ? "touch" : "с нами"}</span>
+            {isEn ? "Get in touch" : "Связаться с\u00a0нами"}
           </h2>
           <p className="service-contact__description">{isEn ? "Tell us what you have in mind. We will discuss the scope, timeline and next steps. No detailed specification needed." : "Расскажите, что хотите создать. Обсудим задачу, сроки и следующий шаг. Готовое техническое задание не обязательно."}</p>
           <div className="service-contact__links">

@@ -40,12 +40,12 @@ const COPY: Record<Lang, { eyebrow: string; h1: [string, string]; sub: string; t
         moreLabel: "Дополнительные возможности",
         more: "CRM, онлайн-оплата, мультиязычность и перенос данных — под вашу задачу.",
         types: [
-          { num: "01", title: "Лендинг", desc: "Один экран — одна цель. Конверсия трафика в заявки.", price: "от 120 000 ₽", timeline: "1–2 нед" },
-          { num: "02", title: "Корпоративный сайт", desc: "Услуги, команда, кейсы и блог под одной CMS.", price: "от 336 000 ₽", timeline: "3–6 нед" },
-          { num: "03", title: "Интернет-магазин", desc: "Каталог, быстрый чекаут, оплаты и склад.", price: "от 576 000 ₽", timeline: "4–8 нед" },
-          { num: "04", title: "Сайт-визитка", desc: "Быстрый старт за 1–2 недели, форма заявки.", price: "от 64 000 ₽", timeline: "1–2 нед" },
-          { num: "05", title: "Инфо-портал", desc: "SEO-контент, редактор, подписки, рекомендации.", price: "от 224 000 ₽", timeline: "2–4 нед" },
-          { num: "06", title: "Портфолио", desc: "Кейсы, галерея работ и отзывы клиентов.", price: "от 96 000 ₽", timeline: "1–3 нед" },
+          { num: "01", title: "Лендинг", desc: "Одна страница под рекламу, которая превращает трафик в заявки.", price: "от 120 000 ₽", timeline: "1–2 нед" },
+          { num: "02", title: "Корпоративный сайт", desc: "Услуги, кейсы и команда. Тексты правите сами, без программиста.", price: "от 336 000 ₽", timeline: "3–6 нед" },
+          { num: "03", title: "Интернет-магазин", desc: "Каталог, корзина, онлайн-оплата и связь со складом.", price: "от 576 000 ₽", timeline: "4–8 нед" },
+          { num: "04", title: "Сайт-визитка", desc: "Онлайн за 1–2 недели: о вас, услуги и форма заявки.", price: "от 64 000 ₽", timeline: "1–2 нед" },
+          { num: "05", title: "Инфо-портал", desc: "Статьи, SEO-трафик из поиска и удобный редактор.", price: "от 224 000 ₽", timeline: "2–4 нед" },
+          { num: "06", title: "Портфолио", desc: "Кейсы и отзывы, которые продают ваши работы.", price: "от 96 000 ₽", timeline: "1–3 нед" },
         ],
         href: "/sites",
       },
@@ -189,11 +189,16 @@ export default function HomeCapabilities() {
   // #sites as a real id once the three blocks merged — pick the matching tab
   // and scroll here manually since the browser can't resolve those hashes.
   useEffect(() => {
-    const hash = window.location.hash.replace("#", "") as TabKey;
-    if (TAB_KEYS.includes(hash)) {
-      setActive(hash);
-      if (hash !== "sites") sectionRef.current?.scrollIntoView({ behavior: "auto" });
-    }
+    const sync = () => {
+      const hash = window.location.hash.replace("#", "") as TabKey;
+      if (TAB_KEYS.includes(hash)) {
+        setActive(hash);
+        if (hash !== "sites") sectionRef.current?.scrollIntoView({ behavior: "auto" });
+      }
+    };
+    sync();
+    window.addEventListener("hashchange", sync);
+    return () => window.removeEventListener("hashchange", sync);
   }, []);
 
   const fadeUp = (d = 0) => reduced ? {} : {
@@ -206,21 +211,21 @@ export default function HomeCapabilities() {
   return (
     <section id="sites" ref={sectionRef} aria-labelledby={titleId}
       style={{ background: "transparent" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "clamp(72px,10svh,110px) clamp(20px,5vw,56px)" }}>
+      <div className="px-5 md:px-10" style={{ maxWidth: 1280, margin: "0 auto", paddingTop: "clamp(72px,10svh,110px)", paddingBottom: "clamp(72px,10svh,110px)" }}>
 
         {/* Header */}
         <motion.div {...(fadeUp(0) as object)}
           style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 24, flexWrap: "wrap", marginBottom: 48 }}>
           <div>
-            <p style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 16 }}>
+            <p style={{ fontSize: 14, letterSpacing: "0.2em", textTransform: "uppercase", color: TEAL, marginBottom: 16 }}>
               {c.eyebrow}
             </p>
             <h2 id={titleId} className={serif.className}
-              style={{ fontSize: "clamp(2rem,4.4vw,3.4rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}>
+              style={{ fontSize: "clamp(2.3rem, 5.06vw, 3.91rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}>
               {c.h1[0]}<br />{c.h1[1]}
             </h2>
           </div>
-          <p style={{ fontSize: 14, lineHeight: 1.6, color: "rgba(244,250,248,0.45)", maxWidth: 280 }}>
+          <p style={{ fontSize: 18, lineHeight: 1.6, color: "rgba(244,250,248,0.45)", maxWidth: 280 }}>
             {c.sub}
           </p>
         </motion.div>
@@ -235,12 +240,12 @@ export default function HomeCapabilities() {
             return (
               <button key={key} onClick={() => selectTab(key)} className="group"
                 style={{ textAlign: "left", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                <p style={{ fontSize: 10, letterSpacing: "0.1em", color: "rgba(244,250,248,0.3)", marginBottom: 8 }}>
+                <p style={{ fontSize: 13, letterSpacing: "0.1em", color: "rgba(244,250,248,0.3)", marginBottom: 8 }}>
                   {t.fig}
                 </p>
                 <p style={{
                   display: "flex", alignItems: "center", gap: 8,
-                  fontSize: 15, fontWeight: 600,
+                  fontSize: 20, fontWeight: 600,
                   color: isActive ? WHITE : "rgba(244,250,248,0.5)",
                   marginBottom: 12, transition: "color 0.2s",
                 }}>
@@ -268,15 +273,15 @@ export default function HomeCapabilities() {
             {/* Left: title, desc, more */}
             <div>
               <h3 className={serif.className}
-                style={{ fontSize: "clamp(1.5rem,2.6vw,2.1rem)", fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.015em", color: WHITE, margin: "0 0 16px" }}>
+                style={{ fontSize: "clamp(1.72rem, 2.99vw, 2.42rem)", fontWeight: 700, lineHeight: 1.2, letterSpacing: "-0.015em", color: WHITE, margin: "0 0 16px" }}>
                 {tab.title[0]}<br />{tab.title[1]}
               </h3>
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: "rgba(244,250,248,0.55)", maxWidth: 360, marginBottom: 20 }}>
+              <p style={{ fontSize: 20, lineHeight: 1.6, color: "rgba(244,250,248,0.55)", maxWidth: 360, marginBottom: 20 }}>
                 {tab.desc}
               </p>
               <button onClick={() => setMoreOpen(v => !v)}
-                style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 13, color: "rgba(244,250,248,0.55)" }}>
-                <span style={{ display: "inline-block", transition: "transform 0.2s", transform: moreOpen ? "rotate(0deg)" : "rotate(-90deg)", color: TEAL, fontSize: 10 }}>▾</span>
+                style={{ display: "flex", alignItems: "center", gap: 8, background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 17, color: "rgba(244,250,248,0.55)" }}>
+                <span style={{ display: "inline-block", transition: "transform 0.2s", transform: moreOpen ? "rotate(0deg)" : "rotate(-90deg)", color: TEAL, fontSize: 13 }}>▾</span>
                 {tab.moreLabel}
               </button>
               <AnimatePresence initial={false}>
@@ -288,7 +293,7 @@ export default function HomeCapabilities() {
                     transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                     style={{ overflow: "hidden" }}
                   >
-                    <p style={{ fontSize: 13, lineHeight: 1.6, color: "rgba(244,250,248,0.4)", maxWidth: 360, marginTop: 12 }}>
+                    <p style={{ fontSize: 17, lineHeight: 1.6, color: "rgba(244,250,248,0.4)", maxWidth: 360, marginTop: 12 }}>
                       {tab.more}
                     </p>
                   </motion.div>
@@ -296,7 +301,7 @@ export default function HomeCapabilities() {
               </AnimatePresence>
 
               <Link href={tab.href}
-                style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 28, fontSize: 13, fontWeight: 600, color: TEAL, textDecoration: "none" }}>
+                style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 28, fontSize: 17, fontWeight: 600, color: TEAL, textDecoration: "none" }}>
                 {lang === "ru" ? "Подробнее о разделе" : "Explore this section"}
                 <ArrowUpRight size={14} />
               </Link>
@@ -315,8 +320,8 @@ export default function HomeCapabilities() {
                     borderBottom: "1px solid rgba(255,255,255,0.07)",
                     transition: "background 0.2s",
                   }}>
-                  <p style={{ display: "flex", alignItems: "baseline", gap: 8, fontSize: 14, fontWeight: 600, color: WHITE, margin: "0 0 4px" }}>
-                    <span style={{ fontFamily: "monospace", fontSize: 10, color: TEAL, opacity: 0.6, flexShrink: 0 }}>
+                  <p style={{ display: "flex", alignItems: "baseline", gap: 8, fontSize: 18, fontWeight: 600, color: WHITE, margin: "0 0 4px" }}>
+                    <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 13, color: TEAL, opacity: 0.6, flexShrink: 0 }}>
                       {item.num}
                     </span>
                     {item.title}
@@ -327,14 +332,14 @@ export default function HomeCapabilities() {
                   {item.price && (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, paddingLeft: 24 }}>
                       <span style={{
-                        fontSize: 11, fontWeight: 600, color: TEAL,
+                        fontSize: 14, fontWeight: 600, color: TEAL,
                         background: "rgba(45,212,191,0.08)", border: "1px solid rgba(45,212,191,0.2)",
                         borderRadius: 6, padding: "2px 8px",
                       }}>
                         {item.price}
                       </span>
                       {item.timeline && (
-                        <span style={{ fontSize: 11, color: "rgba(244,250,248,0.35)" }}>{item.timeline}</span>
+                        <span style={{ fontSize: 14, color: "rgba(244,250,248,0.35)" }}>{item.timeline}</span>
                       )}
                     </div>
                   )}

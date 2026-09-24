@@ -9,7 +9,7 @@ import HomeContact from "@/components/HomeContact";
 import WebAppContact from "@/components/WebAppContact";
 import MobileContact from "@/components/MobileContact";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUp, Mail, Phone, Send, ArrowRight } from "lucide-react";
+import { ArrowUp, ArrowUpRight, Mail, Phone, Send } from "lucide-react";
 import { siteName, siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
 
@@ -17,7 +17,6 @@ import { useI18n } from "@/i18n/I18nProvider";
 const BG    = "#07100e";
 const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
-const GRAIN = `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`;
 
 const ORG = {
   name:      siteName,
@@ -37,11 +36,12 @@ const COPY = {
     ctaLine2: "начать?",
     ctaDiscuss: "Обсудить проект",
     ctaCall: "Позвонить",
-    brandBlurb: "Фиксированная цена, предсказуемый срок, поддержка после запуска. Сайты, веб- и мобильные приложения под ключ.",
+    brandBlurb: "Сайты, веб- и мобильные приложения и внедрение ИИ под ключ. Фиксированная смета, сдаём в срок, поддерживаем после запуска.",
     nav: [
       { label: "Сайты",          href: "/sites"  },
       { label: "Веб-приложения", href: "/webapp" },
       { label: "Мобильные",      href: "/mobile" },
+      { label: "AI и автоматизация", href: "/ai" },
     ],
     navLabel: "Услуги",
     contactsLabel: "Контакты",
@@ -60,11 +60,12 @@ const COPY = {
     ctaLine2: "start?",
     ctaDiscuss: "Discuss project",
     ctaCall: "Call us",
-    brandBlurb: "Fixed price, predictable timeline, post-launch support. Turnkey websites, web and mobile apps.",
+    brandBlurb: "Turnkey websites, web and mobile apps and AI implementation. Fixed quote, on-time delivery, support after launch.",
     nav: [
       { label: "Websites", href: "/sites"  },
       { label: "Web apps", href: "/webapp" },
       { label: "Mobile",   href: "/mobile" },
+      { label: "AI & automation", href: "/ai" },
     ],
     navLabel: "Services",
     contactsLabel: "Contact",
@@ -108,75 +109,49 @@ export default function HomeFooter() {
     window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   }, [reduced]);
 
-  const jsonLd = useMemo(() => ({
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: ORG.name, url: ORG.siteUrl,
-    email: ORG.email, telephone: ORG.phone,
-    sameAs: [ORG.siteUrl, ORG.tgUrl],
-  }), []);
 
   const fadeUp = (d = 0) => reduced ? {} : {
     initial: { opacity: 0, y: 16 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true },
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1], delay: d },
+    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const, delay: d },
   };
 
   return (
     <>
-      <script id="ld-home-footer" type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <footer id="footer" role="contentinfo" aria-label={c.footerAria}
-        className="relative overflow-hidden" style={{ background: BG }}>
+        className="relative overflow-hidden" style={{ background: isHome ? "transparent" : BG }}>
 
-        <div className="pointer-events-none absolute inset-0 opacity-[0.025]"
-          style={{ backgroundImage: GRAIN, backgroundSize: "180px 180px" }} aria-hidden />
+        {/* On home the footer sits on the shared seamless background, so no top rule */}
+        {!isHome && (
+          <div className="footer-inner">
+            <div className="h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
+          </div>
+        )}
 
-        {/* Separator */}
-        <div className="mx-auto max-w-7xl px-5 sm:px-8 lg:px-14">
-          <div className="h-px" style={{ background: "rgba(255,255,255,0.07)" }} />
-        </div>
-
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-14 pt-16 sm:pt-20 pb-10">
+        {/* Ширина как у блоков страницы: на главной 1280px, на страницах услуг 1440px. */}
+        <div className={`relative z-10 ${isHome ? "mx-auto w-full max-w-[1280px] px-5 md:px-10" : "footer-inner"} pb-10`} style={{ paddingTop: "clamp(72px,10svh,110px)" }}>
 
           {/* ── Big CTA row ── */}
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16 sm:mb-20">
-            <div>
-              {[c.ctaLine1, c.ctaLine2].map((text, i) => (
-                <motion.div key={i}
-                  className={`${serif.className} block font-normal leading-[1.0] tracking-[-0.04em]`}
-                  style={i === 0
-                    ? { fontSize: "clamp(3rem, 8vw, 9rem)", color: TEAL }
-                    : { fontSize: "clamp(3rem, 8vw, 9rem)", color: WHITE }}
-                  initial={reduced ? undefined : { opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: i * 0.08 }}>
-                  {text}
-                </motion.div>
-              ))}
-            </div>
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">
+            <motion.h2 {...fadeUp(0)} className={serif.className}
+              style={{ fontSize: "clamp(2.3rem, 5.06vw, 3.91rem)", fontWeight: 700, lineHeight: 1.15, letterSpacing: "-0.02em", color: WHITE, margin: 0 }}>
+              {c.ctaLine1} {c.ctaLine2}
+            </motion.h2>
 
-            <motion.div className="flex flex-col sm:flex-row gap-3 lg:pb-4" {...fadeUp(0.15)}>
+            <motion.div className="flex flex-col sm:flex-row gap-3" {...fadeUp(0.15)}>
               {isHome ? (
-                <Link href="/#contact"
-                  className="inline-flex items-center gap-2 py-4 px-7 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.03] focus:outline-none"
-                  style={{ background: TEAL, color: BG }}>
-                  {c.ctaDiscuss} <ArrowRight className="w-4 h-4" />
+                <Link href="/#contact" className="service-button service-button--primary">
+                  {c.ctaDiscuss}<ArrowUpRight size={18} aria-hidden="true" />
                 </Link>
               ) : (
-                <button type="button" onClick={openDiscuss}
-                  className="inline-flex items-center gap-2 py-4 px-7 rounded-full text-sm font-semibold transition-all duration-300 hover:scale-[1.03] focus:outline-none"
-                  style={{ background: TEAL, color: BG }}>
-                  {c.ctaDiscuss} <ArrowRight className="w-4 h-4" />
+                <button type="button" onClick={openDiscuss} className="service-button service-button--primary">
+                  {c.ctaDiscuss}<ArrowUpRight size={18} aria-hidden="true" />
                 </button>
               )}
-              <a href={ORG.phoneHref}
-                className="inline-flex items-center gap-2 py-4 px-6 rounded-full text-sm font-medium transition-all duration-300 hover:bg-white/5 focus:outline-none"
-                style={{ border: "1px solid rgba(255,255,255,0.1)", color: "rgba(244,250,248,0.6)" }}>
-                <Phone className="w-4 h-4" /> {c.ctaCall}
+              <a href={ORG.phoneHref} className="service-button service-button--secondary">
+                <Phone size={18} aria-hidden="true" />{c.ctaCall}
               </a>
             </motion.div>
           </div>
@@ -189,9 +164,9 @@ export default function HomeFooter() {
             <motion.div {...fadeUp(0)}>
               <div className="flex items-center gap-2.5 mb-5">
                 <OneStackIcon />
-                <span className="text-base font-semibold" style={{ color: WHITE }}>OneStack</span>
+                <span className="text-lg font-semibold" style={{ color: WHITE }}>OneStack</span>
               </div>
-              <p className="text-sm leading-relaxed mb-6 max-w-xs"
+              <p className="text-lg leading-relaxed mb-6 max-w-xs"
                 style={{ color: "rgba(244,250,248,0.42)" }}>
                 {c.brandBlurb}
               </p>
@@ -212,13 +187,13 @@ export default function HomeFooter() {
 
             {/* Nav */}
             <motion.div {...fadeUp(0.07)}>
-              <p className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5"
+              <p className="text-[13px] tracking-[0.2em] uppercase font-medium mb-5"
                 style={{ color: "rgba(244,250,248,0.28)" }}>{c.navLabel}</p>
               <ul className="space-y-3">
                 {c.nav.map(({ label, href }) => (
                   <li key={href}>
                     <Link href={href} prefetch={false}
-                      className="text-sm transition-colors duration-200 hover:opacity-100 focus:outline-none"
+                      className="text-lg transition-colors duration-200 hover:opacity-100 focus:outline-none"
                       style={{ color: "rgba(244,250,248,0.5)" }}>
                       {label}
                     </Link>
@@ -229,7 +204,7 @@ export default function HomeFooter() {
 
             {/* Contacts */}
             <motion.div {...fadeUp(0.12)}>
-              <p className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5"
+              <p className="text-[13px] tracking-[0.2em] uppercase font-medium mb-5"
                 style={{ color: "rgba(244,250,248,0.28)" }}>{c.contactsLabel}</p>
               <div className="space-y-4">
                 {[
@@ -242,7 +217,7 @@ export default function HomeFooter() {
                       style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: TEAL }}>
                       {icon}
                     </span>
-                    <span className="text-sm transition-colors group-hover:opacity-80"
+                    <span className="text-lg transition-colors group-hover:opacity-80"
                       style={{ color: "rgba(244,250,248,0.65)" }}>{val}</span>
                   </a>
                 ))}
@@ -250,7 +225,7 @@ export default function HomeFooter() {
 
               <div className="mt-6 flex flex-wrap gap-2">
                 {c.tags.map(tag => (
-                  <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full"
+                  <span key={tag} className="text-[14px] px-2.5 py-1 rounded-full"
                     style={{ background: "rgba(45,212,191,0.07)", border: "1px solid rgba(45,212,191,0.15)", color: "rgba(244,250,248,0.5)" }}>
                     {tag}
                   </span>
@@ -261,20 +236,20 @@ export default function HomeFooter() {
 
           {/* ── Bottom bar ── */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs" style={{ color: "rgba(244,250,248,0.28)" }}>
+            <p className="text-base" style={{ color: "rgba(244,250,248,0.28)" }}>
               © <span suppressHydrationWarning>{year}</span> {ORG.name}. {c.rights}
             </p>
 
             <div className="flex items-center gap-5">
               {c.legal.map(({ label, href }) => (
                 <Link key={href} href={href} prefetch={false}
-                  className="text-xs transition-colors hover:opacity-80 focus:outline-none"
+                  className="text-base transition-colors hover:opacity-80 focus:outline-none"
                   style={{ color: "rgba(244,250,248,0.3)" }}>
                   {label}
                 </Link>
               ))}
               <button onClick={scrollTop} type="button" aria-label={c.scrollTopAria}
-                className="flex items-center gap-1.5 text-xs py-2 px-3.5 rounded-full transition-all duration-300 hover:bg-white/5 focus:outline-none"
+                className="flex items-center gap-1.5 text-base py-2 px-3.5 rounded-full transition-all duration-300 hover:bg-white/5 focus:outline-none"
                 style={{ border: "1px solid rgba(255,255,255,0.1)", color: "rgba(244,250,248,0.35)" }}>
                 {c.toTop} <ArrowUp className="w-3 h-3" />
               </button>

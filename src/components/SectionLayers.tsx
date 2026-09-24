@@ -14,6 +14,8 @@ export type LayerDef = {
   ru: { eyebrow: string; title: string };
   en: { eyebrow: string; title: string };
   render: () => React.ReactNode;
+  /** Показывать разделом прямо на странице, а не отдельной вкладкой. */
+  inline?: boolean;
 };
 
 /**
@@ -49,6 +51,17 @@ export default function SectionLayers({
 
   const close = useCallback(() => setOpen(null), []);
 
+  /* Калькулятор может быть разделом на странице — тогда к нему прокручиваем. */
+  const calcInline = layers.some(l => l.key === calcKey && l.inline);
+  const openCalc = useCallback(() => {
+    if (calcInline) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      document.getElementById(calcKey)?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+    } else {
+      setOpen(calcKey);
+    }
+  }, [calcInline, calcKey]);
+
   /* Переходы между разделами.
      Пока блоки лежали на одной странице, кнопки просто прокручивали к нужному
      месту. Теперь разделы в отдельных окнах, и нужный надо открыть — иначе
@@ -59,6 +72,7 @@ export default function SectionLayers({
   useEffect(() => {
     const onPrefill = (e: Event) => {
       if (suppress.current) return;            // наша же повторная отправка
+      if (calcInline) { openCalc(); return; }  // калькулятор на странице сам слушает событие
       pendingPrefill.current = (e as CustomEvent).detail;
       setOpen(calcKey);
     };
@@ -70,7 +84,14 @@ export default function SectionLayers({
         e.preventDefault();
         return;
       }
-      if (!layers.some(l => l.key === key)) return;
+      const layer = layers.find(l => l.key === key);
+      if (!layer) return;
+      if (layer.inline) {
+        setOpen(null);
+        document.getElementById(layer.key)?.scrollIntoView({ behavior: "smooth" });
+        e.preventDefault();
+        return;
+      }
       setOpen(key);
       // Сообщаем отправителю (например, футеру), что раздел открыт здесь
       // и своё окно ему показывать не нужно.
@@ -82,7 +103,7 @@ export default function SectionLayers({
       window.removeEventListener("calc-prefill", onPrefill);
       window.removeEventListener("site-open-section", onGoto);
     };
-  }, [layers, calcKey]);
+  }, [layers, calcKey, calcInline, openCalc]);
 
   /* Калькулятор монтируется уже после отправки события — повторяем его,
      когда слушатель на месте. */
@@ -99,14 +120,18 @@ export default function SectionLayers({
   }, [open, calcKey]);
 
   const active = layers.find(l => l.key === open);
+  const inlineLayers = layers.filter(l => l.inline);
+  const tabLayers = layers.filter(l => !l.inline);
 
   return (
     <>
-      <ServiceHero service={service} onCalculate={() => setOpen(calcKey)} />
+      <ServiceHero service={service} onCalculate={layers.some(l => l.key === calcKey) ? openCalc : undefined} />
+      {inlineLayers.map(l => <div key={l.key}>{l.render()}</div>)}
+      {tabLayers.length > 0 && (
       <section id="service-sections" className="service-navigation" aria-label={isEn ? ariaLabelEn : ariaLabelRu}>
 
-        <div className="service-sections" style={{ "--n": layers.length } as React.CSSProperties}>
-          {layers.map((l, i) => {
+        <div className="service-sections" style={{ "--n": tabLayers.length } as React.CSSProperties}>
+          {tabLayers.map((l, i) => {
             const copy = isEn ? l.en : l.ru;
             return (
               <button
@@ -133,8 +158,9 @@ export default function SectionLayers({
           })}
         </div>
       </section>
+      )}
 
-      <ServiceContact service={service} />
+      <ServiceContact service={service} num={inlineLayers.length ? String(inlineLayers.length + 2).padStart(2, "0") : undefined} />
 
       {/* Все разделы всегда присутствуют в разметке — иначе поисковый робот
           при обходе видит пустую страницу: он не кликает по слоям. Показан
@@ -145,7 +171,7 @@ export default function SectionLayers({
         closeLabel={isEn ? "Close" : "Закрыть"}
         onClose={close}
       >
-        {layers.map(l => (
+        {tabLayers.map(l => (
           <div key={l.key} hidden={l.key !== open}>
             {l.render()}
           </div>
