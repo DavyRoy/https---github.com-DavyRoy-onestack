@@ -14,18 +14,21 @@ const LAYERS: LayerDef[] = [
     ru: { eyebrow: "Направления разработки", title: "Типы систем" },
     en: { eyebrow: "What we build", title: "System types" },
     render: () => <WebAppKinds />,
+    inline: true,
   },
   {
     key: "modules", bg: "#123b33", fg: WHITE,
     ru: { eyebrow: "Из чего собираем", title: "Готовые модули" },
     en: { eyebrow: "Building blocks", title: "Ready modules" },
     render: () => <WebAppModules />,
+    inline: true,
   },
   {
     key: "calculator", bg: "#1c6b5c", fg: WHITE,
     ru: { eyebrow: "Оценка бюджета", title: "Калькулятор" },
     en: { eyebrow: "Budget estimate", title: "Calculator" },
     render: () => <WebAppCalculator />,
+    inline: true,
   },
 ];
 

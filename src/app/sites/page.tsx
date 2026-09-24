@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { QuoteProvider } from "@/app/context/QuoteContext";
-import { canonical, siteName, siteUrl } from "@/app/seo.config";
+import { canonical, siteName, siteUrl, COMPANY } from "@/app/seo.config";
 import { getRequestLocale, buildCanonical, buildLanguageAlternates, buildOpenGraphLocale } from "@/i18n/server";
 
 import NavBar from "@/components/NavBar";
@@ -13,13 +13,19 @@ import HomeFooter from "@/components/HomeFooter";
 const title =
   "Разработка сайтов под ключ — лендинги и e-commerce";
 const description =
-  "Делаем быстрые SEO-готовые сайты: лендинги от 1–2 нед., корпоративные порталы и интернет-магазины. Прозрачная смета, Core Web Vitals, поддержка после запуска. 150+ проектов.";
+  "Лендинги от 120 000 ₽, корпоративные сайты и интернет-магазины под ключ. Фиксированная смета, SEO и Core Web Vitals, поддержка после запуска.";
 
 // Английская версия индексируется отдельно, поэтому у неё свои title и description.
 const TITLE_EN = "Website development: landing pages, portals, e-commerce";
 const DESC_EN =
-  "Fast, SEO-ready websites: landing pages in 1–2 weeks, corporate portals and online stores. Transparent quote, Core Web Vitals, post-launch support.";
+  "Landing pages from $1,360, corporate websites and online stores, turnkey. Fixed quote, SEO and Core Web Vitals, post-launch support.";
 const url = canonical("/sites");
+
+/* Цены «от» по тарифам 2026 — те же, что в блоке «Типы сайтов». */
+const SITE_OFFERS: [string, number][] = [
+  ["Лендинг", 120000], ["Корпоративный сайт", 336000], ["Интернет-магазин", 576000],
+  ["Сайт-визитка", 64000], ["Инфо-портал", 224000], ["Портфолио", 96000],
+];
 
 /* ───────────────── Metadata (App Router) ───────────────── */
 export async function generateMetadata(): Promise<Metadata> {
@@ -80,23 +86,17 @@ export default function SitesPage() {
     serviceType: "Website development",
     description,
     url,
-    provider: {
-      "@type": "Organization",
-      name: siteName,
-      url: siteUrl,
-      email: "info@onestack24.ru",
-      telephone: "+7 (910) 948 61 06",
-    },
-    areaServed: "RU",
+    provider: { "@type": "Organization", "@id": `${siteUrl}/#organization`, name: siteName, url: siteUrl },
+    areaServed: COMPANY.areaServed,
     hasOfferCatalog: {
       "@type": "OfferCatalog",
       name: "Типы сайтов",
-      itemListElement: [
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Лендинг" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Корпоративный сайт" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Интернет-магазин" } },
-        { "@type": "Offer", itemOffered: { "@type": "Service", name: "Инфо-портал / блог" } },
-      ],
+      itemListElement: SITE_OFFERS.map(([name, price]) => ({
+        "@type": "Offer",
+        itemOffered: { "@type": "Service", name },
+        priceCurrency: "RUB",
+        priceSpecification: { "@type": "PriceSpecification", minPrice: price, priceCurrency: "RUB" },
+      })),
     },
   };
 
@@ -112,6 +112,7 @@ export default function SitesPage() {
   const LD_ORG = {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${siteUrl}/#organization`,
     name: siteName,
     url: siteUrl,
     email: "info@onestack24.ru",
@@ -124,7 +125,7 @@ export default function SitesPage() {
         email: "info@onestack24.ru",
         telephone: "+7 (910) 948 61 06",
         availableLanguage: ["ru", "en"],
-        areaServed: ["RU", "KZ", "BY", "AM"],
+        areaServed: COMPANY.areaServed,
       },
     ],
   };

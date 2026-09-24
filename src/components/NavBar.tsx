@@ -23,6 +23,7 @@ const NAV_ITEMS = [
   { href: "/sites",  ru: "Сайты",          en: "Websites" },
   { href: "/webapp", ru: "Веб-приложения", en: "Web apps" },
   { href: "/mobile",   ru: "Мобильные",      en: "Mobile"   },
+  { href: "/ai",       ru: "AI и автоматизация", en: "AI & automation" },
 ] as const;
 
 const CONTACT_EMAIL = "info@onestack24.ru";

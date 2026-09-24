@@ -4,13 +4,12 @@ import { serif } from "@/lib/fonts";
 
 import React, { useEffect, useMemo, useState, useId } from "react";
 import { motion, useSpring, useTransform, useReducedMotion } from "framer-motion";
-import { MessageCircle, ArrowRight, Percent, Sparkles, Server } from "lucide-react";
+import { ArrowUpRight, Percent, Sparkles, Server } from "lucide-react";
 import { useQuote } from "@/app/context/QuoteContext";
 import { useI18n } from "@/i18n/I18nProvider";
 import { useMoney } from "@/lib/useMoney";
 
 
-const BG    = "#07100e";
 const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
 
@@ -21,23 +20,24 @@ type Speed       = "normal" | "fast";
 type Hosting     = "none" | "cloud" | "vps";
 type Support     = "none" | "basic" | "pro";
 
+// Тарифы 2026: −20% к прежним ставкам, база совпадает с ценами «от» на страницах.
 const PRICING = {
-  base:          { landing: 150_000, business: 81_000, corporate: 440_000, ecommerce: 725_000, content: 275_000, portfolio: 105_000 },
-  perPage:       { landing: 12_000,  business: 10_000,  corporate: 19_000,  ecommerce: 22_000,  content: 15_000,  portfolio: 10_000  },
+  base:          { landing: 120_000, business: 64_000, corporate: 336_000, ecommerce: 576_000, content: 224_000, portfolio: 96_000 },
+  perPage:       { landing: 9_500,  business: 8_000,  corporate: 15_000,  ecommerce: 17_500,  content: 12_000,  portfolio: 8_000  },
   includedPages: { landing: 4,       business: 6,       corporate: 10,      ecommerce: 10,      content: 12,      portfolio: 6       },
   design:        { basic: 1.0, pro: 1.18, brand: 1.38 },
-  seo:           { none: 0, lite: 50_000, pro: 120_000 },
+  seo:           { none: 0, lite: 40_000, pro: 96_000 },
   features: {
-    blog: 69_000, auth: 75_000, forms: 31_000, catalog: 105_000, payments: 88_000,
-    delivery: 69_000, crm: 81_000, search: 50_000, analytics: 25_000,
-    animation: 44_000, integrations: 56_000,
+    blog: 55_000, auth: 60_000, forms: 25_000, catalog: 84_000, payments: 70_500,
+    delivery: 55_000, crm: 65_000, search: 40_000, analytics: 20_000,
+    animation: 35_000, integrations: 45_000,
   },
   infra: {
-    hosting: { none: { monthly: 0, setup: 0 }, cloud: { monthly: 7_500, setup: 15_000 }, vps: { monthly: 5_000, setup: 22_000 } },
-    ci:      { monthly: 2_500, setup: 10_000 },
-    domains: { monthly: 500,   setup: 2_000  },
+    hosting: { none: { monthly: 0, setup: 0 }, cloud: { monthly: 6_000, setup: 12_000 }, vps: { monthly: 4_000, setup: 17_500 } },
+    ci:      { monthly: 2_000, setup: 8_000 },
+    domains: { monthly: 500,   setup: 1_500  },
   },
-  support:         { none: 0, basic: 18_000, pro: 44_000 },
+  support:         { none: 0, basic: 14_500, pro: 35_000 },
   speedMultiplier: { normal: 1.0, fast: 1.22 },
   discount:        { ecommerceKit: 0.92 },
 } as const;
@@ -130,14 +130,7 @@ export default function SiteCalculator() {
   const { setQuote } = useQuote();
   const reduced   = useReducedMotion();
   const titleId   = useId();
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 1024);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
 
   const [kind,         setKind]         = useState<SiteKind>("business");
   const [pages,        setPages]        = useState(8);
@@ -158,6 +151,7 @@ export default function SiteCalculator() {
   const [hosting,      setHosting]      = useState<Hosting>("cloud");
   const [useCI,        setUseCI]        = useState(true);
   const [support,      setSupport]      = useState<Support>("basic");
+  const [ai,           setAi]           = useState(false);
 
   /* Autosave */
   useEffect(() => {
@@ -172,7 +166,7 @@ export default function SiteCalculator() {
       setCrm(!!s.crm); setSearch(s.search ?? true); setAnalytics(s.analytics ?? true);
       setAnimation(!!s.animation); setIntegrations(!!s.integrations);
       setSeo(s.seo ?? "lite"); setHosting(s.hosting ?? "cloud");
-      setUseCI(s.useCI ?? true); setSupport(s.support ?? "basic");
+      setUseCI(s.useCI ?? true); setSupport(s.support ?? "basic"); setAi(!!s.ai);
     } catch {}
   }, []);
 
@@ -180,11 +174,11 @@ export default function SiteCalculator() {
     try {
       localStorage.setItem("site_calc_v1", JSON.stringify({
         kind, pages, design, speed, blog, auth, forms, catalog, payments, delivery,
-        crm, search, analytics, animation, integrations, seo, hosting, useCI, support,
+        crm, search, analytics, animation, integrations, seo, hosting, useCI, support, ai,
       }));
     } catch {}
   }, [kind, pages, design, speed, blog, auth, forms, catalog, payments, delivery,
-    crm, search, analytics, animation, integrations, seo, hosting, useCI, support]);
+    crm, search, analytics, animation, integrations, seo, hosting, useCI, support, ai]);
 
   /* Listen for prefill from configurator */
   useEffect(() => {
@@ -201,6 +195,7 @@ export default function SiteCalculator() {
       if (s.hosting) setHosting(s.hosting as Hosting);
       setUseCI(s.useCI !== false);
       if (s.support) setSupport(s.support as Support);
+      setAi(!!s.ai);
     };
     const handler = (e: Event) => apply((e as CustomEvent).detail);
     window.addEventListener("calc-prefill", handler);
@@ -248,24 +243,24 @@ export default function SiteCalculator() {
     setBlog(false); setAuth(false); setForms(true); setCatalog(false); setPayments(false);
     setDelivery(false); setCrm(false); setSearch(true); setAnalytics(true);
     setAnimation(false); setIntegrations(false);
-    setSeo("lite"); setHosting("cloud"); setUseCI(true); setSupport("basic");
+    setSeo("lite"); setHosting("cloud"); setUseCI(true); setSupport("basic"); setAi(false);
   };
 
   const selectedFeatures = (isEn ? [
     forms && "Forms", blog && "Blog", auth && "User account", catalog && "Catalog",
     payments && "Payments", delivery && "Delivery", crm && "CRM", search && "Search",
-    analytics && "Analytics", animation && "Animations", integrations && "Integrations",
+    analytics && "Analytics", animation && "Animations", integrations && "Integrations", ai && "AI",
   ] : [
     forms && "Формы", blog && "Блог", auth && "Кабинет", catalog && "Каталог",
     payments && "Оплата", delivery && "Доставка", crm && "CRM", search && "Поиск",
-    analytics && "Аналитика", animation && "Анимации", integrations && "Интеграции",
+    analytics && "Аналитика", animation && "Анимации", integrations && "Интеграции", ai && "AI",
   ]).filter(Boolean) as string[];
 
   const goToContact = () => {
     setQuote?.({
       source: "sites-calculator",
       createdAt: new Date().toISOString(),
-      kind, pages, design, seo, hosting, support, speed,
+      kind, pages, design, seo, hosting, support, speed, ai,
       oneOff: result.oneOff, monthly: result.monthly,
       breakdown: {
         base: result.breakdown.base, pagesCost: result.breakdown.pagesCost,
@@ -278,16 +273,6 @@ export default function SiteCalculator() {
     // прокрутка к #contact на странице больше ни к чему не привела бы.
     window.dispatchEvent(new CustomEvent("site-open-section", { detail: "contact" }));
   };
-
-  const structuredData = useMemo(() => ({
-    "@context": "https://schema.org", "@type": "Service",
-    name: isEn ? `Cost calculator for ${mapKind(kind, true).toLowerCase()} development` : `Калькулятор стоимости разработки ${mapKind(kind).toLowerCase()}`,
-    provider: { "@type": "Organization", name: "OneStack", url: "https://onestack24.ru" },
-    offers: [
-      { "@type": "Offer", priceCurrency: "RUB", price: result.oneOff,  category: "Разработка"   },
-      { "@type": "Offer", priceCurrency: "RUB", price: result.monthly, category: "Обслуживание" },
-    ],
-  }), [kind, result.oneOff, result.monthly, isEn]);
 
   const fadeUp = (d = 0) => reduced ? {} : {
     initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 },
@@ -302,63 +287,33 @@ export default function SiteCalculator() {
 
   return (
     <>
-      <script id="ld-sites-calc" type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
-      <section
-        id="calculator"
-        aria-labelledby={titleId}
-        style={{ background: BG, borderTop: "1px solid rgba(255,255,255,0.06)", position: "relative", overflow: "hidden" }}
-      >
-        {/* Ambient glow */}
-        <div aria-hidden style={{
-          pointerEvents: "none", position: "absolute", bottom: -160, left: -160,
-          width: 500, height: 500, borderRadius: "50%",
-          background: TEAL, opacity: 0.06, willChange: "transform", transform: "translateZ(0)", filter: "blur(160px)",
-        }} />
+      <section id="calculator" aria-labelledby={titleId} className="site-types">
+        <div className="site-types__inner">
 
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: isMobile ? "0 20px" : "0 40px", position: "relative", zIndex: 1 }}>
-
-          {/* ── Header ── */}
-          <motion.div {...(fadeUp(0) as object)} style={{ padding: isMobile ? "80px 0 60px" : "110px 0 72px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-              <div style={{ height: 2, width: 20, background: TEAL, borderRadius: 2, flexShrink: 0 }} />
-              <span style={{ fontSize: 13, letterSpacing: "0.22em", textTransform: "uppercase", fontWeight: 500, color: TEAL }}>
-                {isEn ? "Cost calculator" : "Калькулятор стоимости"}
-              </span>
+          <motion.div {...(fadeUp(0) as object)} className="site-types__head">
+            <div>
+              <p className="service-eyebrow">{isEn ? "04 / Calculator" : "04 / Калькулятор"}</p>
+              <h2 id={titleId} className={`${serif.className} site-types__title`}>
+                {isEn ? <>Cost estimate<br />for your website</> : <>Расчёт стоимости<br />вашего сайта</>}
+              </h2>
             </div>
-            <h2
-              id={titleId}
-              className={serif.className}
-              style={{ margin: "0 0 16px", fontWeight: 400, lineHeight: 0.92, letterSpacing: "-0.04em" }}
-            >
-              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: TEAL }}>
-                {isEn ? "Cost estimate" : "Расчёт стоимости"}
-              </span>
-              <span style={{ display: "block", fontSize: "clamp(2.4rem, 6vw, 6rem)", color: WHITE }}>
-                {isEn ? "for your website" : "вашего сайта"}
-              </span>
-            </h2>
-            <p style={{ margin: 0, fontSize: 16, lineHeight: 1.7, color: "rgba(244,250,248,0.4)", maxWidth: 520 }}>
+            <p className="site-types__sub">
               {isEn
-                ? "Configure the parameters for your task — get a preliminary estimate. The exact cost is finalised after the brief."
-                : "Настройте параметры под вашу задачу — получите предварительную смету. Точную стоимость финализируем после брифа."}
+                ? "Configure the parameters — get a preliminary estimate. The exact cost is fixed after the brief."
+                : "Настройте параметры — получите предварительную смету. Точную стоимость зафиксируем после брифа."}
             </p>
           </motion.div>
 
           {/* ── Main grid ── */}
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1fr 300px",
-            gap: isMobile ? 0 : 40,
-            alignItems: "start",
+          <div className="calc-grid" style={{
             borderTop: "1px solid rgba(255,255,255,0.06)",
           }}>
 
             {/* Left: controls */}
             <motion.div
               {...(fadeUp(0.05) as object)}
-              style={{ borderRight: isMobile ? "none" : "1px solid rgba(255,255,255,0.06)", paddingRight: isMobile ? 0 : 40 }}
+              className="calc-controls"
             >
 
               {/* 01 Presets */}
@@ -395,8 +350,8 @@ export default function SiteCalculator() {
               {/* 02 Site type */}
               <div style={sectionRow}>
                 <FigLabel num="02" label={isEn ? "Site type" : "Тип сайта"} />
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : "repeat(3, 1fr)", gap: 8 }}>
-                  {(isEn ? [
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 10 }}>
+                  {((isEn ? [
                     ["landing",   "Landing page",  "Single-page"],
                     ["business",  "Business card", "Small business"],
                     ["corporate", "Corporate",     "B2B companies"],
@@ -410,7 +365,7 @@ export default function SiteCalculator() {
                     ["ecommerce", "Интернет-магазин",  "Каталог + оплата"],
                     ["content",   "Информационный",   "Контент/медиа"],
                     ["portfolio", "Портфолио",        "Эксперты/студии"],
-                  ] as [SiteKind, string, string][]).map(([k, t, d]) => (
+                  ]) as [SiteKind, string, string][]).map(([k, t, d]) => (
                     <CalcChip key={k} active={kind === k} onClick={() => setKind(k)} title={t} desc={d} />
                   ))}
                 </div>
@@ -419,7 +374,7 @@ export default function SiteCalculator() {
               {/* 03 Pages + Design */}
               <div style={sectionRow}>
                 <FigLabel num="03" label={isEn ? "Scope & design" : "Объём и дизайн"} />
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 28 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 28 }}>
                   <div>
                     <SubLabel label={isEn ? `Pages: ${pages} (base ${PRICING.includedPages[kind]})` : `Страниц: ${pages} (базовых ${PRICING.includedPages[kind]})`} />
                     <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 10 }}>
@@ -438,7 +393,7 @@ export default function SiteCalculator() {
                   <div>
                     <SubLabel label={isEn ? "Design level" : "Уровень дизайна"} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
-                      {(isEn ? [["basic","Basic","Standard"],["pro","Pro","Custom UX"],["brand","Premium","Exclusive"]] : [["basic","Базовый","Стандартный"],["pro","Pro","Кастомный UX"],["brand","Премиум","Эксклюзивный"]] as [DesignLevel,string,string][]).map(([k,t,d]) => (
+                      {((isEn ? [["basic","Basic","Standard"],["pro","Pro","Custom UX"],["brand","Premium","Exclusive"]] : [["basic","Базовый","Стандартный"],["pro","Pro","Кастомный UX"],["brand","Премиум","Эксклюзивный"]]) as [DesignLevel,string,string][]).map(([k,t,d]) => (
                         <CalcChip key={k} active={design === k} onClick={() => setDesign(k)} title={t} desc={d} />
                       ))}
                     </div>
@@ -466,6 +421,7 @@ export default function SiteCalculator() {
                     <CalcToggle label={isEn ? "Analytics"     : "Аналитика"}    value={analytics}    onChange={setAnalytics}    desc="GA4" />
                     <CalcToggle label={isEn ? "Animations"    : "Анимации"}     value={animation}    onChange={setAnimation}    desc="Motion" />
                     <CalcToggle label={isEn ? "Integrations"  : "Интеграции"}   value={integrations} onChange={setIntegrations} desc="API" />
+                    <CalcToggle label={isEn ? "AI assistant"  : "AI-ассистент"} value={ai}           onChange={setAi}           desc={isEn ? "Priced on request" : "По запросу"} />
                   </ToggleSect>
                 </div>
               </div>
@@ -473,11 +429,11 @@ export default function SiteCalculator() {
               {/* 05 Infrastructure */}
               <div style={{ ...sectionRow, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
                 <FigLabel num="05" label={isEn ? "Infrastructure" : "Инфраструктура"} />
-                <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)", gap: 20 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 20 }}>
                   <div>
                     <SubLabel label={isEn ? "Hosting" : "Хостинг"} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                      {(isEn ? [["cloud","Cloud","Auto-scale"],["vps","VPS","Control"],["none","Own",""]] : [["cloud","Облако","Автоскейлинг"],["vps","VPS","Контроль"],["none","Своя",""]] as [Hosting,string,string][]).map(([v,t,d]) => (
+                      {((isEn ? [["cloud","Cloud","Auto-scale"],["vps","VPS","Control"],["none","Own",""]] : [["cloud","Облако","Автоскейлинг"],["vps","VPS","Контроль"],["none","Своя",""]]) as [Hosting,string,string][]).map(([v,t,d]) => (
                         <CalcChip key={v} active={hosting===v} onClick={() => setHosting(v)} title={t} desc={d} />
                       ))}
                     </div>
@@ -488,7 +444,7 @@ export default function SiteCalculator() {
                   <div>
                     <SubLabel label="SEO" />
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                      {(isEn ? [["none","No SEO",""],["lite","Basic","Checklist"],["pro","Pro","Extended"]] : [["none","Без SEO",""],["lite","Базовое","Чек-лист"],["pro","Pro","Расширенный"]] as ["none"|"lite"|"pro",string,string][]).map(([v,t,d]) => (
+                      {((isEn ? [["none","No SEO",""],["lite","Basic","Checklist"],["pro","Pro","Extended"]] : [["none","Без SEO",""],["lite","Базовое","Чек-лист"],["pro","Pro","Расширенный"]]) as ["none"|"lite"|"pro",string,string][]).map(([v,t,d]) => (
                         <CalcChip key={v} active={seo===v} onClick={() => setSeo(v)} title={t} desc={d} />
                       ))}
                     </div>
@@ -496,7 +452,7 @@ export default function SiteCalculator() {
                   <div>
                     <SubLabel label={isEn ? "Support" : "Поддержка"} />
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 8 }}>
-                      {(isEn ? [["none","None",""],["basic","Basic","Patches"],["pro","Pro","SLA"]] : [["none","Без поддержки",""],["basic","Базовая","Патчи"],["pro","Pro","SLA"]] as [Support,string,string][]).map(([v,t,d]) => (
+                      {((isEn ? [["none","None",""],["basic","Basic","Patches"],["pro","Pro","SLA"]] : [["none","Без поддержки",""],["basic","Базовая","Патчи"],["pro","Pro","SLA"]]) as [Support,string,string][]).map(([v,t,d]) => (
                         <CalcChip key={v} active={support===v} onClick={() => setSupport(v)} title={t} desc={d} />
                       ))}
                     </div>
@@ -520,7 +476,7 @@ export default function SiteCalculator() {
             {/* Right: result panel */}
             <motion.div
               {...(fadeUp(0.1) as object)}
-              style={{ position: isMobile ? "static" : "sticky", top: 88, paddingTop: isMobile ? 24 : 36, paddingBottom: 36 }}
+              className="calc-panel"
             >
               <FigLabel num="EST" label={isEn ? "Estimate" : "Смета"} />
 
@@ -631,6 +587,11 @@ export default function SiteCalculator() {
                     <div className={serif.className} style={{ fontSize: 34, color: TEAL, lineHeight: 1 }}>
                       <CountUp value={amount(result.oneOff)} lang={isEn ? "en" : "ru"} />
                     </div>
+                    {ai && (
+                      <div style={{ fontSize: 13, color: "rgba(244,250,248,0.55)", marginTop: 8 }}>
+                        {isEn ? "+ AI assistant — priced on request" : "+ AI-ассистент — по запросу"}
+                      </div>
+                    )}
                   </div>
                   <div style={{ borderRadius: 10, padding: "12px 16px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
@@ -647,18 +608,9 @@ export default function SiteCalculator() {
 
                 {/* CTA */}
                 <div style={{ padding: "14px 18px" }}>
-                  <button onClick={goToContact}
-                    style={{
-                      width: "100%", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                      borderRadius: 99, padding: "12px 20px", border: "none", cursor: "pointer",
-                      background: TEAL, color: BG, fontSize: 15, fontWeight: 600, transition: "opacity 0.15s",
-                    }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.opacity = "0.88"}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.opacity = "1"}
-                  >
-                    <MessageCircle size={14} />
+                  <button type="button" onClick={goToContact} className="service-button service-button--primary" style={{ width: "100%" }}>
                     {isEn ? "Discuss the project" : "Обсудить проект"}
-                    <ArrowRight size={13} />
+                    <ArrowUpRight size={18} aria-hidden="true" />
                   </button>
                   <p style={{ margin: "10px 0 0", fontSize: 12, color: "rgba(244,250,248,0.2)", textAlign: "center", lineHeight: 1.5 }}>
                     {isEn ? "* Preliminary estimate" : "* Расчёт предварительный"}
@@ -668,7 +620,6 @@ export default function SiteCalculator() {
             </motion.div>
           </div>
 
-          <div style={{ height: isMobile ? 80 : 110 }} />
         </div>
       </section>
     </>
@@ -679,8 +630,8 @@ export default function SiteCalculator() {
 function FigLabel({ num, label }: { num: string; label: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-      <span style={{ fontFamily: "monospace", fontSize: 12, color: TEAL, opacity: 0.7, letterSpacing: "0.06em" }}>{num}</span>
-      <span style={{ fontSize: 12, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.32)", fontWeight: 500 }}>{label}</span>
+      <span style={{ fontFamily: "var(--font-geist-mono), monospace", fontSize: 13, color: TEAL, opacity: 0.7, letterSpacing: "0.06em" }}>{num}</span>
+      <span style={{ fontSize: 13, letterSpacing: "0.18em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.4)", fontWeight: 500 }}>{label}</span>
     </div>
   );
 }
@@ -697,15 +648,15 @@ function CalcChip({ active, onClick, title, desc }: { active: boolean; onClick: 
   return (
     <button onClick={onClick} type="button"
       style={{
-        textAlign: "left", borderRadius: 8, padding: "9px 11px", cursor: "pointer",
+        textAlign: "left", borderRadius: 10, padding: "12px 14px", cursor: "pointer",
         border: "none", transition: "all 0.15s", width: "100%",
         background: active ? `${TEAL}15` : "rgba(255,255,255,0.02)",
         outline: active ? `1px solid ${TEAL}` : "1px solid rgba(255,255,255,0.07)",
         color: active ? WHITE : "rgba(244,250,248,0.55)",
       }}
     >
-      <div style={{ fontSize: 13, fontWeight: 600 }}>{title}</div>
-      {desc && <div style={{ fontSize: 12, opacity: 0.5, marginTop: 1 }}>{desc}</div>}
+      <div style={{ fontSize: 15, fontWeight: 600 }}>{title}</div>
+      {desc && <div style={{ fontSize: 13, opacity: 0.55, marginTop: 2 }}>{desc}</div>}
     </button>
   );
 }
@@ -716,7 +667,7 @@ function ToggleSect({ label, children }: { label: string; children: React.ReactN
       <div style={{ fontSize: 12, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase" as const, color: "rgba(244,250,248,0.28)", marginBottom: 8 }}>
         {label}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 6 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 8 }}>
         {children}
       </div>
     </div>
@@ -728,7 +679,7 @@ function CalcToggle({ label, value, onChange, desc }: { label: string; value: bo
     <button onClick={() => onChange(!value)} type="button"
       style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
-        borderRadius: 8, padding: "9px 11px", cursor: "pointer",
+        borderRadius: 10, padding: "12px 14px", cursor: "pointer",
         border: "none", transition: "all 0.15s",
         background: value ? `${TEAL}12` : "rgba(255,255,255,0.02)",
         outline: value ? `1px solid ${TEAL}45` : "1px solid rgba(255,255,255,0.07)",
@@ -736,8 +687,8 @@ function CalcToggle({ label, value, onChange, desc }: { label: string; value: bo
       }}
     >
       <div style={{ textAlign: "left" }}>
-        <div style={{ fontSize: 13, fontWeight: 500 }}>{label}</div>
-        {desc && <div style={{ fontSize: 12, opacity: 0.5, marginTop: 1 }}>{desc}</div>}
+        <div style={{ fontSize: 15, fontWeight: 500 }}>{label}</div>
+        {desc && <div style={{ fontSize: 13, opacity: 0.55, marginTop: 2 }}>{desc}</div>}
       </div>
       <span style={{
         display: "inline-flex", alignItems: "center",

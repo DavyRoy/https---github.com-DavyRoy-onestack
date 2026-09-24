@@ -18,6 +18,7 @@ declare global {
           user?: { id: number; first_name: string; last_name?: string; username?: string };
         };
         initData: string;
+        version?: string;
         colorScheme: "light" | "dark";
         themeParams: Record<string, string>;
         MainButton: {
@@ -65,7 +66,7 @@ type Lang = "ru" | "en";
 
 const T = {
   ru: {
-    tagline: "150+ проектов · 4 года на рынке · 98% в срок",
+    tagline: "150+ проектов · 6 лет на рынке · 98% в срок",
     heading1: "Разработка",
     heading2: "цифровых продуктов",
     back: "← Назад",
@@ -95,7 +96,7 @@ const T = {
     onRequest: "по запросу",
   },
   en: {
-    tagline: "150+ projects · 4 years · 98% on time",
+    tagline: "150+ projects · 6 years · 98% on time",
     heading1: "Building",
     heading2: "digital products",
     back: "← Back",

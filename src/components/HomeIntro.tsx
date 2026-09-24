@@ -6,6 +6,7 @@ import {
   useMotionValue, useSpring,
 } from "framer-motion";
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 import { useRef, useMemo, useId, useEffect, useState, useCallback } from "react";
 import { siteName, siteUrl } from "@/app/seo.config";
 import { useI18n } from "@/i18n/I18nProvider";
@@ -14,16 +15,15 @@ import { useEnterTransition } from "@/lib/useEnterTransition";
 /* ─── Font ──────────────────────────────────────────────────────────────── */
 
 /* ─── Palette ────────────────────────────────────────────────────────────── */
-const BG    = "#07100e";
 const TEAL  = "#2dd4bf";
 const WHITE = "#f4faf8";
 
 /* ─── Copy ───────────────────────────────────────────────────────────────── */
 const COPY = {
   ru: {
-    tag:      "Технологический партнёр · с 2021",
+    tag:      "Технологический партнёр · с 2020",
     headline: "Одна экосистема для вашего бизнеса",
-    sub:   "Сайты, веб- и мобильные приложения с фиксированной ценой, спринтами 1–2 недели и поддержкой после запуска.",
+    sub:   "Сайты, веб- и мобильные приложения, внедрение ИИ — под ключ. Смета фиксируется до старта, демо каждые 1–2 недели, поддержка после запуска.",
     cta1:  "Обсудить проект",
     cta2:  "Наши работы",
     more:  "Подробнее",
@@ -38,13 +38,14 @@ const COPY = {
       { name: "Сайты",          href: "#sites",    num: "01" },
       { name: "Веб-приложения", href: "#webapp",   num: "02" },
       { name: "Мобильные",      href: "#mobile",   num: "03" },
-      { name: "Оставить заявку", href: "#contact", num: "04" },
+      { name: "AI и автоматизация", href: "#ai",   num: "04" },
+      { name: "Оставить заявку", href: "#contact", num: "05" },
     ],
   },
   en: {
-    tag:      "Technology partner · since 2021",
+    tag:      "Technology partner · since 2020",
     headline: "One ecosystem for your business",
-    sub:   "Websites, web & mobile apps with fixed price, 1–2 week sprints and post-launch support.",
+    sub:   "Websites, web and mobile apps, AI implementation — turnkey. Fixed quote before we start, demos every 1–2 weeks, support after launch.",
     cta1:  "Discuss project",
     cta2:  "Our works",
     more:  "Learn more",
@@ -54,7 +55,8 @@ const COPY = {
       { name: "Websites",     href: "#sites",    num: "01" },
       { name: "Web apps",     href: "#webapp",   num: "02" },
       { name: "Mobile",       href: "#mobile",   num: "03" },
-      { name: "Get in touch", href: "#contact",  num: "04" },
+      { name: "AI & automation", href: "#ai",    num: "04" },
+      { name: "Get in touch", href: "#contact",  num: "05" },
     ],
   },
 } as const;
@@ -175,20 +177,20 @@ export default function HomeIntro() {
 
         {/* Ambient glow top-right */}
         <motion.div
-          className="pointer-events-none absolute -top-32 -right-32 rounded-full blur-[180px]"
-          style={{ width: 600, height: 600, background: TEAL, opacity: 0.09 }}
-          animate={reduced ? undefined : { scale: [1, 1.12, 1], opacity: [0.09, 0.13, 0.09] }}
+          className="pointer-events-none absolute -top-64 -right-64"
+          style={{ width: 1000, height: 1000, background: "radial-gradient(circle closest-side, rgba(45,212,191,0.11), rgba(45,212,191,0.04) 50%, transparent)" }}
+          animate={reduced ? undefined : { scale: [1, 1.08, 1], opacity: [1, 0.8, 1] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           aria-hidden="true"
         />
         {/* Ambient glow bottom-left */}
-        <div className="pointer-events-none absolute -bottom-20 -left-20 rounded-full blur-[160px]"
-          style={{ width: 500, height: 500, background: TEAL, opacity: 0.05 }} aria-hidden="true" />
+        <div className="pointer-events-none absolute -bottom-64 -left-64"
+          style={{ width: 900, height: 900, background: "radial-gradient(circle closest-side, rgba(45,212,191,0.06), rgba(45,212,191,0.025) 50%, transparent)" }} aria-hidden="true" />
 
         {/* ── Content ── */}
         <motion.div
           style={reduced ? undefined : { y: contentY }}
-          className="relative z-10 flex flex-1 flex-col justify-between mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-14 pt-24 sm:pt-28 lg:pt-16 pb-0"
+          className="relative z-10 flex flex-1 flex-col justify-between mx-auto w-full max-w-[1280px] px-5 md:px-10 pt-24 sm:pt-28 lg:pt-16 pb-0"
         >
           {/* ── Top tag ── */}
           <motion.div
@@ -239,20 +241,14 @@ export default function HomeIntro() {
                 </p>
                 <div className="flex flex-wrap gap-3">
                   <Link href={localizePath("/#contact")}
-                    className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-full px-7 py-3 text-sm font-semibold transition-transform duration-300 hover:scale-[1.03] focus:outline-none"
-                    style={{ background: TEAL, color: BG }}>
+                    className="service-button service-button--primary group relative overflow-hidden">
                     <motion.span
                       className="pointer-events-none absolute inset-0"
                       style={{ background: "linear-gradient(105deg,transparent 38%,rgba(255,255,255,0.28) 50%,transparent 62%)" }}
                       initial={{ x: "-100%" }} whileHover={{ x: "100%" }}
                       transition={{ duration: 0.45 }} aria-hidden="true" />
                     <span className="relative z-10">{c.cta1}</span>
-                    <motion.svg width="13" height="13" viewBox="0 0 13 13" fill="none"
-                      className="relative z-10"
-                      animate={reduced ? undefined : { x: [0,3,0] }}
-                      transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}>
-                      <path d="M1.5 6.5h10M7.5 2.5l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </motion.svg>
+                    <ArrowUpRight size={18} className="relative z-10" aria-hidden="true" />
                   </Link>
                 </div>
               </div>
